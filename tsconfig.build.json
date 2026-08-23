@@ -1,0 +1,21 @@
+{
+  "//": "Preview-only build. Extends the authoritative strict config so type",
+  "//2": "semantics are identical, and overrides ONLY what single-file bundling",
+  "//3": "needs: emit one SystemJS file that a ~40-line hand-written runtime loads",
+  "//4": "in the browser (no bundler, fully offline). Strict `tsc --noEmit` stays",
+  "//5": "the source of truth for typechecking.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "system",
+    "moduleResolution": "node",
+    "outFile": "dist/app.system.js",
+    "rootDir": "src",
+    "verbatimModuleSyntax": false,
+    "isolatedModules": false,
+    "ignoreDeprecations": "6.0",
+    "removeComments": true,
+    "noEmit": false
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "src/testing"]
+}

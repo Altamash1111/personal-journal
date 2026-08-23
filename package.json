@@ -1,0 +1,20 @@
+{
+  "name": "personal-life-os",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-first, offline personal life operating system: typed domain models, pure business logic, versioned local persistence with migration + export/import, and a dark-first UI (Today dashboard + Fitness, Diet, Sleep, Routines, Reading, Goals, Tasks, Projects, Daily Review, Settings). Zero runtime dependencies.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test \"src/**/*.test.ts\"",
+    "test:watch": "node --import tsx --test --watch \"src/**/*.test.ts\"",
+    "build:preview": "node scripts/build-preview.mjs",
+    "smoke": "node scripts/smoke-browser.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
