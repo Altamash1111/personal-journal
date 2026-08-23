@@ -42,47 +42,55 @@ const priorityOptions = ["none", "low", "medium", "high", "urgent"].map((x) => (
 
 // ============================ Goals ============================
 
-export const renderGoals = (v: GoalsView): HTMLElement => {
+export const renderGoals = (
+  v: GoalsView,
+  expanded: ReadonlySet<string>,
+): HTMLElement => {
   const root = h("div", { class: "dash module" });
   root.appendChild(pageHead("Goals", "Vision → year → quarter → month → week, with milestones."));
   const grid = h("div", { class: "grid" });
 
-  const goalCard = (g: GoalsView["goals"][number]): HTMLElement =>
-    h(
-      "div",
-      { class: `goal-node depth-${Math.min(g.depth, 4)}` },
+  const goalCard = (g: GoalsView["goals"][number]): HTMLElement => {
+    const isOpen = expanded.has(g.id);
+    const doneCount = g.milestones.filter((m) => m.done).length;
+    const total = g.milestones.length;
+
+    // Compact summary — always visible, and the whole header toggles open/closed.
+    const summary = h(
+      "button",
+      {
+        class: "goal-summary",
+        "data-action": "toggle-goal",
+        "data-id": g.id,
+        "aria-expanded": isOpen ? "true" : "false",
+      },
       h(
         "div",
-        { class: "goal-head" },
+        { class: "goal-summary-top" },
+        h("span", { class: "chevron" }, isOpen ? "▾" : "▸"),
         h("span", { class: "pill" }, g.horizon),
-        h("span", { class: "row-title" }, g.name),
-        g.status !== "active" ? h("span", { class: "pill" }, titleCase(g.status)) : null,
-        h("span", { class: "goal-actions" },
-          h("button", { class: "btn btn-ghost btn-sm", "data-action": "delete-goal", "data-id": g.id }, "✕"),
-        ),
+        h("span", { class: "goal-title" }, g.name),
+        g.status !== "active" ? h("span", { class: `pill status-${g.status}` }, titleCase(g.status)) : null,
+        h("span", { class: "goal-summary-pct mono" }, `${pct(g.progress)}%`),
       ),
+      bar(g.progress),
       h(
         "div",
-        { class: "prog" },
-        h(
-          "div",
-          { class: "prog-head" },
-          h("span", { class: "mono" }, g.metricLabel ?? (g.milestones.length > 0 ? `${g.milestones.filter((m) => m.done).length}/${g.milestones.length} milestones` : "—")),
-          h("span", { class: "mono" }, `${pct(g.progress)}%`),
-        ),
-        bar(g.progress),
+        { class: "goal-summary-meta" },
+        g.metricLabel !== null ? h("span", { class: "mono" }, g.metricLabel) : null,
+        total > 0 ? h("span", { class: "mono muted-inline" }, `${doneCount} / ${total} milestones`) : null,
       ),
-      // metric quick-update (only when the goal has a numeric metric)
-      g.hasMetric
-        ? form(
-            "goal-metric",
-            [field("Update progress", "current", { type: "number", placeholder: String(g.metricCurrent ?? 0) })],
-            "Save",
-            { "data-id": g.id },
-          )
-        : null,
-      // milestones
-      g.milestones.length > 0
+    );
+
+    if (!isOpen) {
+      return h("div", { class: "goal-node", "data-goal-card": g.id }, summary);
+    }
+
+    // Expanded details — controls appear only when the goal is open.
+    const details = h(
+      "div",
+      { class: "goal-details" },
+      total > 0
         ? h(
             "div",
             { class: "milestones" },
@@ -102,11 +110,26 @@ export const renderGoals = (v: GoalsView): HTMLElement => {
               ),
             ),
           )
-        : null,
+        : emptyLine("No milestones yet — break this goal into concrete steps."),
       form("add-milestone", [field("New milestone", "title", { placeholder: "A concrete step" })], "Add milestone", { "data-id": g.id }),
-      // status control
-      form("goal-status", [selectField("Status", "status", statusOptions, g.status)], "Set status", { "data-id": g.id }),
+      h("div", { class: "goal-controls" },
+        g.hasMetric
+          ? form(
+              "goal-metric",
+              [field("Update progress", "current", { type: "number", placeholder: String(g.metricCurrent ?? 0) })],
+              "Save",
+              { "data-id": g.id },
+            )
+          : null,
+        form("goal-status", [selectField("Status", "status", statusOptions, g.status)], "Set status", { "data-id": g.id }),
+      ),
+      h("div", { class: "goal-danger" },
+        h("button", { class: "btn btn-ghost btn-sm", "data-action": "delete-goal", "data-id": g.id }, "Delete goal"),
+      ),
     );
+
+    return h("div", { class: "goal-node is-open", "data-goal-card": g.id }, summary, details);
+  };
 
   grid.appendChild(
     card(

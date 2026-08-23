@@ -201,6 +201,9 @@ const start = (): void => {
   let quickKind: QuickAddKind = "task";
   let route: Route = "today";
   let taskFilter: TaskBucket = "today";
+  const expandedGoals = new Set<string>();
+  let flashGoalId: string | null = null;
+  let scrollGoalId: string | null = null;
 
   const applyTheme = (): void => {
     const effective = resolveTheme(themeChoice, systemPrefersDark());
@@ -331,7 +334,7 @@ const start = (): void => {
       case "reading":
         return renderReading(controller.readingView());
       case "goals":
-        return renderGoals(controller.goalsView());
+        return renderGoals(controller.goalsView(), expandedGoals);
       case "tasks":
         return renderTasks(controller.tasksView(), taskFilter);
       case "projects":
@@ -351,6 +354,21 @@ const start = (): void => {
 
   const rerender = (): void => {
     mount(contentHost, renderRoute());
+    // Post-render goal affordances: scroll a freshly-opened goal into view, and
+    // briefly flash a goal that was just edited so the save is unmistakable.
+    if (scrollGoalId !== null) {
+      const el = contentHost.querySelector(`[data-goal-card="${scrollGoalId}"]`);
+      if (el instanceof HTMLElement) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      scrollGoalId = null;
+    }
+    if (flashGoalId !== null) {
+      const el = contentHost.querySelector(`[data-goal-card="${flashGoalId}"]`);
+      if (el instanceof HTMLElement) {
+        el.classList.add("just-saved");
+        window.setTimeout(() => el.classList.remove("just-saved"), 900);
+      }
+      flashGoalId = null;
+    }
   };
 
   const submitQuickAdd = (): void => {
@@ -533,17 +551,31 @@ const start = (): void => {
       }
       case "goal-metric": {
         const cur = numOrNull(f["current"]);
-        if (cur !== null) void controller.setGoalMetricCurrent(idAttr("data-id") as GoalId, cur);
+        if (cur !== null) {
+          const gid = idAttr("data-id");
+          flashGoalId = gid;
+          expandedGoals.add(gid);
+          void controller.setGoalMetricCurrent(gid as GoalId, cur);
+        }
         break;
       }
       case "add-milestone": {
         const title = strOrNull(f["title"]);
-        if (title !== null) void controller.addMilestoneTo(idAttr("data-id") as GoalId, title);
+        if (title !== null) {
+          const gid = idAttr("data-id");
+          flashGoalId = gid;
+          expandedGoals.add(gid);
+          void controller.addMilestoneTo(gid as GoalId, title);
+        }
         break;
       }
-      case "goal-status":
-        void controller.setGoalStatus(idAttr("data-id") as GoalId, (f["status"] as GoalStatus) || "active");
+      case "goal-status": {
+        const gid = idAttr("data-id");
+        flashGoalId = gid;
+        expandedGoals.add(gid);
+        void controller.setGoalStatus(gid as GoalId, (f["status"] as GoalStatus) || "active");
         break;
+      }
       // Tasks
       case "add-task-full": {
         const title = strOrNull(f["title"]);
@@ -668,6 +700,28 @@ const start = (): void => {
       case "form-submit":
         submitClosestForm(actionEl);
         break;
+      case "open-goal": {
+        // From the Today Goals card: jump to Goals and open that goal.
+        const gid = actionEl.getAttribute("data-id");
+        if (gid) {
+          route = "goals";
+          expandedGoals.add(gid);
+          scrollGoalId = gid;
+          refreshNav();
+          rerender();
+          root.classList.remove("sidebar-open");
+        }
+        break;
+      }
+      case "toggle-goal": {
+        const gid = actionEl.getAttribute("data-id");
+        if (gid) {
+          if (expandedGoals.has(gid)) expandedGoals.delete(gid);
+          else expandedGoals.add(gid);
+          rerender();
+        }
+        break;
+      }
       case "qa-kind": {
         const k = actionEl.getAttribute("data-kind");
         if (k === "task" || k === "habit") {
@@ -732,16 +786,26 @@ const start = (): void => {
         break;
       }
       case "delete-goal":
-        if (id) void controller.deleteGoal(id as GoalId);
+        if (id) {
+          expandedGoals.delete(id);
+          void controller.deleteGoal(id as GoalId);
+        }
         break;
       case "toggle-milestone": {
         const ms = actionEl.getAttribute("data-ms");
-        if (id && ms) void controller.toggleMilestone(id as GoalId, ms as MilestoneId);
+        if (id && ms) {
+          flashGoalId = id;
+          expandedGoals.add(id);
+          void controller.toggleMilestone(id as GoalId, ms as MilestoneId);
+        }
         break;
       }
       case "delete-milestone": {
         const ms = actionEl.getAttribute("data-ms");
-        if (id && ms) void controller.deleteMilestone(id as GoalId, ms as MilestoneId);
+        if (id && ms) {
+          expandedGoals.add(id);
+          void controller.deleteMilestone(id as GoalId, ms as MilestoneId);
+        }
         break;
       }
       case "toggle-subtask": {

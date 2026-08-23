@@ -183,8 +183,8 @@ const routineGroup = (g: RoutineGroupVM): HTMLElement =>
 
 const goalRow = (g: GoalVM): HTMLElement =>
   h(
-    "div",
-    { class: "goal" },
+    "button",
+    { class: "goal goal-link", "data-action": "open-goal", "data-id": g.id },
     h(
       "div",
       { class: "goal-head" },

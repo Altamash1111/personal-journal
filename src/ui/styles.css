@@ -605,22 +605,56 @@ textarea.fld-input { resize: vertical; min-height: 44px; font-family: inherit; l
 .check-sm { width: 16px; height: 16px; border-radius: 5px; }
 .is-done { text-decoration: line-through; color: var(--text-faint); }
 
-/* Goals */
+/* Goals — collapsed summary card that expands to reveal controls */
 .goal-tree { gap: 10px; }
 .goal-node {
   border: 1px solid var(--border); border-radius: var(--r-md);
-  padding: 14px; background: var(--surface-2);
+  background: var(--surface-2); overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.goal-node.depth-1 { margin-left: 20px; }
-.goal-node.depth-2 { margin-left: 40px; }
-.goal-node.depth-3 { margin-left: 60px; }
-.goal-node.depth-4 { margin-left: 80px; }
-.goal-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
-.goal-head .row-title { font-weight: 600; }
-.goal-actions { margin-left: auto; }
-.milestones, .subtasks { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
+.goal-node.is-open { border-color: var(--border-hi); }
+.goal-node.just-saved {
+  border-color: var(--good);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--good) 22%, transparent);
+}
+
+.goal-summary {
+  display: flex; flex-direction: column; gap: 8px; width: 100%;
+  text-align: left; background: transparent; border: 0; cursor: pointer;
+  padding: 14px 16px; color: var(--text);
+}
+.goal-summary:hover { background: var(--surface-hi); }
+.goal-summary-top { display: flex; align-items: center; gap: 10px; }
+.goal-summary-top .chevron { color: var(--text-faint); font-size: 12px; width: 12px; }
+.goal-title { font-weight: 600; font-size: 15px; flex: 1; }
+.goal-summary-pct { color: var(--text-dim); font-size: 13px; }
+.goal-summary-meta { display: flex; gap: 14px; font-size: 12px; color: var(--text-dim); }
+.goal-summary-meta .muted-inline { color: var(--text-faint); }
+.status-completed { color: var(--good); border-color: color-mix(in srgb, var(--good) 40%, var(--border)); }
+.status-on_hold { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, var(--border)); }
+.status-archived { color: var(--text-faint); }
+
+.goal-details {
+  border-top: 1px solid var(--border);
+  padding: 14px 16px; display: flex; flex-direction: column; gap: 4px;
+}
+.goal-controls { display: flex; gap: 14px; flex-wrap: wrap; }
+.goal-controls .form { margin: 0; flex: 1 1 200px; }
+.goal-controls .form + .form { border: 0; padding: 0; }
+.goal-danger { margin-top: 6px; }
+
+.milestones, .subtasks { display: flex; flex-direction: column; gap: 6px; margin: 6px 0 10px; }
 .ms-row { display: flex; align-items: center; gap: 10px; }
 .ms-title { flex: 1; font-size: 14px; }
+
+/* Today: goal rows are now clickable links into the Goals page */
+.goal-link {
+  width: 100%; text-align: left; background: transparent; border: 0;
+  cursor: pointer; padding: 8px; margin: -8px; border-radius: var(--r-sm);
+  color: inherit; font: inherit; transition: background 0.12s ease;
+}
+.goal-link:hover { background: var(--surface-hi); }
+
 
 /* Tasks */
 .task-block { border: 1px solid var(--border); border-radius: var(--r-md);
