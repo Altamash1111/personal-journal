@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build artifacts — the self-contained offline preview (dist/index.html) IS
+# committed as the verified build; the intermediate System bundle is not.
+dist/*
+!dist/index.html
+
+# Playwright browser binaries (installed via `npx playwright install`)
+/test-results/
+/playwright-report/
+
+# Logs & OS/editor cruft
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+# Deploy tooling (handled by you, not committed)
+.vercel/
