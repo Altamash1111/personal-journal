@@ -569,13 +569,6 @@ const start = (): void => {
         }
         break;
       }
-      case "goal-status": {
-        const gid = idAttr("data-id");
-        flashGoalId = gid;
-        expandedGoals.add(gid);
-        void controller.setGoalStatus(gid as GoalId, (f["status"] as GoalStatus) || "active");
-        break;
-      }
       // Tasks
       case "add-task-full": {
         const title = strOrNull(f["title"]);
@@ -719,6 +712,16 @@ const start = (): void => {
           if (expandedGoals.has(gid)) expandedGoals.delete(gid);
           else expandedGoals.add(gid);
           rerender();
+        }
+        break;
+      }
+      case "set-goal-status": {
+        const gid = actionEl.getAttribute("data-id");
+        const status = actionEl.getAttribute("data-status");
+        if (gid && status) {
+          flashGoalId = gid;
+          expandedGoals.add(gid);
+          void controller.setGoalStatus(gid as GoalId, status as GoalStatus);
         }
         break;
       }

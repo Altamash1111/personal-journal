@@ -638,9 +638,44 @@ textarea.fld-input { resize: vertical; min-height: 44px; font-family: inherit; l
   border-top: 1px solid var(--border);
   padding: 14px 16px; display: flex; flex-direction: column; gap: 4px;
 }
-.goal-controls { display: flex; gap: 14px; flex-wrap: wrap; }
-.goal-controls .form { margin: 0; flex: 1 1 200px; }
-.goal-controls .form + .form { border: 0; padding: 0; }
+/* Expanded goal: labelled sections instead of stacked forms */
+.goal-section { margin-bottom: 4px; }
+.goal-section + .goal-section { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.goal-section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.goal-section-title {
+  font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint);
+}
+.goal-section .form { margin: 8px 0 0; }
+.goal-section .form-row { align-items: flex-end; }
+
+/* Next-incomplete milestone hint on the collapsed summary */
+.next-ms { color: var(--accent); font-size: 12px; }
+
+/* Highlight the next milestone in the expanded list */
+.ms-row.is-next .ms-title { color: var(--text); font-weight: 550; }
+.ms-row.is-next { position: relative; }
+
+/* Small icon-only button (remove milestone, delete goal) */
+.icon-btn {
+  background: transparent; border: 0; color: var(--text-faint); cursor: pointer;
+  padding: 4px 6px; border-radius: var(--r-sm); font-size: 13px; transition: color 0.12s, background 0.12s;
+}
+.icon-btn:hover { color: var(--text); background: var(--surface-hi); }
+.danger-link { color: var(--text-dim); }
+.danger-link:hover { color: var(--urgent); background: color-mix(in srgb, var(--urgent) 12%, transparent); }
+
+/* One-click status pills (replaces the status form) */
+.status-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.status-pill {
+  background: var(--surface-2); border: 1px solid var(--border); color: var(--text-dim);
+  border-radius: 999px; padding: 6px 14px; font-size: 13px; cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.status-pill:hover { border-color: var(--border-hi); color: var(--text); }
+.status-pill.is-active {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); color: var(--text);
+}
 .goal-danger { margin-top: 6px; }
 
 .milestones, .subtasks { display: flex; flex-direction: column; gap: 6px; margin: 6px 0 10px; }

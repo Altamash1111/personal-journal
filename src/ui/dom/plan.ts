@@ -54,6 +54,7 @@ export const renderGoals = (
     const isOpen = expanded.has(g.id);
     const doneCount = g.milestones.filter((m) => m.done).length;
     const total = g.milestones.length;
+    const nextMilestone = g.milestones.find((m) => !m.done) ?? null;
 
     // Compact summary — always visible, and the whole header toggles open/closed.
     const summary = h(
@@ -79,6 +80,7 @@ export const renderGoals = (
         { class: "goal-summary-meta" },
         g.metricLabel !== null ? h("span", { class: "mono" }, g.metricLabel) : null,
         total > 0 ? h("span", { class: "mono muted-inline" }, `${doneCount} / ${total} milestones`) : null,
+        nextMilestone !== null ? h("span", { class: "next-ms" }, `Next: ${nextMilestone.title}`) : null,
       ),
     );
 
@@ -86,10 +88,16 @@ export const renderGoals = (
       return h("div", { class: "goal-node", "data-goal-card": g.id }, summary);
     }
 
-    // Expanded details — controls appear only when the goal is open.
-    const details = h(
+    // --- Expanded: milestones front-and-centre, then light inline controls ---
+    const milestoneSection = h(
       "div",
-      { class: "goal-details" },
+      { class: "goal-section" },
+      h(
+        "div",
+        { class: "goal-section-head" },
+        h("span", { class: "goal-section-title" }, "Milestones"),
+        total > 0 ? h("span", { class: "mono muted-inline" }, `${doneCount} / ${total}`) : null,
+      ),
       total > 0
         ? h(
             "div",
@@ -97,34 +105,71 @@ export const renderGoals = (
             ...g.milestones.map((m) =>
               h(
                 "div",
-                { class: "ms-row" },
+                { class: `ms-row ${!m.done && m.id === nextMilestone?.id ? "is-next" : ""}`.trim() },
                 h("button", {
                   class: "check",
                   "data-action": "toggle-milestone",
                   "data-id": g.id,
                   "data-ms": m.id,
                   "aria-pressed": m.done ? "true" : "false",
+                  title: m.done ? "Mark not done" : "Mark done",
                 }),
                 h("span", { class: `ms-title ${m.done ? "is-done" : ""}`.trim() }, m.title),
-                h("button", { class: "btn btn-ghost btn-sm", "data-action": "delete-milestone", "data-id": g.id, "data-ms": m.id }, "✕"),
+                h("button", { class: "icon-btn", "data-action": "delete-milestone", "data-id": g.id, "data-ms": m.id, title: "Remove milestone" }, "✕"),
               ),
             ),
           )
         : emptyLine("No milestones yet — break this goal into concrete steps."),
-      form("add-milestone", [field("New milestone", "title", { placeholder: "A concrete step" })], "Add milestone", { "data-id": g.id }),
-      h("div", { class: "goal-controls" },
-        g.hasMetric
-          ? form(
-              "goal-metric",
-              [field("Update progress", "current", { type: "number", placeholder: String(g.metricCurrent ?? 0) })],
-              "Save",
-              { "data-id": g.id },
-            )
-          : null,
-        form("goal-status", [selectField("Status", "status", statusOptions, g.status)], "Set status", { "data-id": g.id }),
+      form("add-milestone", [field("Add a milestone", "title", { placeholder: "A concrete step…" })], "Add", { "data-id": g.id }),
+    );
+
+    const progressSection = g.hasMetric
+      ? h(
+          "div",
+          { class: "goal-section" },
+          h("div", { class: "goal-section-head" }, h("span", { class: "goal-section-title" }, "Progress")),
+          // Pre-filled with the real current value so clicking Save always applies
+          // the shown number (fixes the empty-placeholder silent no-op).
+          form(
+            "goal-metric",
+            [field("Current value", "current", { type: "number", value: String(g.metricCurrent ?? 0) })],
+            "Save progress",
+            { "data-id": g.id },
+          ),
+        )
+      : null;
+
+    // Status as one-click pills (no separate form / Save step).
+    const statusSection = h(
+      "div",
+      { class: "goal-section" },
+      h("div", { class: "goal-section-head" }, h("span", { class: "goal-section-title" }, "Status")),
+      h(
+        "div",
+        { class: "status-pills" },
+        ...statusOptions.map((o) =>
+          h(
+            "button",
+            {
+              class: `status-pill ${o.value === g.status ? "is-active" : ""}`.trim(),
+              "data-action": "set-goal-status",
+              "data-id": g.id,
+              "data-status": o.value,
+            },
+            o.label,
+          ),
+        ),
       ),
+    );
+
+    const details = h(
+      "div",
+      { class: "goal-details" },
+      milestoneSection,
+      progressSection,
+      statusSection,
       h("div", { class: "goal-danger" },
-        h("button", { class: "btn btn-ghost btn-sm", "data-action": "delete-goal", "data-id": g.id }, "Delete goal"),
+        h("button", { class: "icon-btn danger-link", "data-action": "delete-goal", "data-id": g.id }, "Delete goal"),
       ),
     );
 
