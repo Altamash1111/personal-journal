@@ -646,9 +646,44 @@ textarea.fld-input { resize: vertical; min-height: 44px; font-family: inherit; l
   border-top: 1px solid var(--border);
   padding: 14px 16px; display: flex; flex-direction: column; gap: 4px;
 }
-.goal-controls { display: flex; gap: 14px; flex-wrap: wrap; }
-.goal-controls .form { margin: 0; flex: 1 1 200px; }
-.goal-controls .form + .form { border: 0; padding: 0; }
+/* Expanded goal: labelled sections instead of stacked forms */
+.goal-section { margin-bottom: 4px; }
+.goal-section + .goal-section { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.goal-section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.goal-section-title {
+  font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint);
+}
+.goal-section .form { margin: 8px 0 0; }
+.goal-section .form-row { align-items: flex-end; }
+
+/* Next-incomplete milestone hint on the collapsed summary */
+.next-ms { color: var(--accent); font-size: 12px; }
+
+/* Highlight the next milestone in the expanded list */
+.ms-row.is-next .ms-title { color: var(--text); font-weight: 550; }
+.ms-row.is-next { position: relative; }
+
+/* Small icon-only button (remove milestone, delete goal) */
+.icon-btn {
+  background: transparent; border: 0; color: var(--text-faint); cursor: pointer;
+  padding: 4px 6px; border-radius: var(--r-sm); font-size: 13px; transition: color 0.12s, background 0.12s;
+}
+.icon-btn:hover { color: var(--text); background: var(--surface-hi); }
+.danger-link { color: var(--text-dim); }
+.danger-link:hover { color: var(--urgent); background: color-mix(in srgb, var(--urgent) 12%, transparent); }
+
+/* One-click status pills (replaces the status form) */
+.status-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.status-pill {
+  background: var(--surface-2); border: 1px solid var(--border); color: var(--text-dim);
+  border-radius: 999px; padding: 6px 14px; font-size: 13px; cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.status-pill:hover { border-color: var(--border-hi); color: var(--text); }
+.status-pill.is-active {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); color: var(--text);
+}
 .goal-danger { margin-top: 6px; }
 
 .milestones, .subtasks { display: flex; flex-direction: column; gap: 6px; margin: 6px 0 10px; }
@@ -4648,26 +4683,36 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                     const isOpen = expanded.has(g.id);
                     const doneCount = g.milestones.filter((m) => m.done).length;
                     const total = g.milestones.length;
+                    const nextMilestone = g.milestones.find((m) => !m.done) ?? null;
                     const summary = h_4.h("button", {
                         class: "goal-summary",
                         "data-action": "toggle-goal",
                         "data-id": g.id,
                         "aria-expanded": isOpen ? "true" : "false",
-                    }, h_4.h("div", { class: "goal-summary-top" }, h_4.h("span", { class: "chevron" }, isOpen ? "▾" : "▸"), h_4.h("span", { class: "pill" }, g.horizon), h_4.h("span", { class: "goal-title" }, g.name), g.status !== "active" ? h_4.h("span", { class: `pill status-${g.status}` }, ui_2.titleCase(g.status)) : null, h_4.h("span", { class: "goal-summary-pct mono" }, `${ui_2.pct(g.progress)}%`)), ui_2.bar(g.progress), h_4.h("div", { class: "goal-summary-meta" }, g.metricLabel !== null ? h_4.h("span", { class: "mono" }, g.metricLabel) : null, total > 0 ? h_4.h("span", { class: "mono muted-inline" }, `${doneCount} / ${total} milestones`) : null));
+                    }, h_4.h("div", { class: "goal-summary-top" }, h_4.h("span", { class: "chevron" }, isOpen ? "▾" : "▸"), h_4.h("span", { class: "pill" }, g.horizon), h_4.h("span", { class: "goal-title" }, g.name), g.status !== "active" ? h_4.h("span", { class: `pill status-${g.status}` }, ui_2.titleCase(g.status)) : null, h_4.h("span", { class: "goal-summary-pct mono" }, `${ui_2.pct(g.progress)}%`)), ui_2.bar(g.progress), h_4.h("div", { class: "goal-summary-meta" }, g.metricLabel !== null ? h_4.h("span", { class: "mono" }, g.metricLabel) : null, total > 0 ? h_4.h("span", { class: "mono muted-inline" }, `${doneCount} / ${total} milestones`) : null, nextMilestone !== null ? h_4.h("span", { class: "next-ms" }, `Next: ${nextMilestone.title}`) : null));
                     if (!isOpen) {
                         return h_4.h("div", { class: "goal-node", "data-goal-card": g.id }, summary);
                     }
-                    const details = h_4.h("div", { class: "goal-details" }, total > 0
-                        ? h_4.h("div", { class: "milestones" }, ...g.milestones.map((m) => h_4.h("div", { class: "ms-row" }, h_4.h("button", {
+                    const milestoneSection = h_4.h("div", { class: "goal-section" }, h_4.h("div", { class: "goal-section-head" }, h_4.h("span", { class: "goal-section-title" }, "Milestones"), total > 0 ? h_4.h("span", { class: "mono muted-inline" }, `${doneCount} / ${total}`) : null), total > 0
+                        ? h_4.h("div", { class: "milestones" }, ...g.milestones.map((m) => h_4.h("div", { class: `ms-row ${!m.done && m.id === nextMilestone?.id ? "is-next" : ""}`.trim() }, h_4.h("button", {
                             class: "check",
                             "data-action": "toggle-milestone",
                             "data-id": g.id,
                             "data-ms": m.id,
                             "aria-pressed": m.done ? "true" : "false",
-                        }), h_4.h("span", { class: `ms-title ${m.done ? "is-done" : ""}`.trim() }, m.title), h_4.h("button", { class: "btn btn-ghost btn-sm", "data-action": "delete-milestone", "data-id": g.id, "data-ms": m.id }, "✕"))))
-                        : ui_2.emptyLine("No milestones yet — break this goal into concrete steps."), ui_2.form("add-milestone", [ui_2.field("New milestone", "title", { placeholder: "A concrete step" })], "Add milestone", { "data-id": g.id }), h_4.h("div", { class: "goal-controls" }, g.hasMetric
-                        ? ui_2.form("goal-metric", [ui_2.field("Update progress", "current", { type: "number", placeholder: String(g.metricCurrent ?? 0) })], "Save", { "data-id": g.id })
-                        : null, ui_2.form("goal-status", [ui_2.selectField("Status", "status", statusOptions, g.status)], "Set status", { "data-id": g.id })), h_4.h("div", { class: "goal-danger" }, h_4.h("button", { class: "btn btn-ghost btn-sm", "data-action": "delete-goal", "data-id": g.id }, "Delete goal")));
+                            title: m.done ? "Mark not done" : "Mark done",
+                        }), h_4.h("span", { class: `ms-title ${m.done ? "is-done" : ""}`.trim() }, m.title), h_4.h("button", { class: "icon-btn", "data-action": "delete-milestone", "data-id": g.id, "data-ms": m.id, title: "Remove milestone" }, "✕"))))
+                        : ui_2.emptyLine("No milestones yet — break this goal into concrete steps."), ui_2.form("add-milestone", [ui_2.field("Add a milestone", "title", { placeholder: "A concrete step…" })], "Add", { "data-id": g.id }));
+                    const progressSection = g.hasMetric
+                        ? h_4.h("div", { class: "goal-section" }, h_4.h("div", { class: "goal-section-head" }, h_4.h("span", { class: "goal-section-title" }, "Progress")), ui_2.form("goal-metric", [ui_2.field("Current value", "current", { type: "number", value: String(g.metricCurrent ?? 0) })], "Save progress", { "data-id": g.id }))
+                        : null;
+                    const statusSection = h_4.h("div", { class: "goal-section" }, h_4.h("div", { class: "goal-section-head" }, h_4.h("span", { class: "goal-section-title" }, "Status")), h_4.h("div", { class: "status-pills" }, ...statusOptions.map((o) => h_4.h("button", {
+                        class: `status-pill ${o.value === g.status ? "is-active" : ""}`.trim(),
+                        "data-action": "set-goal-status",
+                        "data-id": g.id,
+                        "data-status": o.value,
+                    }, o.label))));
+                    const details = h_4.h("div", { class: "goal-details" }, milestoneSection, progressSection, statusSection, h_4.h("div", { class: "goal-danger" }, h_4.h("button", { class: "icon-btn danger-link", "data-action": "delete-goal", "data-id": g.id }, "Delete goal")));
                     return h_4.h("div", { class: "goal-node is-open", "data-goal-card": g.id }, summary, details);
                 };
                 grid.appendChild(ui_2.card("Your goals", v.goals.length > 0
@@ -5310,13 +5355,6 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                             }
                             break;
                         }
-                        case "goal-status": {
-                            const gid = idAttr("data-id");
-                            flashGoalId = gid;
-                            expandedGoals.add(gid);
-                            void controller.setGoalStatus(gid, f["status"] || "active");
-                            break;
-                        }
                         case "add-task-full": {
                             const title = strOrNull(f["title"]);
                             if (title !== null)
@@ -5459,6 +5497,16 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                                 else
                                     expandedGoals.add(gid);
                                 rerender();
+                            }
+                            break;
+                        }
+                        case "set-goal-status": {
+                            const gid = actionEl.getAttribute("data-id");
+                            const status = actionEl.getAttribute("data-status");
+                            if (gid && status) {
+                                flashGoalId = gid;
+                                expandedGoals.add(gid);
+                                void controller.setGoalStatus(gid, status);
                             }
                             break;
                         }
