@@ -49,7 +49,9 @@ export const todayModuleStatus = (
   settings: Settings,
 ): ModuleStatus => {
   const week = weeklyProgress(data, date);
-  const loggedToday = data.workoutSessions.some((s) => s.date === date);
+  const loggedToday = data.workoutSessions.some(
+    (s) => s.date === date && s.completedAt !== null,
+  );
 
   const n = nutritionProgress(data, date, settings.nutrition);
 

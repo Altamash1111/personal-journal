@@ -4,6 +4,7 @@ import type { Weekday } from "../time/localDate";
 import type { Result } from "../core/result";
 import { ok, err } from "../core/result";
 import { DEFAULT_SETTINGS } from "../config";
+import { isValidTimeZone } from "../time/timezone";
 
 const isObject = (u: unknown): u is Record<string, unknown> =>
   typeof u === "object" && u !== null && !Array.isArray(u);
@@ -48,7 +49,10 @@ const coerceSettings = (
     issues.push("settings missing/invalid; using defaults");
     return DEFAULT_SETTINGS;
   }
-  const tz = isString(u["timeZone"]) ? u["timeZone"] : DEFAULT_SETTINGS.timeZone;
+  const tz =
+    isString(u["timeZone"]) && isValidTimeZone(u["timeZone"])
+      ? u["timeZone"]
+      : DEFAULT_SETTINGS.timeZone;
   const wRaw = u["weekStartsOn"];
   const weekStartsOn: Weekday =
     isNumber(wRaw) && wRaw >= 0 && wRaw <= 6

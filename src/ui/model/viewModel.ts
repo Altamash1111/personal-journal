@@ -11,6 +11,7 @@ import type { Task } from "../../domain/task";
 import type { TaskPriority, TaskStatus } from "../../domain/task";
 import type { Habit } from "../../domain/habit";
 import type { LocalDate } from "../../time/localDate";
+import { diffDays, parseLocalDate } from "../../time/localDate";
 import type { GoalHorizon } from "../../domain/goal";
 import type { DailySummary } from "../../logic/dailySummary";
 import type { Settings } from "../../domain/settings";
@@ -39,6 +40,7 @@ export interface TaskCardVM {
   readonly overdue: boolean;
   readonly done: boolean;
   readonly category: string | null;
+  readonly dueLabel: string; // "Overdue" | "Today" | "Tomorrow" | "Mon 27 Aug" | ""
 }
 
 export interface HabitRowVM {
@@ -105,6 +107,19 @@ export const greetingFor = (hour: number): string => {
   return "Good night";
 };
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
+
+/** Human due label relative to the current day (in the app's timezone). */
+const dueLabelFor = (t: Task, today: LocalDate): string => {
+  if (t.due === null) return "";
+  if (isOverdue(t, today)) return "Overdue";
+  const delta = diffDays(today, t.due); // due - today, in whole days
+  if (delta === 0) return "Today";
+  if (delta === 1) return "Tomorrow";
+  const { month, day } = parseLocalDate(t.due);
+  return `${MONTHS[month - 1]} ${day}`;
+};
+
 const toTaskCard = (t: Task, today: LocalDate): TaskCardVM => ({
   id: t.id,
   title: t.title,
@@ -114,6 +129,7 @@ const toTaskCard = (t: Task, today: LocalDate): TaskCardVM => ({
   overdue: isOverdue(t, today),
   done: t.status === "done",
   category: t.category,
+  dueLabel: dueLabelFor(t, today),
 });
 
 const HORIZON_ORDER: Readonly<Record<GoalHorizon, number>> = {

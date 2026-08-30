@@ -6,6 +6,7 @@ import {
   createTask,
   completeTask,
   createHabit,
+  createExercise,
   logHabitCompletion,
   removeHabit,
   upsertJournalEntry,
@@ -88,4 +89,18 @@ test("updateSettings merges", () => {
   });
   assert.equal(data.settings.weekStartsOn, 0);
   assert.equal(data.settings.timeZone, "Asia/Kolkata"); // unchanged
+});
+
+test("createExercise preserves explicit null loadUnit (bodyweight) but defaults when unspecified", () => {
+  const deps = makeDeps();
+  const data = emptyAppData(DEFAULT_SETTINGS);
+  // Explicit bodyweight — null must survive (regression: `?? "kg"` used to clobber it).
+  const bw = createExercise(deps, data, { name: "Push-ups", loadUnit: null });
+  assert.equal(bw.exercise.loadUnit, null);
+  // Unspecified — defaults to kg.
+  const def = createExercise(deps, data, { name: "Squat" });
+  assert.equal(def.exercise.loadUnit, "kg");
+  // Explicit unit is kept.
+  const lb = createExercise(deps, data, { name: "Deadlift", loadUnit: "lb" });
+  assert.equal(lb.exercise.loadUnit, "lb");
 });

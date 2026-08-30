@@ -8,6 +8,7 @@ import {
   createWorkoutSession,
   addSessionExercise,
   addSet,
+  completeWorkoutSession,
   logMeal,
   logWater,
   logSleep,
@@ -32,6 +33,7 @@ const fullyPopulated = () => {
   data = addSessionExercise(deps, data, s.session.id as WorkoutSessionId, ex.exercise.id as ExerciseId);
   const seId = data.workoutSessions[0]!.exercises[0]!.id as SessionExerciseId;
   data = addSet(deps, data, s.session.id as WorkoutSessionId, seId, { reps: 5, weight: 100 });
+  data = completeWorkoutSession(deps, data, s.session.id as WorkoutSessionId);
 
   ({ data } = logMeal(deps, data, { date: today, type: "lunch", name: "Bowl", macros: { kcal: 600, protein: 50, carbs: 40, fat: 20 } }));
   ({ data } = logWater(deps, data, { date: today, amountMl: 1500 }));

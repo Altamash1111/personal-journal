@@ -38,6 +38,7 @@ import type {
   ExerciseId,
   WorkoutSessionId,
   SessionExerciseId,
+  SetEntryId,
   MealId,
   ReadingItemId,
   GoalId,
@@ -204,6 +205,7 @@ const start = (): void => {
   const expandedGoals = new Set<string>();
   let flashGoalId: string | null = null;
   let scrollGoalId: string | null = null;
+  let resetArmed = false;
 
   const applyTheme = (): void => {
     const effective = resolveTheme(themeChoice, systemPrefersDark());
@@ -342,7 +344,7 @@ const start = (): void => {
       case "journal":
         return renderJournal(controller.journalView());
       case "settings":
-        return renderSettings(controller.settingsView());
+        return renderSettings(controller.settingsView(), resetArmed);
       case "today":
       default:
         return renderDashboard(
@@ -401,7 +403,7 @@ const start = (): void => {
           void controller.addExercise({
             name: nm,
             kind: (f["kind"] as "strength" | "cardio" | "mobility" | "other") || "strength",
-            loadUnit: (f["loadUnit"] as LoadUnit) || "kg",
+            loadUnit: f["loadUnit"] === "bodyweight" ? null : ((f["loadUnit"] as LoadUnit) || "kg"),
           });
         break;
       }
@@ -624,19 +626,45 @@ const start = (): void => {
         });
         break;
       // Journal
-      case "save-journal":
-        void controller.saveJournalToday({
-          accomplished: strOrNull(f["accomplished"]),
-          wentWrong: strOrNull(f["wentWrong"]),
-          learned: strOrNull(f["learned"]),
-          topPriorityTomorrow: strOrNull(f["topPriorityTomorrow"]),
-          rating: numOrNull(f["rating"]),
-        });
+      case "save-journal": {
+        const wasUpdate = formEl.getAttribute("data-mode") === "update";
+        void controller
+          .saveJournalToday({
+            accomplished: strOrNull(f["accomplished"]),
+            wentWrong: strOrNull(f["wentWrong"]),
+            learned: strOrNull(f["learned"]),
+            topPriorityTomorrow: strOrNull(f["topPriorityTomorrow"]),
+            rating: numOrNull(f["rating"]),
+          })
+          .then(() => {
+            // The commit re-renders the page, so query the live status element.
+            const statusEl = document.querySelector<HTMLElement>('[data-role="journal-status"]');
+            if (statusEl) {
+              statusEl.textContent = wasUpdate ? "Review updated ✓" : "Review saved ✓";
+              statusEl.classList.add("is-shown");
+              window.setTimeout(() => {
+                statusEl.classList.remove("is-shown");
+              }, 2200);
+            }
+          });
         break;
+      }
       // Settings
       case "set-timezone": {
         const tz = strOrNull(f["timeZone"]);
-        if (tz !== null) void controller.setTimeZone(tz);
+        if (tz !== null) {
+          void controller.setTimeZone(tz).then((res) => {
+            const statusEl = document.querySelector<HTMLElement>('[data-role="tz-status"]');
+            if (statusEl) {
+              statusEl.textContent = res.ok
+                ? "Time zone saved ✓"
+                : "Not a valid IANA time zone (e.g. Asia/Kolkata, Europe/London).";
+              statusEl.classList.toggle("is-error", !res.ok);
+              statusEl.classList.add("is-shown");
+              if (res.ok) window.setTimeout(() => statusEl.classList.remove("is-shown"), 2200);
+            }
+          });
+        }
         break;
       }
       case "set-weekstart": {
@@ -759,6 +787,14 @@ const start = (): void => {
       case "delete-workout":
         if (id) void controller.deleteWorkout(id as WorkoutSessionId);
         break;
+      case "delete-set": {
+        const sess = actionEl.getAttribute("data-session");
+        const se = actionEl.getAttribute("data-se");
+        const set = actionEl.getAttribute("data-set");
+        if (sess && se && set)
+          void controller.removeSetFromSession(sess as WorkoutSessionId, se as SessionExerciseId, set as SetEntryId);
+        break;
+      }
       case "delete-meal":
         if (id) void controller.deleteMeal(id as MealId);
         break;
@@ -834,9 +870,25 @@ const start = (): void => {
         downloadJson(controller.exportData());
         break;
       case "reset-data":
-        if (window.confirm("Clear all tracked data? Your settings are kept. This cannot be undone.")) {
-          void controller.resetData();
-        }
+        // Two-step in-app confirmation (no fragile native confirm() that some
+        // browsers block or dismiss). First click arms; second click confirms.
+        resetArmed = true;
+        rerender();
+        break;
+      case "reset-data-confirm":
+        resetArmed = false;
+        void controller.resetData().then(() => {
+          const el = document.querySelector<HTMLElement>('[data-role="reset-status"]');
+          if (el) {
+            el.textContent = "All data cleared ✓";
+            el.classList.add("is-shown");
+            window.setTimeout(() => el.classList.remove("is-shown"), 2600);
+          }
+        });
+        break;
+      case "reset-data-cancel":
+        resetArmed = false;
+        rerender();
         break;
       case "focus-quickadd":
         qaInput.focus();

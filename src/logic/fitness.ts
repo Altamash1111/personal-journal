@@ -152,9 +152,18 @@ export interface BodyWeightTrend {
 
 /** Latest body weight + change vs the prior reading. */
 export const bodyWeightTrend = (data: AppData): BodyWeightTrend => {
+  // Newest first. Primary key is the calendar date; ties are broken first by the
+  // logged timestamp and finally by insertion order (later-logged is newer), so
+  // several readings on the same day always resolve to the most recent one even
+  // if their timestamps are identical.
   const sorted = data.bodyWeights
-    .slice()
-    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+    .map((e, i) => ({ e, i }))
+    .sort((a, b) => {
+      if (a.e.date !== b.e.date) return a.e.date < b.e.date ? 1 : -1;
+      if (a.e.recordedAt !== b.e.recordedAt) return a.e.recordedAt < b.e.recordedAt ? 1 : -1;
+      return b.i - a.i;
+    })
+    .map((x) => x.e);
   const latest = sorted[0];
   const previous = sorted[1];
   if (latest === undefined) {
@@ -175,12 +184,16 @@ export const latestMeasurements = (
 ): readonly { readonly site: string; readonly value: number; readonly unit: string; readonly date: LocalDate }[] => {
   const bySite = new Map<
     string,
-    { site: string; value: number; unit: string; date: LocalDate }
+    { site: string; value: number; unit: string; date: LocalDate; recordedAt: string }
   >();
   for (const m of data.measurements) {
     const cur = bySite.get(m.site);
-    if (cur === undefined || m.date > cur.date) {
-      bySite.set(m.site, { site: m.site, value: m.value, unit: m.unit, date: m.date });
+    const isNewer =
+      cur === undefined ||
+      m.date > cur.date ||
+      (m.date === cur.date && m.recordedAt >= cur.recordedAt);
+    if (isNewer) {
+      bySite.set(m.site, { site: m.site, value: m.value, unit: m.unit, date: m.date, recordedAt: m.recordedAt });
     }
   }
   return [...bySite.values()].sort((a, b) => a.site.localeCompare(b.site));
@@ -199,6 +212,7 @@ const sessionsInWindow = (
   days: number,
 ): readonly WorkoutSession[] =>
   data.workoutSessions.filter((s) => {
+    if (s.completedAt === null) return false; // completed workouts only
     const d = diffDays(s.date, date); // date - s.date
     return d >= 0 && d < days;
   });

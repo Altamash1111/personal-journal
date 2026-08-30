@@ -535,12 +535,18 @@ export const upsertJournalEntry = (
         }
       : {
           ...existing,
-          accomplished: patch.accomplished ?? existing.accomplished,
-          wentWrong: patch.wentWrong ?? existing.wentWrong,
-          learned: patch.learned ?? existing.learned,
-          rating: patch.rating ?? existing.rating,
+          // A key present in the patch is applied as-is (including null, so a
+          // field can be cleared on update); a key absent from the patch keeps
+          // the existing value. This makes "Update review" a true update.
+          accomplished:
+            "accomplished" in patch ? patch.accomplished ?? null : existing.accomplished,
+          wentWrong: "wentWrong" in patch ? patch.wentWrong ?? null : existing.wentWrong,
+          learned: "learned" in patch ? patch.learned ?? null : existing.learned,
+          rating: "rating" in patch ? patch.rating ?? null : existing.rating,
           topPriorityTomorrow:
-            patch.topPriorityTomorrow ?? existing.topPriorityTomorrow,
+            "topPriorityTomorrow" in patch
+              ? patch.topPriorityTomorrow ?? null
+              : existing.topPriorityTomorrow,
           updatedAt: ts,
         };
   return { data: { ...data, journal: upsertById(data.journal, entry) }, entry };
@@ -622,7 +628,8 @@ export const createExercise = (
     id: newId<ExerciseId>(deps),
     name: input.name,
     kind: input.kind ?? "strength",
-    loadUnit: input.loadUnit ?? "kg",
+    // `null` is an explicit bodyweight exercise; only default when unspecified.
+    loadUnit: input.loadUnit === undefined ? "kg" : input.loadUnit,
     category: input.category ?? null,
     notes: input.notes ?? null,
     archived: false,

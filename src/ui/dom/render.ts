@@ -17,11 +17,7 @@ const priorityLabel: Readonly<Record<string, string>> = {
   none: "",
 };
 
-const dueLabel = (t: TaskCardVM): string => {
-  if (t.overdue) return "Overdue";
-  if (t.due !== null) return "Today";
-  return "";
-};
+const dueLabel = (t: TaskCardVM): string => t.dueLabel;
 
 const ring = (percent: number): HTMLElement => {
   const r = 52;

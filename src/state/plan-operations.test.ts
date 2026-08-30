@@ -84,3 +84,47 @@ test("removeJournalEntry deletes a day's reflection", () => {
   data = removeJournalEntry(deps, data, id);
   assert.equal(data.journal.length, 0);
 });
+
+test("upsertJournalEntry updates the same day's entry in place (no duplicate)", () => {
+  const deps = makeDeps();
+  let data = emptyAppData(DEFAULT_SETTINGS);
+  const day = ld("2025-08-22");
+  ({ data } = upsertJournalEntry(deps, data, day, {
+    accomplished: "Initial win",
+    wentWrong: "Initial wrong",
+    learned: "Initial lesson",
+    rating: 3,
+  }));
+  assert.equal(data.journal.length, 1);
+  const firstId = data.journal[0]!.id;
+
+  // Update the same day: change values AND clear one field (wentWrong -> null).
+  ({ data } = upsertJournalEntry(deps, data, day, {
+    accomplished: "UPDATED win",
+    wentWrong: null, // explicit clear
+    learned: "UPDATED lesson",
+    topPriorityTomorrow: "UPDATED priority",
+    rating: 5,
+  }));
+  assert.equal(data.journal.length, 1); // no duplicate
+  const e = data.journal[0]!;
+  assert.equal(e.id, firstId); // same entry
+  assert.equal(e.accomplished, "UPDATED win");
+  assert.equal(e.wentWrong, null); // cleared, not stuck on old value
+  assert.equal(e.learned, "UPDATED lesson");
+  assert.equal(e.topPriorityTomorrow, "UPDATED priority");
+  assert.equal(e.rating, 5);
+});
+
+test("upsertJournalEntry keeps fields absent from the patch untouched", () => {
+  const deps = makeDeps();
+  let data = emptyAppData(DEFAULT_SETTINGS);
+  const day = ld("2025-08-22");
+  ({ data } = upsertJournalEntry(deps, data, day, { accomplished: "Win", rating: 4 }));
+  // Patch that omits `accomplished` must not wipe it.
+  ({ data } = upsertJournalEntry(deps, data, day, { learned: "A lesson" }));
+  const e = data.journal[0]!;
+  assert.equal(e.accomplished, "Win"); // untouched
+  assert.equal(e.rating, 4); // untouched
+  assert.equal(e.learned, "A lesson");
+});

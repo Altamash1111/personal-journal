@@ -7,6 +7,7 @@ import {
   createWorkoutSession,
   addSessionExercise,
   addSet,
+  completeWorkoutSession,
   logBodyWeight,
   logMeasurement,
 } from "../state/operations";
@@ -37,6 +38,7 @@ const seedSquatSession = (
   for (const [reps, weight] of sets) {
     d = addSet(deps, d, s.session.id as WorkoutSessionId, seId, { reps, weight });
   }
+  d = completeWorkoutSession(deps, d, s.session.id as WorkoutSessionId);
   return { data: d, sessionId: s.session.id };
 };
 
@@ -135,4 +137,41 @@ test("weeklyProgress counts sessions in the last 7 days", () => {
   const w = weeklyProgress(data, ld("2025-08-22"));
   assert.equal(w.sessions, 1);
   assert.equal(w.volume, 500);
+});
+
+test("bodyWeightTrend uses newest same-day reading by recordedAt", () => {
+  const deps = makeDeps();
+  let data = emptyAppData(DEFAULT_SETTINGS);
+  // Three readings on the SAME day, logged in order 44.2 -> 44.5 -> 45.
+  data = logBodyWeight(deps, data, { date: ld("2025-08-22"), weight: 44.2, unit: "kg" }).data;
+  data = logBodyWeight(deps, data, { date: ld("2025-08-22"), weight: 44.5, unit: "kg" }).data;
+  data = logBodyWeight(deps, data, { date: ld("2025-08-22"), weight: 45, unit: "kg" }).data;
+  const t = bodyWeightTrend(data);
+  assert.equal(t.latest, 45); // newest wins, not 44.2
+});
+
+test("weeklyProgress counts completed workouts only (in-progress excluded)", () => {
+  const deps = makeDeps();
+  let data = emptyAppData(DEFAULT_SETTINGS);
+  const ex = createExercise(deps, data, { name: "Squat" });
+  data = ex.data;
+  const exId = ex.exercise.id as ExerciseId;
+  // A completed session today.
+  data = seedSquatSession(deps, data, exId, "2025-08-22", [[5, 100]]).data;
+  // An in-progress session today (started, sets added, NOT completed).
+  const s = createWorkoutSession(deps, data, { date: ld("2025-08-22"), name: "WIP" });
+  data = s.data;
+  data = addSessionExercise(deps, data, s.session.id as WorkoutSessionId, exId);
+  const seId = findSessionExerciseId(data, s.session.id) as SessionExerciseId;
+  data = addSet(deps, data, s.session.id as WorkoutSessionId, seId, { reps: 5, weight: 100 });
+  const w = weeklyProgress(data, ld("2025-08-22"));
+  assert.equal(w.sessions, 1); // only the completed one
+});
+
+test("logging body weight does not create or count a workout session", () => {
+  const deps = makeDeps();
+  let data = emptyAppData(DEFAULT_SETTINGS);
+  data = logBodyWeight(deps, data, { date: ld("2025-08-22"), weight: 44.2, unit: "kg" }).data;
+  assert.equal(data.workoutSessions.length, 0);
+  assert.equal(weeklyProgress(data, ld("2025-08-22")).sessions, 0);
 });

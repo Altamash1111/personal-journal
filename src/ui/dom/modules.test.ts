@@ -12,6 +12,7 @@ import {
   logSleep,
   createReadingItem,
   setReadingStatus,
+  addReadingNote,
   createHabit,
   createRoutine,
 } from "../../state/operations";
@@ -164,4 +165,25 @@ test("reading page renders items, status and note forms", () => {
   assert.ok(forms.includes("set-progress"));
   assert.ok(forms.includes("add-note"));
   assert.ok(collect(root, "data-action").includes("reading-status"));
+});
+
+test("finished reading item is read-only: no editor forms, notes still shown", () => {
+  const deps = makeDeps();
+  let data = emptyAppData(DEFAULT_SETTINGS);
+  const r = createReadingItem(deps, data, { kind: "book", title: "QA Book", total: 200 });
+  data = r.data;
+  const id = r.item.id as ReadingItemId;
+  data = setReadingStatus(deps, data, id, "current", today);
+  data = addReadingNote(deps, data, id, { text: "note-alpha" });
+  data = addReadingNote(deps, data, id, { text: "note-beta" });
+  data = setReadingStatus(deps, data, id, "finished", today);
+  const root = renderReading(buildReadingView(data, today)) as unknown as FakeEl;
+  const forms = collect(root, "data-form");
+  // The finished card must NOT expose the active editors...
+  assert.ok(!forms.includes("set-progress"), "no progress editor when finished");
+  assert.ok(!forms.includes("add-note"), "no add-note editor when finished");
+  // ...but the notes remain readable and a Finished badge is shown.
+  const text = allText(root);
+  assert.ok(/note-alpha/.test(text) && /note-beta/.test(text), "notes still visible");
+  assert.ok(/Finished/.test(text), "shows finished badge");
 });

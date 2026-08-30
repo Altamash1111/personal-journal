@@ -144,3 +144,26 @@ test("summary overall matches completed work", () => {
   const vm = buildTodayView(data, today, 9);
   assert.equal(vm.summary.overall, 1); // 1 habit + 1 task, both done
 });
+
+test("task dueLabel reflects the real date, not a blanket 'Today'", () => {
+  // The reported bug: a high task due in the future appeared in Priorities
+  // labelled "Today". It should surface (it's high priority) but with its date.
+  const deps = makeDeps();
+  let data = emptyAppData(DEFAULT_SETTINGS);
+  ({ data } = createTask(deps, data, { title: "future high", due: ld("2025-08-27"), priority: "high" }));
+  const vm = buildTodayView(data, today, 9); // today = 2025-08-22
+  const card = vm.priorities.find((p) => p.title === "future high");
+  assert.ok(card, "future high task should surface in priorities");
+  assert.equal(card!.dueLabel, "Aug 27"); // NOT "Today"
+
+  // And the relative labels for near dates:
+  let d2 = emptyAppData(DEFAULT_SETTINGS);
+  ({ data: d2 } = createTask(deps, d2, { title: "t", due: today, priority: "high" }));
+  ({ data: d2 } = createTask(deps, d2, { title: "tm", due: ld("2025-08-23"), priority: "high" }));
+  ({ data: d2 } = createTask(deps, d2, { title: "od", due: ld("2025-08-01"), priority: "high" }));
+  const vm2 = buildTodayView(d2, today, 9);
+  const lbl = (n: string) => vm2.priorities.find((p) => p.title === n)!.dueLabel;
+  assert.equal(lbl("t"), "Today");
+  assert.equal(lbl("tm"), "Tomorrow");
+  assert.equal(lbl("od"), "Overdue");
+});

@@ -77,7 +77,7 @@ export const renderFitness = (v: FitnessView): HTMLElement => {
         form(
           "log-bodyweight",
           [
-            field("Weight", "weight", { type: "number", step: "0.1", placeholder: "78.5" }),
+            field("Weight", "weight", { type: "number", step: "0.1", placeholder: "Enter weight" }),
             selectField("Unit", "unit", [
               { value: "kg", label: "kg" },
               { value: "lb", label: "lb" },
@@ -88,8 +88,8 @@ export const renderFitness = (v: FitnessView): HTMLElement => {
         form(
           "log-measurement",
           [
-            field("Site", "site", { placeholder: "waist" }),
-            field("Value", "value", { type: "number", step: "0.1", placeholder: "82" }),
+            field("Site", "site", { placeholder: "e.g. waist" }),
+            field("Value", "value", { type: "number", step: "0.1", placeholder: "Enter measurement" }),
             field("Unit", "unit", { placeholder: "cm", value: "cm" }),
           ],
           "Log measurement",
@@ -117,7 +117,7 @@ export const renderFitness = (v: FitnessView): HTMLElement => {
         form(
           "add-exercise",
           [
-            field("New exercise", "name", { placeholder: "Back squat" }),
+            field("New exercise", "name", { placeholder: "e.g. Dumbbell row" }),
             selectField("Type", "kind", [
               { value: "strength", label: "Strength" },
               { value: "cardio", label: "Cardio" },
@@ -125,13 +125,14 @@ export const renderFitness = (v: FitnessView): HTMLElement => {
               { value: "other", label: "Other" },
             ]),
             selectField("Load", "loadUnit", [
-              { value: "kg", label: "kg" },
-              { value: "lb", label: "lb" },
+              { value: "bodyweight", label: "Bodyweight" },
+              { value: "kg", label: "Weight (kg)" },
+              { value: "lb", label: "Weight (lb)" },
             ]),
           ],
           "Add to catalog",
         ),
-        form("start-workout", [field("Workout name", "name", { placeholder: "Push day" })], "Start workout"),
+        form("start-workout", [field("Workout name", "name", { placeholder: "e.g. Upper Body" })], "Start workout"),
         v.exercises.length > 0
           ? h(
               "p",
@@ -187,69 +188,126 @@ export const renderFitness = (v: FitnessView): HTMLElement => {
 
   function renderSession(s: FitnessView["sessions"][number]): HTMLElement {
     const exOptions = v.exercises.map((e) => ({ value: e.id, label: e.name }));
-    const exRows = s.exercises.map((se) =>
-      h(
+
+    // Format one logged set as a readable line: "12 reps" or "12 × 60 kg".
+    const setLabel = (
+      x: FitnessView["sessions"][number]["exercises"][number]["sets"][number],
+      unit: string | null,
+      bodyweight: boolean,
+    ): string => {
+      const reps = x.reps ?? 0;
+      if (x.weight !== null && x.weight > 0) return `${reps} reps · ${x.weight} ${unit ?? "kg"}`;
+      if (bodyweight) return `${reps} reps · Bodyweight`;
+      return `${reps} reps`;
+    };
+
+    const exerciseBlock = (se: FitnessView["sessions"][number]["exercises"][number]): HTMLElement => {
+      const setRows =
+        se.sets.length > 0
+          ? h(
+              "div",
+              { class: "set-list" },
+              ...se.sets.map((x, i) =>
+                h(
+                  "div",
+                  { class: "set-row" },
+                  h("span", { class: "set-n" }, `Set ${i + 1}`),
+                  h("span", { class: "set-val mono" }, setLabel(x, se.loadUnit, se.bodyweight)),
+                  !s.completed
+                    ? h("button", { class: "icon-btn", "data-action": "delete-set", "data-session": s.id, "data-se": se.id, "data-set": x.id, title: "Remove set" }, "✕")
+                    : null,
+                ),
+              ),
+            )
+          : h("p", { class: "empty-line" }, "No sets yet.");
+
+      // Active session: show the add-set control (bodyweight = reps only).
+      const addSet = s.completed
+        ? null
+        : se.bodyweight
+          ? form(
+              "add-set",
+              [field("Reps", "reps", { type: "number", min: "0", placeholder: "e.g. 12" })],
+              "Add set",
+              { "data-session": s.id, "data-se": se.id },
+            )
+          : form(
+              "add-set",
+              [
+                field("Reps", "reps", { type: "number", min: "0", placeholder: "e.g. 12" }),
+                field(`Weight (${se.loadUnit ?? "kg"})`, "weight", { type: "number", step: "0.5", min: "0", placeholder: "optional" }),
+              ],
+              "Add set",
+              { "data-session": s.id, "data-se": se.id },
+            );
+
+      return h(
         "div",
         { class: "se-block" },
         h(
           "div",
           { class: "se-head" },
           h("span", { class: "row-title" }, se.name),
-          h(
-            "span",
-            { class: "row-meta mono" },
-            se.sets.length > 0
-              ? se.sets
-                  .map((x) => `${x.reps ?? "–"}×${x.weight ?? "–"}`)
-                  .join("  ")
-              : "no sets",
+          h("span", { class: "se-tag" }, se.bodyweight ? "Bodyweight" : (se.loadUnit ?? "kg")),
+          h("span", { class: "se-count mono" }, `${se.sets.length} ${se.sets.length === 1 ? "set" : "sets"}`),
+        ),
+        setRows,
+        addSet,
+      );
+    };
+
+    // Finished workout → clean read-only summary.
+    if (s.completed) {
+      return h(
+        "div",
+        { class: "session is-complete" },
+        h(
+          "div",
+          { class: "session-head" },
+          h("span", { class: "row-title" }, s.name ?? "Workout"),
+          h("span", { class: "pill pill-good" }, "Completed"),
+          h("span", { class: "session-actions" },
+            h("button", { class: "icon-btn", "data-action": "delete-workout", "data-id": s.id, title: "Delete workout" }, "✕"),
           ),
         ),
-        form(
-          "add-set",
-          [
-            field("Reps", "reps", { type: "number", min: "0", placeholder: "8" }),
-            field("Weight", "weight", { type: "number", step: "0.5", placeholder: "60" }),
-          ],
-          "Add set",
-          { "data-session": s.id, "data-se": se.id },
-        ),
-      ),
-    );
+        h("p", { class: "session-summary mono" }, `${s.date} · ${s.exercises.length} exercises · ${s.setCount} sets`),
+        ...s.exercises.map(exerciseBlock),
+      );
+    }
+
+    // Active workout → the logger.
     return h(
       "div",
-      { class: "session" },
+      { class: "session is-active" },
       h(
         "div",
         { class: "session-head" },
         h("span", { class: "row-title" }, s.name ?? "Workout"),
-        h("span", { class: "row-meta mono" }, `${s.date} · vol ${Math.round(s.volume)}`),
-        h(
-          "span",
-          { class: "session-actions" },
-          s.completed
-            ? h("span", { class: "pill pill-good" }, "done")
-            : h(
-                "button",
-                { class: "btn btn-ghost btn-sm", "data-action": "finish-workout", "data-id": s.id },
-                "Finish",
-              ),
-          h(
-            "button",
-            { class: "btn btn-ghost btn-sm", "data-action": "delete-workout", "data-id": s.id },
-            "Delete",
-          ),
+        h("span", { class: "pill" }, "In progress"),
+        h("span", { class: "session-actions" },
+          h("button", { class: "icon-btn", "data-action": "delete-workout", "data-id": s.id, title: "Discard workout" }, "✕"),
         ),
       ),
-      ...exRows,
+      h("p", { class: "session-summary mono" }, `${s.date} · ${s.exercises.length} exercises · ${s.setCount} sets`),
+      ...s.exercises.map(exerciseBlock),
+      // Quiet "add exercise" — a subtle control, not a prominent card.
       exOptions.length > 0
-        ? form(
-            "add-session-exercise",
-            [selectField("Add exercise", "exerciseId", exOptions)],
-            "Add",
-            { "data-session": s.id },
+        ? h(
+            "details",
+            { class: "add-ex" },
+            h("summary", null, "+ Add exercise"),
+            form(
+              "add-session-exercise",
+              [selectField("Exercise", "exerciseId", exOptions)],
+              "Add to workout",
+              { "data-session": s.id },
+            ),
           )
-        : emptyLine("Add an exercise to the catalog to log sets here."),
+        : emptyLine("Add an exercise to the catalog below to log sets here."),
+      // The clear final action.
+      h("div", { class: "finish-row" },
+        h("button", { class: "btn btn-primary btn-finish", "data-action": "finish-workout", "data-id": s.id }, "Finish workout"),
+      ),
     );
   }
 };
@@ -621,7 +679,64 @@ export const renderReading = (v: ReadingView): HTMLElement => {
 
   const grid = h("div", { class: "grid" });
 
+  const notesBlock = (it: ReadingView["current"][number]): HTMLElement | null =>
+    it.notes.length > 0
+      ? h(
+          "div",
+          { class: "reading-notes" },
+          h("div", { class: "reading-notes-head" }, `Notes · ${it.notes.length}`),
+          ...it.notes.map((n) =>
+            h(
+              "div",
+              { class: "reading-note" },
+              n.location !== null ? h("span", { class: "reading-note-loc mono" }, `p.${n.location}`) : null,
+              h("span", { class: "reading-note-text" }, n.text),
+            ),
+          ),
+        )
+      : null;
+
   const itemCard = (it: ReadingView["current"][number]): HTMLElement => {
+    const progressLine =
+      it.total !== null || it.unit === "percent"
+        ? h(
+            "div",
+            { class: "prog" },
+            h(
+              "div",
+              { class: "prog-head" },
+              h("span", { class: "mono" }, `${it.current}${it.total !== null ? `/${it.total}` : ""} ${it.unit}`),
+              h("span", { class: "mono" }, `${it.percent}%`),
+            ),
+            bar(it.percent / 100),
+          )
+        : null;
+
+    // ---- FINISHED: clean, read-only completed card ----
+    if (it.status === "finished") {
+      return h(
+        "div",
+        { class: "read-item is-finished" },
+        h(
+          "div",
+          { class: "read-head" },
+          h("span", { class: "row-title" }, it.title),
+          h("span", { class: "pill pill-good" }, "✓ Finished"),
+          h("span", { class: "read-head-meta row-meta" }, it.author ?? it.kind),
+        ),
+        progressLine,
+        notesBlock(it),
+        // One deliberate action set — reopen to editing, or remove — not the full editor.
+        h(
+          "div",
+          { class: "read-finished-actions" },
+          h("button", { class: "btn btn-ghost btn-sm", "data-action": "reading-status", "data-id": it.id, "data-status": "current" }, "Reopen"),
+          h("button", { class: "icon-btn", "data-action": "delete-reading", "data-id": it.id, title: "Remove" }, "✕"),
+        ),
+      );
+    }
+
+    // ---- ACTIVE / UPCOMING: full editor ----
     const statusBtns = READING_STATUSES.filter((s) => s !== it.status).map((s) =>
       h(
         "button",
@@ -638,19 +753,7 @@ export const renderReading = (v: ReadingView): HTMLElement => {
         h("span", { class: "row-title" }, it.title),
         h("span", { class: "row-meta" }, it.author ?? it.kind),
       ),
-      it.total !== null || it.unit === "percent"
-        ? h(
-            "div",
-            { class: "prog" },
-            h(
-              "div",
-              { class: "prog-head" },
-              h("span", { class: "mono" }, `${it.current}${it.total !== null ? `/${it.total}` : ""} ${it.unit}`),
-              h("span", { class: "mono" }, `${it.percent}%`),
-            ),
-            bar(it.percent / 100),
-          )
-        : null,
+      progressLine,
       h(
         "div",
         { class: "read-actions" },
@@ -669,7 +772,7 @@ export const renderReading = (v: ReadingView): HTMLElement => {
         "Add note",
         { "data-id": it.id },
       ),
-      it.notesCount > 0 ? h("span", { class: "pill" }, `${it.notesCount} notes`) : null,
+      notesBlock(it),
     );
   };
 

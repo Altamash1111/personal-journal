@@ -43,6 +43,8 @@ export interface SessionExerciseVM {
   readonly id: string;
   readonly exerciseId: string;
   readonly name: string;
+  readonly loadUnit: string | null; // null = bodyweight exercise
+  readonly bodyweight: boolean;
   readonly sets: readonly SetVM[];
 }
 export interface SessionVM {
@@ -50,6 +52,7 @@ export interface SessionVM {
   readonly date: LocalDate;
   readonly name: string | null;
   readonly volume: number;
+  readonly setCount: number;
   readonly completed: boolean;
   readonly exercises: readonly SessionExerciseVM[];
 }
@@ -94,11 +97,14 @@ export const buildFitnessView = (data: AppData, today: LocalDate): FitnessView =
       date: s.date,
       name: s.name,
       volume: sessionVolume(s),
+      setCount: s.exercises.reduce((n, se) => n + se.sets.length, 0),
       completed: s.completedAt !== null,
       exercises: s.exercises.map((se) => ({
         id: se.id,
         exerciseId: se.exerciseId,
         name: nameOf.get(se.exerciseId) ?? "Exercise",
+        loadUnit: unitOf.get(se.exerciseId) ?? null,
+        bodyweight: (unitOf.get(se.exerciseId) ?? null) === null,
         sets: se.sets.map((x) => ({
           id: x.id,
           reps: x.reps,
@@ -277,6 +283,11 @@ export const buildRoutinesView = (data: AppData): RoutinesView => {
 
 // ---------------- Reading & learning ----------------
 
+export interface ReadingNoteVM {
+  readonly id: string;
+  readonly text: string;
+  readonly location: number | null;
+}
 export interface ReadingItemVM {
   readonly id: string;
   readonly kind: ReadingKind;
@@ -288,6 +299,7 @@ export interface ReadingItemVM {
   readonly total: number | null;
   readonly percent: number;
   readonly notesCount: number;
+  readonly notes: readonly ReadingNoteVM[];
 }
 export interface ReadingView {
   readonly today: LocalDate;
@@ -311,7 +323,7 @@ const toItemVM = (r: {
   unit: ProgressUnit;
   current: number;
   total: number | null;
-  notes: readonly unknown[];
+  notes: readonly { id: string; text: string; location: number | null }[];
 }): ReadingItemVM => ({
   id: r.id,
   kind: r.kind,
@@ -328,6 +340,7 @@ const toItemVM = (r: {
     } as Parameters<typeof readingProgress>[0]) * 100,
   ),
   notesCount: r.notes.length,
+  notes: r.notes.map((n) => ({ id: n.id, text: n.text, location: n.location })),
 });
 
 export const buildReadingView = (data: AppData, today: LocalDate): ReadingView => {

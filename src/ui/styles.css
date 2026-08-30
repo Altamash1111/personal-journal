@@ -503,8 +503,41 @@ body {
 }
 .session-head .row-title { font-weight: 600; }
 .session-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-.se-block { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; }
-.se-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.session.is-active { border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); }
+.session-summary { color: var(--text-dim); font-size: 12px; margin: -4px 0 12px; }
+
+.se-block { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.se-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.se-head .row-title { font-weight: 550; }
+.se-tag {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--text-faint); border: 1px solid var(--border);
+  border-radius: 999px; padding: 2px 8px;
+}
+.se-count { margin-left: auto; color: var(--text-faint); font-size: 12px; }
+
+/* Clean per-set rows: "Set 1 · 12 × 60 kg" */
+.set-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.set-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 6px 10px; background: var(--surface); border-radius: var(--r-sm);
+}
+.set-n { color: var(--text-faint); font-size: 12px; min-width: 44px; }
+.set-val { flex: 1; font-size: 14px; }
+
+/* Quiet "add exercise" — collapsed by default, not a prominent card */
+.add-ex { margin-top: 12px; }
+.add-ex > summary {
+  cursor: pointer; color: var(--text-dim); font-size: 13px;
+  list-style: none; padding: 4px 0; user-select: none;
+}
+.add-ex > summary::-webkit-details-marker { display: none; }
+.add-ex > summary:hover { color: var(--text); }
+.add-ex[open] > summary { color: var(--text); margin-bottom: 4px; }
+
+/* Finish is the clear final action */
+.finish-row { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px; }
+.btn-finish { width: 100%; padding: 11px; font-weight: 600; font-size: 15px; }
 
 /* Routines admin */
 .routine-admin {
@@ -712,3 +745,57 @@ textarea.fld-input { resize: vertical; min-height: 44px; font-family: inherit; l
   padding: 14px; background: var(--surface-2); margin-bottom: 10px; }
 .jr-line { margin: 6px 0; font-size: 14px; color: var(--text); }
 .jr-line b { color: var(--text-dim); font-weight: 600; }
+
+/* Readable saved-review content (Today's Review + Past reviews) */
+.jr-review { display: flex; flex-direction: column; gap: 14px; }
+.journal-day .jr-review { margin-top: 10px; }
+.jr-rating { display: flex; align-items: center; gap: 8px; }
+.jr-stars { color: var(--warn); letter-spacing: 2px; font-size: 15px; }
+.jr-rating-num { color: var(--text-dim); font-size: 13px; }
+.jr-section { display: flex; flex-direction: column; gap: 4px; }
+.jr-section-label {
+  font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-faint);
+}
+.jr-section-text {
+  font-size: 14px; line-height: 1.5; color: var(--text);
+  white-space: pre-wrap; /* preserve the user's line breaks */
+}
+
+/* Daily Review — transient save confirmation */
+.save-status {
+  margin: 10px 0 0; font-size: 13px; color: var(--good);
+  opacity: 0; transform: translateY(-2px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  min-height: 18px; /* reserve space so layout doesn't jump */
+}
+.save-status.is-shown { opacity: 1; transform: translateY(0); }
+
+/* Reading — readable saved notes */
+.reading-notes { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px;
+  display: flex; flex-direction: column; gap: 6px; }
+.reading-notes-head { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); }
+.reading-note { display: flex; gap: 8px; align-items: baseline; font-size: 14px; line-height: 1.45; color: var(--text); }
+.reading-note-loc { color: var(--text-faint); font-size: 12px; flex: none; }
+.reading-note-text { white-space: pre-wrap; }
+
+/* Field hint + error styling for the save-status line */
+.field-hint { margin: 6px 0 0; font-size: 12px; color: var(--text-faint); }
+.save-status.is-error { color: var(--urgent); opacity: 1; transform: none; }
+
+/* In-app Clear-all-data confirmation (replaces fragile window.confirm) */
+.reset-confirm { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.reset-confirm-label { color: var(--urgent); font-size: 13px; font-weight: 550; }
+.btn-danger {
+  background: var(--urgent); color: #fff; border: 1px solid var(--urgent);
+}
+.btn-danger:hover { filter: brightness(1.08); }
+
+/* Finished reading item — clean read-only completed card */
+.read-item.is-finished { background: var(--surface-2); }
+.read-item.is-finished .read-head { align-items: center; gap: 10px; }
+.read-head-meta { margin-left: auto; }
+.read-finished-actions { display: flex; align-items: center; gap: 8px; margin-top: 12px;
+  border-top: 1px solid var(--border); padding-top: 12px; }
+.pill-good { background: color-mix(in srgb, var(--good) 20%, transparent);
+  border-color: color-mix(in srgb, var(--good) 45%, var(--border)); color: var(--text); }

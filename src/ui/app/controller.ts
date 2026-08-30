@@ -17,6 +17,7 @@ import type {
   ExerciseId,
   WorkoutSessionId,
   SessionExerciseId,
+  SetEntryId,
   MealId,
   ReadingItemId,
 } from "../../domain/ids";
@@ -75,6 +76,7 @@ import {
   todayLocalDate,
   instantToLocalDate,
   instantToLocalTime,
+  isValidTimeZone,
 } from "../../time/timezone";
 import { buildTodayView } from "../model/viewModel";
 import {
@@ -125,6 +127,7 @@ import {
   createWorkoutSession,
   addSessionExercise,
   addSet,
+  removeSet,
   completeWorkoutSession,
   removeWorkoutSession,
   logBodyWeight,
@@ -353,8 +356,12 @@ export class AppController {
 
   // ----- Settings -----
 
-  async setTimeZone(timeZone: string): Promise<void> {
+  async setTimeZone(timeZone: string): Promise<{ readonly ok: boolean }> {
+    // Guard against corrupting date logic with a non-IANA value (e.g. a typo or
+    // free text). Invalid input is rejected and the current zone is kept.
+    if (!isValidTimeZone(timeZone)) return { ok: false };
     await this.#commit(updateSettings(this.#ops, this.#state, { timeZone }));
+    return { ok: true };
   }
 
   async setNutritionTargets(nutrition: NutritionTargets): Promise<void> {
@@ -430,6 +437,15 @@ export class AppController {
         reps,
         weight,
       }),
+    );
+  }
+  async removeSetFromSession(
+    sessionId: WorkoutSessionId,
+    sessionExerciseId: SessionExerciseId,
+    setId: SetEntryId,
+  ): Promise<void> {
+    await this.#commit(
+      removeSet(this.#ops, this.#state, sessionId, sessionExerciseId, setId),
     );
   }
   async finishWorkout(id: WorkoutSessionId): Promise<void> {
@@ -620,7 +636,12 @@ export class AppController {
 
   /** Clear all tracked data but keep the user's settings (timezone/targets). */
   async resetData(): Promise<void> {
-    await this.#commit(emptyAppData(this.#state.settings));
+    // Keep the user's settings, but repair a corrupt timezone so clearing always
+    // returns the app to a working state.
+    const settings = isValidTimeZone(this.#state.settings.timeZone)
+      ? this.#state.settings
+      : { ...this.#state.settings, timeZone: DEFAULT_SETTINGS.timeZone };
+    await this.#commit(emptyAppData(settings));
   }
 
   async seedExample(): Promise<void> {
@@ -701,6 +722,8 @@ export class AppController {
     data = squat.data;
     const bench = createExercise(ops, data, { name: "Bench press", loadUnit: "kg" });
     data = bench.data;
+    const pushups = createExercise(ops, data, { name: "Push-ups", loadUnit: null });
+    data = pushups.data;
     const session = createWorkoutSession(ops, data, { date: today, name: "Push day" });
     data = session.data;
     data = addSessionExercise(ops, data, session.session.id, bench.exercise.id);
@@ -709,6 +732,12 @@ export class AppController {
       .exercises[0]!.id;
     data = addSet(ops, data, session.session.id, benchSe, { reps: 8, weight: 60 });
     data = addSet(ops, data, session.session.id, benchSe, { reps: 8, weight: 62.5 });
+    data = addSessionExercise(ops, data, session.session.id, pushups.exercise.id);
+    const pushSe = data.workoutSessions
+      .find((s) => s.id === session.session.id)!
+      .exercises[1]!.id;
+    data = addSet(ops, data, session.session.id, pushSe, { reps: 15, weight: null });
+    data = addSet(ops, data, session.session.id, pushSe, { reps: 12, weight: null });
     data = completeWorkoutSession(ops, data, session.session.id);
     ({ data } = logBodyWeight(ops, data, { date: today, weight: 78.4, unit: "kg" }));
     ({ data } = logMeasurement(ops, data, { date: today, site: "waist", value: 82, unit: "cm" }));

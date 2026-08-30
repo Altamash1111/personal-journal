@@ -123,21 +123,23 @@ export const renderGoals = (
       form("add-milestone", [field("Add a milestone", "title", { placeholder: "A concrete step…" })], "Add", { "data-id": g.id }),
     );
 
-    const progressSection = g.hasMetric
-      ? h(
-          "div",
-          { class: "goal-section" },
-          h("div", { class: "goal-section-head" }, h("span", { class: "goal-section-title" }, "Progress")),
-          // Pre-filled with the real current value so clicking Save always applies
-          // the shown number (fixes the empty-placeholder silent no-op).
-          form(
-            "goal-metric",
-            [field("Current value", "current", { type: "number", value: String(g.metricCurrent ?? 0) })],
-            "Save progress",
-            { "data-id": g.id },
-          ),
-        )
-      : null;
+    const isClosed = g.status === "completed" || g.status === "archived";
+    const progressSection =
+      g.hasMetric && !isClosed
+        ? h(
+            "div",
+            { class: "goal-section" },
+            h("div", { class: "goal-section-head" }, h("span", { class: "goal-section-title" }, "Progress")),
+            // Pre-filled with the real current value so clicking Save always applies
+            // the shown number (fixes the empty-placeholder silent no-op).
+            form(
+              "goal-metric",
+              [field("Current value", "current", { type: "number", value: String(g.metricCurrent ?? 0) })],
+              "Save progress",
+              { "data-id": g.id },
+            ),
+          )
+        : null;
 
     // Status as one-click pills (no separate form / Save step).
     const statusSection = h(
@@ -286,15 +288,17 @@ export const renderTasks = (v: TasksView, active: TaskBucket): HTMLElement => {
             ),
           )
         : null,
-      h(
-        "div",
-        { class: "task-controls" },
-        form("add-subtask", [field("Subtask", "title", { placeholder: "Break it down…" })], "Add", { "data-id": t.id }),
-        form("task-priority", [selectField("Priority", "priority", priorityOptions, t.priority)], "Set", { "data-id": t.id }),
-        form("task-due", [field("Due", "due", { type: "date" })], "Set due", { "data-id": t.id }),
-        form("task-goal", [selectField("Goal", "goalId", goalOpts, "")], "Link", { "data-id": t.id }),
-        form("task-project", [selectField("Project", "projectId", projOpts, "")], "Link", { "data-id": t.id }),
-      ),
+      t.completed
+        ? null
+        : h(
+            "div",
+            { class: "task-controls" },
+            form("add-subtask", [field("Subtask", "title", { placeholder: "Break it down…" })], "Add", { "data-id": t.id }),
+            form("task-priority", [selectField("Priority", "priority", priorityOptions, t.priority)], "Set", { "data-id": t.id }),
+            form("task-due", [field("Due", "due", { type: "date" })], "Set due", { "data-id": t.id }),
+            form("task-goal", [selectField("Goal", "goalId", goalOpts, "")], "Link", { "data-id": t.id }),
+            form("task-project", [selectField("Project", "projectId", projOpts, "")], "Link", { "data-id": t.id }),
+          ),
     );
 
   const rows = v.buckets[active];
@@ -412,24 +416,76 @@ export const renderJournal = (v: JournalView): HTMLElement => {
     { value: "", label: "—" },
     ...[1, 2, 3, 4, 5].map((n) => ({ value: String(n), label: String(n) })),
   ];
+
+  // --- shared read-only renderers (used by Today's Review + Past reviews) ---
+  const ratingRow = (rating: number): HTMLElement =>
+    h(
+      "div",
+      { class: "jr-rating" },
+      h("span", { class: "jr-stars" }, "★".repeat(rating) + "☆".repeat(5 - rating)),
+      h("span", { class: "jr-rating-num mono" }, `${rating}/5`),
+    );
+
+  const section = (label: string, value: string | null): HTMLElement | null =>
+    value !== null && value.trim() !== ""
+      ? h(
+          "div",
+          { class: "jr-section" },
+          h("div", { class: "jr-section-label" }, label),
+          h("div", { class: "jr-section-text" }, value),
+        )
+      : null;
+
+  const reviewBody = (d: JournalView["history"][number]): HTMLElement => {
+    const sections = [
+      section("What went well", d.accomplished),
+      section("What didn't", d.wentWrong),
+      section("What I learned", d.learned),
+      section("Top priority tomorrow", d.topPriorityTomorrow),
+    ].filter((x): x is HTMLElement => x !== null);
+    const hasAny = sections.length > 0 || d.rating !== null;
+    return h(
+      "div",
+      { class: "jr-review" },
+      d.rating !== null ? ratingRow(d.rating) : null,
+      ...sections,
+      hasAny ? null : emptyLine("No details recorded for this day."),
+    );
+  };
+
+  // --- 1) Today's Review (read-only) — only once something is saved ---
+  if (e !== null) {
+    grid.appendChild(
+      card(`Today's review — ${v.today}`, reviewBody(e), { cls: "card-wide" }),
+    );
+  }
+
+  // --- 2) Edit today's review (the existing form) ---
   grid.appendChild(
     card(
-      `Today — ${v.today}`,
-      form(
-        "save-journal",
-        [
-          textareaField("What went well", "accomplished", e?.accomplished ?? null, "Wins, progress, gratitude…"),
-          textareaField("What didn't", "wentWrong", e?.wentWrong ?? null, "Friction, mistakes, blockers…"),
-          textareaField("What I learned", "learned", e?.learned ?? null, "An insight to keep…"),
-          textareaField("Top priority tomorrow", "topPriorityTomorrow", e?.topPriorityTomorrow ?? null, "The one thing…"),
-          selectField("Day rating", "rating", ratingOptions, e?.rating != null ? String(e.rating) : ""),
-        ],
-        e ? "Update review" : "Save review",
+      e ? "Edit today's review" : "Today's review",
+      h(
+        "div",
+        {},
+        form(
+          "save-journal",
+          [
+            textareaField("What went well", "accomplished", e?.accomplished ?? null, "Wins, progress, gratitude…"),
+            textareaField("What didn't", "wentWrong", e?.wentWrong ?? null, "Friction, mistakes, blockers…"),
+            textareaField("What I learned", "learned", e?.learned ?? null, "An insight to keep…"),
+            textareaField("Top priority tomorrow", "topPriorityTomorrow", e?.topPriorityTomorrow ?? null, "The one thing…"),
+            selectField("Day rating", "rating", ratingOptions, e?.rating != null ? String(e.rating) : ""),
+          ],
+          e ? "Update review" : "Save review",
+          { "data-mode": e ? "update" : "new" },
+        ),
+        h("p", { class: "save-status", "data-role": "journal-status" }, ""),
       ),
       { cls: "card-wide" },
     ),
   );
 
+  // --- 3) Past reviews (previous days, newest first) ---
   const dayCard = (d: JournalView["history"][number]): HTMLElement =>
     h(
       "div",
@@ -443,10 +499,7 @@ export const renderJournal = (v: JournalView): HTMLElement => {
           h("button", { class: "btn btn-ghost btn-sm", "data-action": "delete-journal", "data-id": d.id }, "✕"),
         ),
       ),
-      d.accomplished ? h("p", { class: "jr-line" }, h("b", null, "Well: "), d.accomplished) : null,
-      d.wentWrong ? h("p", { class: "jr-line" }, h("b", null, "Not: "), d.wentWrong) : null,
-      d.learned ? h("p", { class: "jr-line" }, h("b", null, "Learned: "), d.learned) : null,
-      d.topPriorityTomorrow ? h("p", { class: "jr-line" }, h("b", null, "Next: "), d.topPriorityTomorrow) : null,
+      reviewBody(d),
     );
 
   grid.appendChild(
@@ -465,7 +518,7 @@ export const renderJournal = (v: JournalView): HTMLElement => {
 
 // ============================ Settings & Data ============================
 
-export const renderSettings = (v: SettingsView): HTMLElement => {
+export const renderSettings = (v: SettingsView, resetArmed = false): HTMLElement => {
   const root = h("div", { class: "dash module" });
   root.appendChild(pageHead("Settings & data", "Preferences, targets, and local-first backup."));
   const grid = h("div", { class: "grid" });
@@ -482,7 +535,13 @@ export const renderSettings = (v: SettingsView): HTMLElement => {
       h(
         "div",
         {},
-        form("set-timezone", [field("Time zone (IANA)", "timeZone", { value: v.timeZone, placeholder: "Asia/Kolkata" })], "Save time zone"),
+        h(
+          "div",
+          {},
+          form("set-timezone", [field("Time zone (IANA)", "timeZone", { value: v.timeZone, placeholder: "Asia/Kolkata" })], "Save time zone"),
+          h("p", { class: "field-hint" }, "Use an IANA name like Asia/Kolkata, Europe/London, or America/New_York."),
+          h("p", { class: "save-status", "data-role": "tz-status" }, ""),
+        ),
         form("set-weekstart", [selectField("Week starts on", "weekStartsOn", weekdayOptions, String(v.weekStartsOn))], "Save"),
       ),
     ),
@@ -519,8 +578,17 @@ export const renderSettings = (v: SettingsView): HTMLElement => {
           "div",
           { class: "btn-row", style: "margin-top:16px" },
           h("button", { class: "btn btn-primary", "data-action": "export-data" }, "Export JSON"),
-          h("button", { class: "btn btn-ghost", "data-action": "reset-data" }, "Clear all data"),
+          resetArmed
+            ? h(
+                "span",
+                { class: "reset-confirm" },
+                h("span", { class: "reset-confirm-label" }, "Delete everything?"),
+                h("button", { class: "btn btn-danger btn-sm", "data-action": "reset-data-confirm" }, "Yes, clear all data"),
+                h("button", { class: "btn btn-ghost btn-sm", "data-action": "reset-data-cancel" }, "Cancel"),
+              )
+            : h("button", { class: "btn btn-ghost", "data-action": "reset-data" }, "Clear all data"),
         ),
+        h("p", { class: "save-status", "data-role": "reset-status" }, ""),
         h("p", { class: "muted" }, "Export downloads a full backup. Import replaces current data from a backup file's contents."),
         h(
           "div",
