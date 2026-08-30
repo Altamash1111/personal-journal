@@ -799,3 +799,58 @@ textarea.fld-input { resize: vertical; min-height: 44px; font-family: inherit; l
   border-top: 1px solid var(--border); padding-top: 12px; }
 .pill-good { background: color-mix(in srgb, var(--good) 20%, transparent);
   border-color: color-mix(in srgb, var(--good) 45%, var(--border)); color: var(--text); }
+
+/* ---- Winter Arc card (Home/Today) ---- */
+.winter-arc {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  border-radius: var(--r-lg, 16px);
+  border: 1px solid color-mix(in srgb, #6ea8ff 30%, var(--border));
+  background:
+    radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, #6ea8ff 16%, transparent) 0%, transparent 55%),
+    linear-gradient(180deg, color-mix(in srgb, #7cc4ff 8%, var(--surface-2)) 0%, var(--surface-2) 100%);
+}
+.wa-top { display: flex; align-items: center; gap: 8px; }
+.wa-flake { font-size: 15px; }
+.wa-eyebrow {
+  font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase;
+  color: color-mix(in srgb, #bcd8ff 70%, var(--text-dim)); font-weight: 600;
+}
+.wa-range { margin-left: auto; color: var(--text-faint); font-size: 12px; }
+.wa-headline { display: flex; align-items: baseline; gap: 10px; margin: 8px 0 12px; flex-wrap: wrap; }
+.wa-big { font-size: 34px; line-height: 1; font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
+.wa-unit { font-size: 15px; color: var(--text-dim); font-weight: 500; }
+.wa-bar {
+  position: relative; height: 10px; border-radius: 999px;
+  background: color-mix(in srgb, #6ea8ff 14%, var(--surface));
+  overflow: hidden; margin-bottom: 12px;
+}
+.wa-bar > i {
+  position: absolute; inset: 0 auto 0 0; display: block; height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6ea8ff, #a5d8ff);
+  transition: width 0.4s ease;
+}
+.wa-bar-pct {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  font-size: 10px; color: var(--text); mix-blend-mode: difference;
+}
+.wa-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.wa-sub { color: var(--text-dim); font-size: 12px; }
+.wa-motto {
+  font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase;
+  color: color-mix(in srgb, #bcd8ff 60%, var(--text-faint)); font-weight: 600;
+}
+.winter-arc.phase-complete {
+  border-color: color-mix(in srgb, var(--warn, #f2c14e) 40%, var(--border));
+  background:
+    radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--warn, #f2c14e) 16%, transparent) 0%, transparent 55%),
+    linear-gradient(180deg, color-mix(in srgb, var(--warn, #f2c14e) 8%, var(--surface-2)) 0%, var(--surface-2) 100%);
+}
+.winter-arc.phase-final .wa-motto { color: color-mix(in srgb, var(--warn, #f2c14e) 80%, var(--text)); }
+
+@media (max-width: 640px) {
+  .winter-arc { padding: 14px; }
+  .wa-big { font-size: 28px; }
+  .wa-range { display: none; } /* keep the top row clean on small screens */
+}

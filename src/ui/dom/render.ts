@@ -4,6 +4,8 @@
  */
 import type { TodayView, TaskCardVM, HabitRowVM, RoutineGroupVM, GoalVM } from "../model/viewModel";
 import type { ModuleStatus } from "../../logic/moduleStatus";
+import type { WinterArcState } from "../../logic/winterArc";
+import { formatShortDate, formatLongDate } from "../../logic/winterArc";
 import { formatDuration } from "../../logic/sleep";
 import { h } from "./h";
 
@@ -319,9 +321,111 @@ const moduleStatusCard = (m: ModuleStatus): HTMLElement => {
   return card("Across your day", body, { cls: "card-modules" });
 };
 
+const winterArcCard = (w: WinterArcState): HTMLElement => {
+  const range = `${formatShortDate(w.start)} — ${formatShortDate(w.end)}`;
+  const percent = pct(w.progress);
+
+  // Big focal number + label pair varies by phase.
+  let eyebrow: string;
+  let bigNumber: string;
+  let bigUnit: string;
+  let sub: string;
+  let motto: string;
+  let showBar = true;
+
+  switch (w.phase) {
+    case "upcoming": {
+      eyebrow = "Winter Arc · Starts in";
+      if (w.daysUntilStart <= 1) {
+        bigNumber = w.daysUntilStart === 1 ? "Tomorrow" : "Today";
+        bigUnit = "";
+      } else {
+        bigNumber = String(w.daysUntilStart);
+        bigUnit = "days";
+      }
+      sub = formatLongDate(w.start);
+      motto = "The arc is coming.";
+      showBar = false;
+      break;
+    }
+    case "active": {
+      eyebrow = "Winter Arc";
+      bigNumber = String(w.daysLeft);
+      bigUnit = w.daysLeft === 1 ? "day left" : "days left";
+      sub = `Day ${w.dayNumber} / ${w.totalDays} · ${range}`;
+      motto = "No excuses. Keep building.";
+      break;
+    }
+    case "final": {
+      eyebrow = "Winter Arc · Final day";
+      bigNumber = `Day ${w.dayNumber}`;
+      bigUnit = `/ ${w.totalDays}`;
+      sub = range;
+      motto = "Make it count.";
+      break;
+    }
+    case "complete": {
+      eyebrow = "Winter Arc · Complete";
+      bigNumber = String(w.totalDays);
+      bigUnit = "days";
+      sub = `${formatShortDate(w.start)} — ${formatLongDate(w.end)}`;
+      motto = "You made it through.";
+      break;
+    }
+  }
+
+  const flake = w.phase === "complete" ? "🏆" : "❄️";
+  const label =
+    w.phase === "upcoming"
+      ? `Winter Arc starts in ${w.daysUntilStart} day${w.daysUntilStart === 1 ? "" : "s"}`
+      : w.phase === "complete"
+        ? "Winter Arc complete"
+        : `Winter Arc day ${w.dayNumber} of ${w.totalDays}, ${w.daysLeft} day${w.daysLeft === 1 ? "" : "s"} left`;
+
+  return h(
+    "section",
+    { class: `winter-arc phase-${w.phase}`, "aria-label": label },
+    h(
+      "div",
+      { class: "wa-top" },
+      h("span", { class: "wa-flake", "aria-hidden": "true" }, flake),
+      h("span", { class: "wa-eyebrow" }, eyebrow),
+      h("span", { class: "wa-range mono" }, range),
+    ),
+    h(
+      "div",
+      { class: "wa-headline" },
+      h("span", { class: "wa-big" }, bigNumber),
+      bigUnit ? h("span", { class: "wa-unit" }, bigUnit) : null,
+    ),
+    showBar
+      ? h(
+          "div",
+          {
+            class: "wa-bar",
+            role: "progressbar",
+            "aria-valuemin": "0",
+            "aria-valuemax": "100",
+            "aria-valuenow": String(percent),
+            "aria-label": `Winter Arc progress: ${percent}%`,
+          },
+          h("i", { style: `width:${percent}%` }),
+          h("span", { class: "wa-bar-pct mono" }, `${percent}%`),
+        )
+      : null,
+    h(
+      "div",
+      { class: "wa-foot" },
+      h("span", { class: "wa-sub mono" }, sub),
+      h("span", { class: "wa-motto" }, motto),
+    ),
+  );
+};
+
 export const renderDashboard = (vm: TodayView, clockText: string): HTMLElement => {
   const frag = h("div", { class: "dash" });
   frag.appendChild(hero(vm, clockText));
+  frag.appendChild(winterArcCard(vm.winterArc));
 
   if (vm.isEmpty) {
     frag.appendChild(emptyDashboard());

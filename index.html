@@ -808,6 +808,61 @@ textarea.fld-input { resize: vertical; min-height: 44px; font-family: inherit; l
 .pill-good { background: color-mix(in srgb, var(--good) 20%, transparent);
   border-color: color-mix(in srgb, var(--good) 45%, var(--border)); color: var(--text); }
 
+/* ---- Winter Arc card (Home/Today) ---- */
+.winter-arc {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  border-radius: var(--r-lg, 16px);
+  border: 1px solid color-mix(in srgb, #6ea8ff 30%, var(--border));
+  background:
+    radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, #6ea8ff 16%, transparent) 0%, transparent 55%),
+    linear-gradient(180deg, color-mix(in srgb, #7cc4ff 8%, var(--surface-2)) 0%, var(--surface-2) 100%);
+}
+.wa-top { display: flex; align-items: center; gap: 8px; }
+.wa-flake { font-size: 15px; }
+.wa-eyebrow {
+  font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase;
+  color: color-mix(in srgb, #bcd8ff 70%, var(--text-dim)); font-weight: 600;
+}
+.wa-range { margin-left: auto; color: var(--text-faint); font-size: 12px; }
+.wa-headline { display: flex; align-items: baseline; gap: 10px; margin: 8px 0 12px; flex-wrap: wrap; }
+.wa-big { font-size: 34px; line-height: 1; font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
+.wa-unit { font-size: 15px; color: var(--text-dim); font-weight: 500; }
+.wa-bar {
+  position: relative; height: 10px; border-radius: 999px;
+  background: color-mix(in srgb, #6ea8ff 14%, var(--surface));
+  overflow: hidden; margin-bottom: 12px;
+}
+.wa-bar > i {
+  position: absolute; inset: 0 auto 0 0; display: block; height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6ea8ff, #a5d8ff);
+  transition: width 0.4s ease;
+}
+.wa-bar-pct {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  font-size: 10px; color: var(--text); mix-blend-mode: difference;
+}
+.wa-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.wa-sub { color: var(--text-dim); font-size: 12px; }
+.wa-motto {
+  font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase;
+  color: color-mix(in srgb, #bcd8ff 60%, var(--text-faint)); font-weight: 600;
+}
+.winter-arc.phase-complete {
+  border-color: color-mix(in srgb, var(--warn, #f2c14e) 40%, var(--border));
+  background:
+    radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--warn, #f2c14e) 16%, transparent) 0%, transparent 55%),
+    linear-gradient(180deg, color-mix(in srgb, var(--warn, #f2c14e) 8%, var(--surface-2)) 0%, var(--surface-2) 100%);
+}
+.winter-arc.phase-final .wa-motto { color: color-mix(in srgb, var(--warn, #f2c14e) 80%, var(--text)); }
+
+@media (max-width: 640px) {
+  .winter-arc { padding: 14px; }
+  .wa-big { font-size: 28px; }
+  .wa-range { display: none; } /* keep the top row clean on small screens */
+}
+
   </style>
 </head>
 <body>
@@ -3260,14 +3315,89 @@ System.register("index", ["config/index", "core/result", "core/scalars", "core/c
         }
     };
 });
-System.register("ui/model/viewModel", ["time/localDate", "config/index", "logic/moduleStatus", "logic/dailySummary", "logic/tasks", "logic/habits", "logic/routines", "logic/goals"], function (exports_50, context_50) {
+System.register("logic/winterArc", ["time/localDate"], function (exports_50, context_50) {
     "use strict";
-    var localDate_9, config_6, moduleStatus_2, dailySummary_2, tasks_2, habits_5, routines_3, goals_2, greetingFor, MONTHS, dueLabelFor, toTaskCard, HORIZON_ORDER, bucketForDaypart, BUCKET_ORDER, buildTodayView;
+    var localDate_9, WINTER_ARC_START, WINTER_ARC_END, WINTER_ARC_TOTAL_DAYS, MONTHS, formatLongDate, formatShortDate, winterArcState;
     var __moduleName = context_50 && context_50.id;
     return {
         setters: [
             function (localDate_9_1) {
                 localDate_9 = localDate_9_1;
+            }
+        ],
+        execute: function () {
+            exports_50("WINTER_ARC_START", WINTER_ARC_START = localDate_9.localDateOf(2026, 9, 1));
+            exports_50("WINTER_ARC_END", WINTER_ARC_END = localDate_9.localDateOf(2026, 12, 31));
+            exports_50("WINTER_ARC_TOTAL_DAYS", WINTER_ARC_TOTAL_DAYS = 122);
+            MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            exports_50("formatLongDate", formatLongDate = (d) => {
+                const { year, month, day } = localDate_9.parseLocalDate(d);
+                const long = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                return `${long[month - 1]} ${day}, ${year}`;
+            });
+            exports_50("formatShortDate", formatShortDate = (d) => {
+                const { month, day } = localDate_9.parseLocalDate(d);
+                return `${MONTHS[month - 1]} ${day}`;
+            });
+            exports_50("winterArcState", winterArcState = (today) => {
+                const start = WINTER_ARC_START;
+                const end = WINTER_ARC_END;
+                const totalDays = WINTER_ARC_TOTAL_DAYS;
+                const beforeStart = localDate_9.compareLocalDate(today, start) < 0;
+                const afterEnd = localDate_9.compareLocalDate(today, end) > 0;
+                if (beforeStart) {
+                    return {
+                        phase: "upcoming",
+                        daysUntilStart: localDate_9.diffDays(today, start),
+                        dayNumber: null,
+                        totalDays,
+                        daysLeft: null,
+                        progress: 0,
+                        start,
+                        end,
+                    };
+                }
+                if (afterEnd) {
+                    return {
+                        phase: "complete",
+                        daysUntilStart: 0,
+                        dayNumber: null,
+                        totalDays,
+                        daysLeft: null,
+                        progress: 1,
+                        start,
+                        end,
+                    };
+                }
+                const dayNumber = localDate_9.diffDays(start, today) + 1;
+                const daysLeft = localDate_9.diffDays(today, end) + 1;
+                const isFinal = localDate_9.compareLocalDate(today, end) === 0;
+                const progress = Math.min(1, Math.max(0, dayNumber / totalDays));
+                return {
+                    phase: isFinal ? "final" : "active",
+                    daysUntilStart: 0,
+                    dayNumber,
+                    totalDays,
+                    daysLeft,
+                    progress,
+                    start,
+                    end,
+                };
+            });
+        }
+    };
+});
+System.register("ui/model/viewModel", ["time/localDate", "logic/winterArc", "config/index", "logic/moduleStatus", "logic/dailySummary", "logic/tasks", "logic/habits", "logic/routines", "logic/goals"], function (exports_51, context_51) {
+    "use strict";
+    var localDate_10, winterArc_1, config_6, moduleStatus_2, dailySummary_2, tasks_2, habits_5, routines_3, goals_2, greetingFor, MONTHS, dueLabelFor, toTaskCard, HORIZON_ORDER, bucketForDaypart, BUCKET_ORDER, buildTodayView;
+    var __moduleName = context_51 && context_51.id;
+    return {
+        setters: [
+            function (localDate_10_1) {
+                localDate_10 = localDate_10_1;
+            },
+            function (winterArc_1_1) {
+                winterArc_1 = winterArc_1_1;
             },
             function (config_6_1) {
                 config_6 = config_6_1;
@@ -3292,7 +3422,7 @@ System.register("ui/model/viewModel", ["time/localDate", "config/index", "logic/
             }
         ],
         execute: function () {
-            exports_50("greetingFor", greetingFor = (hour) => {
+            exports_51("greetingFor", greetingFor = (hour) => {
                 if (hour < 5)
                     return "Still up";
                 if (hour < 12)
@@ -3309,12 +3439,12 @@ System.register("ui/model/viewModel", ["time/localDate", "config/index", "logic/
                     return "";
                 if (tasks_2.isOverdue(t, today))
                     return "Overdue";
-                const delta = localDate_9.diffDays(today, t.due);
+                const delta = localDate_10.diffDays(today, t.due);
                 if (delta === 0)
                     return "Today";
                 if (delta === 1)
                     return "Tomorrow";
-                const { month, day } = localDate_9.parseLocalDate(t.due);
+                const { month, day } = localDate_10.parseLocalDate(t.due);
                 return `${MONTHS[month - 1]} ${day}`;
             };
             toTaskCard = (t, today) => ({
@@ -3343,7 +3473,7 @@ System.register("ui/model/viewModel", ["time/localDate", "config/index", "logic/
                 return "Day";
             };
             BUCKET_ORDER = ["Morning", "Day", "Night"];
-            exports_50("buildTodayView", buildTodayView = (data, today, hour, settings = config_6.DEFAULT_SETTINGS) => {
+            exports_51("buildTodayView", buildTodayView = (data, today, hour, settings = config_6.DEFAULT_SETTINGS) => {
                 const summary = dailySummary_2.computeDailySummary(data, today);
                 const modules = moduleStatus_2.todayModuleStatus(data, today, settings);
                 const todayTasks = tasks_2.sortByPriority(tasks_2.filterTasks(data.tasks, "today", today));
@@ -3437,16 +3567,17 @@ System.register("ui/model/viewModel", ["time/localDate", "config/index", "logic/
                     routineGroups,
                     goals,
                     modules,
+                    winterArc: winterArc_1.winterArcState(today),
                     isEmpty,
                 };
             });
         }
     };
 });
-System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep", "logic/reading"], function (exports_51, context_51) {
+System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep", "logic/reading"], function (exports_52, context_52) {
     "use strict";
     var fitness_3, diet_3, sleep_3, reading_3, buildFitnessView, buildDietView, buildSleepView, buildRoutinesView, toItemVM, buildReadingView;
-    var __moduleName = context_51 && context_51.id;
+    var __moduleName = context_52 && context_52.id;
     return {
         setters: [
             function (fitness_3_1) {
@@ -3463,7 +3594,7 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
             }
         ],
         execute: function () {
-            exports_51("buildFitnessView", buildFitnessView = (data, today) => {
+            exports_52("buildFitnessView", buildFitnessView = (data, today) => {
                 const nameOf = new Map(data.exercises.map((e) => [e.id, e.name]));
                 const unitOf = new Map(data.exercises.map((e) => [e.id, e.loadUnit]));
                 const sessions = data.workoutSessions
@@ -3515,7 +3646,7 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
                         data.measurements.length === 0,
                 };
             });
-            exports_51("buildDietView", buildDietView = (data, today, settings) => {
+            exports_52("buildDietView", buildDietView = (data, today, settings) => {
                 const meals = data.meals
                     .filter((m) => m.date === today)
                     .slice()
@@ -3539,7 +3670,7 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
                     isEmpty: meals.length === 0 && data.waterLog.every((w) => w.date !== today),
                 };
             });
-            exports_51("buildSleepView", buildSleepView = (data, today, settings) => {
+            exports_52("buildSleepView", buildSleepView = (data, today, settings) => {
                 const recent = sleep_3.lastNights(data, today, 7);
                 return {
                     today,
@@ -3555,7 +3686,7 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
                     isEmpty: data.sleepLog.length === 0,
                 };
             });
-            exports_51("buildRoutinesView", buildRoutinesView = (data) => {
+            exports_52("buildRoutinesView", buildRoutinesView = (data) => {
                 const nameOf = new Map(data.habits.map((hh) => [hh.id, hh.name]));
                 return {
                     habits: data.habits
@@ -3600,7 +3731,7 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
                 notesCount: r.notes.length,
                 notes: r.notes.map((n) => ({ id: n.id, text: n.text, location: n.location })),
             });
-            exports_51("buildReadingView", buildReadingView = (data, today) => {
+            exports_52("buildReadingView", buildReadingView = (data, today) => {
                 const groups = reading_3.groupByStatus(data);
                 return {
                     today,
@@ -3618,10 +3749,10 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
         }
     };
 });
-System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (exports_52, context_52) {
+System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (exports_53, context_53) {
     "use strict";
     var goals_3, tasks_3, GOAL_HORIZONS, GOAL_STATUSES, buildGoalsView, buildTasksView, PROJECT_STATUSES, buildProjectsView, toDay, buildJournalView, buildSettingsView;
-    var __moduleName = context_52 && context_52.id;
+    var __moduleName = context_53 && context_53.id;
     return {
         setters: [
             function (goals_3_1) {
@@ -3632,20 +3763,20 @@ System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (expor
             }
         ],
         execute: function () {
-            exports_52("GOAL_HORIZONS", GOAL_HORIZONS = [
+            exports_53("GOAL_HORIZONS", GOAL_HORIZONS = [
                 "vision",
                 "year",
                 "quarter",
                 "month",
                 "week",
             ]);
-            exports_52("GOAL_STATUSES", GOAL_STATUSES = [
+            exports_53("GOAL_STATUSES", GOAL_STATUSES = [
                 "active",
                 "completed",
                 "on_hold",
                 "archived",
             ]);
-            exports_52("buildGoalsView", buildGoalsView = (data) => {
+            exports_53("buildGoalsView", buildGoalsView = (data) => {
                 const nodes = [];
                 const toNode = (g, depth) => ({
                     id: g.id,
@@ -3684,7 +3815,7 @@ System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (expor
                     isEmpty: data.goals.length === 0,
                 };
             });
-            exports_52("buildTasksView", buildTasksView = (data, today) => {
+            exports_53("buildTasksView", buildTasksView = (data, today) => {
                 const goalName = new Map(data.goals.map((g) => [g.id, g.name]));
                 const projName = new Map(data.projects.map((p) => [p.id, p.name]));
                 const row = (t) => ({
@@ -3721,13 +3852,13 @@ System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (expor
                     isEmpty: data.tasks.length === 0,
                 };
             });
-            exports_52("PROJECT_STATUSES", PROJECT_STATUSES = [
+            exports_53("PROJECT_STATUSES", PROJECT_STATUSES = [
                 "active",
                 "paused",
                 "completed",
                 "archived",
             ]);
-            exports_52("buildProjectsView", buildProjectsView = (data) => ({
+            exports_53("buildProjectsView", buildProjectsView = (data) => ({
                 projects: data.projects.map((p) => {
                     const tasks = data.tasks.filter((t) => t.projectId === p.id);
                     return {
@@ -3756,7 +3887,7 @@ System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (expor
                 rating: e.rating,
                 topPriorityTomorrow: e.topPriorityTomorrow,
             });
-            exports_52("buildJournalView", buildJournalView = (data, today) => {
+            exports_53("buildJournalView", buildJournalView = (data, today) => {
                 const todayEntry = data.journal.find((e) => e.date === today);
                 const history = data.journal
                     .filter((e) => e.date !== today)
@@ -3770,7 +3901,7 @@ System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (expor
                     isEmpty: data.journal.length === 0,
                 };
             });
-            exports_52("buildSettingsView", buildSettingsView = (data) => ({
+            exports_53("buildSettingsView", buildSettingsView = (data) => ({
                 timeZone: data.settings.timeZone,
                 weekStartsOn: data.settings.weekStartsOn,
                 nutrition: data.settings.nutrition,
@@ -3790,10 +3921,10 @@ System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (expor
         }
     };
 });
-System.register("ui/app/controller", ["domain/appData", "config/index", "time/timezone", "ui/model/viewModel", "ui/model/modules", "ui/model/plan", "persistence/serialization", "state/operations", "logic/habits", "state/helpers"], function (exports_53, context_53) {
+System.register("ui/app/controller", ["domain/appData", "config/index", "time/timezone", "ui/model/viewModel", "ui/model/modules", "ui/model/plan", "persistence/serialization", "state/operations", "logic/habits", "state/helpers"], function (exports_54, context_54) {
     "use strict";
     var appData_2, config_7, timezone_3, viewModel_1, modules_1, plan_1, serialization_3, operations_2, habits_6, helpers_2, AppController, formatFullDate;
-    var __moduleName = context_53 && context_53.id;
+    var __moduleName = context_54 && context_54.id;
     return {
         setters: [
             function (appData_2_1) {
@@ -3828,7 +3959,7 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
             }
         ],
         execute: function () {
-            exports_53("instantToLocalDate", timezone_3.instantToLocalDate);
+            exports_54("instantToLocalDate", timezone_3.instantToLocalDate);
             AppController = class AppController {
                 #store;
                 #ops;
@@ -4333,8 +4464,8 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
                     await this.#commit(data);
                 }
             };
-            exports_53("AppController", AppController);
-            exports_53("formatFullDate", formatFullDate = (date) => {
+            exports_54("AppController", AppController);
+            exports_54("formatFullDate", formatFullDate = (date) => {
                 const [y, m, d] = date.split("-").map((n) => Number(n));
                 const dt = new Date(Date.UTC(y ?? 1970, (m ?? 1) - 1, d ?? 1));
                 const weekday = dt.toLocaleDateString("en-US", {
@@ -4350,10 +4481,10 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
         }
     };
 });
-System.register("ui/dom/h", [], function (exports_54, context_54) {
+System.register("ui/dom/h", [], function (exports_55, context_55) {
     "use strict";
     var appendChild, h, mount;
-    var __moduleName = context_54 && context_54.id;
+    var __moduleName = context_55 && context_55.id;
     return {
         setters: [],
         execute: function () {
@@ -4371,7 +4502,7 @@ System.register("ui/dom/h", [], function (exports_54, context_54) {
                 }
                 parent.appendChild(child);
             };
-            exports_54("h", h = (tag, props, ...children) => {
+            exports_55("h", h = (tag, props, ...children) => {
                 const el = document.createElement(tag);
                 if (props) {
                     for (const [k, v] of Object.entries(props)) {
@@ -4384,7 +4515,7 @@ System.register("ui/dom/h", [], function (exports_54, context_54) {
                     appendChild(el, child);
                 return el;
             });
-            exports_54("mount", mount = (host, ...children) => {
+            exports_55("mount", mount = (host, ...children) => {
                 host.replaceChildren();
                 for (const child of children)
                     appendChild(host, child);
@@ -4392,12 +4523,15 @@ System.register("ui/dom/h", [], function (exports_54, context_54) {
         }
     };
 });
-System.register("ui/dom/render", ["logic/sleep", "ui/dom/h"], function (exports_55, context_55) {
+System.register("ui/dom/render", ["logic/winterArc", "logic/sleep", "ui/dom/h"], function (exports_56, context_56) {
     "use strict";
-    var sleep_4, h_1, pct, priorityLabel, dueLabel, ring, card, emptyLine, taskRow, habitRow, routineGroup, goalRow, emptyDashboard, hero, formatDate, statChip, moduleStatusCard, renderDashboard;
-    var __moduleName = context_55 && context_55.id;
+    var winterArc_2, sleep_4, h_1, pct, priorityLabel, dueLabel, ring, card, emptyLine, taskRow, habitRow, routineGroup, goalRow, emptyDashboard, hero, formatDate, statChip, moduleStatusCard, winterArcCard, renderDashboard;
+    var __moduleName = context_56 && context_56.id;
     return {
         setters: [
+            function (winterArc_2_1) {
+                winterArc_2 = winterArc_2_1;
+            },
             function (sleep_4_1) {
                 sleep_4 = sleep_4_1;
             },
@@ -4511,9 +4645,77 @@ System.register("ui/dom/render", ["logic/sleep", "ui/dom/h"], function (exports_
                     : "Nothing current", "reading", null));
                 return card("Across your day", body, { cls: "card-modules" });
             };
-            exports_55("renderDashboard", renderDashboard = (vm, clockText) => {
+            winterArcCard = (w) => {
+                const range = `${winterArc_2.formatShortDate(w.start)} — ${winterArc_2.formatShortDate(w.end)}`;
+                const percent = pct(w.progress);
+                let eyebrow;
+                let bigNumber;
+                let bigUnit;
+                let sub;
+                let motto;
+                let showBar = true;
+                switch (w.phase) {
+                    case "upcoming": {
+                        eyebrow = "Winter Arc · Starts in";
+                        if (w.daysUntilStart <= 1) {
+                            bigNumber = w.daysUntilStart === 1 ? "Tomorrow" : "Today";
+                            bigUnit = "";
+                        }
+                        else {
+                            bigNumber = String(w.daysUntilStart);
+                            bigUnit = "days";
+                        }
+                        sub = winterArc_2.formatLongDate(w.start);
+                        motto = "The arc is coming.";
+                        showBar = false;
+                        break;
+                    }
+                    case "active": {
+                        eyebrow = "Winter Arc";
+                        bigNumber = String(w.daysLeft);
+                        bigUnit = w.daysLeft === 1 ? "day left" : "days left";
+                        sub = `Day ${w.dayNumber} / ${w.totalDays} · ${range}`;
+                        motto = "No excuses. Keep building.";
+                        break;
+                    }
+                    case "final": {
+                        eyebrow = "Winter Arc · Final day";
+                        bigNumber = `Day ${w.dayNumber}`;
+                        bigUnit = `/ ${w.totalDays}`;
+                        sub = range;
+                        motto = "Make it count.";
+                        break;
+                    }
+                    case "complete": {
+                        eyebrow = "Winter Arc · Complete";
+                        bigNumber = String(w.totalDays);
+                        bigUnit = "days";
+                        sub = `${winterArc_2.formatShortDate(w.start)} — ${winterArc_2.formatLongDate(w.end)}`;
+                        motto = "You made it through.";
+                        break;
+                    }
+                }
+                const flake = w.phase === "complete" ? "🏆" : "❄️";
+                const label = w.phase === "upcoming"
+                    ? `Winter Arc starts in ${w.daysUntilStart} day${w.daysUntilStart === 1 ? "" : "s"}`
+                    : w.phase === "complete"
+                        ? "Winter Arc complete"
+                        : `Winter Arc day ${w.dayNumber} of ${w.totalDays}, ${w.daysLeft} day${w.daysLeft === 1 ? "" : "s"} left`;
+                return h_1.h("section", { class: `winter-arc phase-${w.phase}`, "aria-label": label }, h_1.h("div", { class: "wa-top" }, h_1.h("span", { class: "wa-flake", "aria-hidden": "true" }, flake), h_1.h("span", { class: "wa-eyebrow" }, eyebrow), h_1.h("span", { class: "wa-range mono" }, range)), h_1.h("div", { class: "wa-headline" }, h_1.h("span", { class: "wa-big" }, bigNumber), bigUnit ? h_1.h("span", { class: "wa-unit" }, bigUnit) : null), showBar
+                    ? h_1.h("div", {
+                        class: "wa-bar",
+                        role: "progressbar",
+                        "aria-valuemin": "0",
+                        "aria-valuemax": "100",
+                        "aria-valuenow": String(percent),
+                        "aria-label": `Winter Arc progress: ${percent}%`,
+                    }, h_1.h("i", { style: `width:${percent}%` }), h_1.h("span", { class: "wa-bar-pct mono" }, `${percent}%`))
+                    : null, h_1.h("div", { class: "wa-foot" }, h_1.h("span", { class: "wa-sub mono" }, sub), h_1.h("span", { class: "wa-motto" }, motto)));
+            };
+            exports_56("renderDashboard", renderDashboard = (vm, clockText) => {
                 const frag = h_1.h("div", { class: "dash" });
                 frag.appendChild(hero(vm, clockText));
+                frag.appendChild(winterArcCard(vm.winterArc));
                 if (vm.isEmpty) {
                     frag.appendChild(emptyDashboard());
                     return frag;
@@ -4541,10 +4743,10 @@ System.register("ui/dom/render", ["logic/sleep", "ui/dom/h"], function (exports_
         }
     };
 });
-System.register("ui/dom/ui", ["ui/dom/h"], function (exports_56, context_56) {
+System.register("ui/dom/ui", ["ui/dom/h"], function (exports_57, context_57) {
     "use strict";
     var h_2, pct, card, emptyLine, pageHead, bar, stat, field, textareaField, selectField, submit, form, titleCase;
-    var __moduleName = context_56 && context_56.id;
+    var __moduleName = context_57 && context_57.id;
     return {
         setters: [
             function (h_2_1) {
@@ -4552,13 +4754,13 @@ System.register("ui/dom/ui", ["ui/dom/h"], function (exports_56, context_56) {
             }
         ],
         execute: function () {
-            exports_56("pct", pct = (frac) => Math.round(Math.max(0, Math.min(1, frac)) * 100));
-            exports_56("card", card = (title, body, opts) => h_2.h("section", { class: `card ${opts?.cls ?? ""}`.trim() }, h_2.h("header", { class: "card-head" }, h_2.h("h2", null, title), opts?.count !== undefined ? h_2.h("span", { class: "card-count" }, opts.count) : null), body));
-            exports_56("emptyLine", emptyLine = (text) => h_2.h("p", { class: "empty-line" }, text));
-            exports_56("pageHead", pageHead = (title, subtitle) => h_2.h("div", { class: "page-head" }, h_2.h("h1", { class: "page-title" }, title), h_2.h("p", { class: "page-sub" }, subtitle)));
-            exports_56("bar", bar = (frac, cls = "") => h_2.h("span", { class: `bar ${cls}`.trim() }, h_2.h("span", { class: "bar-fill", style: `width:${pct(frac)}%` })));
-            exports_56("stat", stat = (label, value) => h_2.h("div", { class: "stat" }, h_2.h("span", { class: "stat-value" }, value), h_2.h("span", { class: "stat-label" }, label)));
-            exports_56("field", field = (label, name, opts = {}) => h_2.h("label", { class: "fld" }, h_2.h("span", { class: "fld-label" }, label), h_2.h("input", {
+            exports_57("pct", pct = (frac) => Math.round(Math.max(0, Math.min(1, frac)) * 100));
+            exports_57("card", card = (title, body, opts) => h_2.h("section", { class: `card ${opts?.cls ?? ""}`.trim() }, h_2.h("header", { class: "card-head" }, h_2.h("h2", null, title), opts?.count !== undefined ? h_2.h("span", { class: "card-count" }, opts.count) : null), body));
+            exports_57("emptyLine", emptyLine = (text) => h_2.h("p", { class: "empty-line" }, text));
+            exports_57("pageHead", pageHead = (title, subtitle) => h_2.h("div", { class: "page-head" }, h_2.h("h1", { class: "page-title" }, title), h_2.h("p", { class: "page-sub" }, subtitle)));
+            exports_57("bar", bar = (frac, cls = "") => h_2.h("span", { class: `bar ${cls}`.trim() }, h_2.h("span", { class: "bar-fill", style: `width:${pct(frac)}%` })));
+            exports_57("stat", stat = (label, value) => h_2.h("div", { class: "stat" }, h_2.h("span", { class: "stat-value" }, value), h_2.h("span", { class: "stat-label" }, label)));
+            exports_57("field", field = (label, name, opts = {}) => h_2.h("label", { class: "fld" }, h_2.h("span", { class: "fld-label" }, label), h_2.h("input", {
                 class: "fld-input",
                 "data-field": name,
                 type: opts.type ?? "text",
@@ -4568,18 +4770,18 @@ System.register("ui/dom/ui", ["ui/dom/h"], function (exports_56, context_56) {
                 ...(opts.step !== undefined ? { step: opts.step } : {}),
                 ...(opts.min !== undefined ? { min: opts.min } : {}),
             })));
-            exports_56("textareaField", textareaField = (label, name, value, placeholder = "") => h_2.h("label", { class: "fld fld-wide" }, h_2.h("span", { class: "fld-label" }, label), h_2.h("textarea", { class: "fld-input", "data-field": name, rows: "2", placeholder }, value ?? "")));
-            exports_56("selectField", selectField = (label, name, options, selected) => h_2.h("label", { class: "fld" }, h_2.h("span", { class: "fld-label" }, label), h_2.h("select", { class: "fld-input", "data-field": name }, ...options.map((o) => h_2.h("option", { value: o.value, ...(o.value === selected ? { selected: "selected" } : {}) }, o.label)))));
-            exports_56("submit", submit = (label) => h_2.h("button", { class: "btn btn-primary", "data-action": "form-submit" }, label));
-            exports_56("form", form = (name, fields, submitLabel, dataAttrs = {}) => h_2.h("div", { class: "form", "data-form": name, ...dataAttrs }, h_2.h("div", { class: "form-row" }, ...fields), h_2.h("div", { class: "form-actions" }, submit(submitLabel))));
-            exports_56("titleCase", titleCase = (s) => s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, " "));
+            exports_57("textareaField", textareaField = (label, name, value, placeholder = "") => h_2.h("label", { class: "fld fld-wide" }, h_2.h("span", { class: "fld-label" }, label), h_2.h("textarea", { class: "fld-input", "data-field": name, rows: "2", placeholder }, value ?? "")));
+            exports_57("selectField", selectField = (label, name, options, selected) => h_2.h("label", { class: "fld" }, h_2.h("span", { class: "fld-label" }, label), h_2.h("select", { class: "fld-input", "data-field": name }, ...options.map((o) => h_2.h("option", { value: o.value, ...(o.value === selected ? { selected: "selected" } : {}) }, o.label)))));
+            exports_57("submit", submit = (label) => h_2.h("button", { class: "btn btn-primary", "data-action": "form-submit" }, label));
+            exports_57("form", form = (name, fields, submitLabel, dataAttrs = {}) => h_2.h("div", { class: "form", "data-form": name, ...dataAttrs }, h_2.h("div", { class: "form-row" }, ...fields), h_2.h("div", { class: "form-actions" }, submit(submitLabel))));
+            exports_57("titleCase", titleCase = (s) => s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, " "));
         }
     };
 });
-System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "domain/common", "domain/reading", "ui/dom/ui"], function (exports_57, context_57) {
+System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "domain/common", "domain/reading", "ui/dom/ui"], function (exports_58, context_58) {
     "use strict";
     var h_3, sleep_5, diet_4, common_2, reading_4, ui_1, mealOptions, daypartOptions, renderFitness, renderDiet, renderSleep, renderRoutines, renderReading;
-    var __moduleName = context_57 && context_57.id;
+    var __moduleName = context_58 && context_58.id;
     return {
         setters: [
             function (h_3_1) {
@@ -4604,7 +4806,7 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
         execute: function () {
             mealOptions = diet_4.MEAL_TYPES.map((t) => ({ value: t, label: ui_1.titleCase(t) }));
             daypartOptions = common_2.DAYPARTS.map((d) => ({ value: d, label: ui_1.titleCase(d) }));
-            exports_57("renderFitness", renderFitness = (v) => {
+            exports_58("renderFitness", renderFitness = (v) => {
                 const root = h_3.h("div", { class: "dash module" });
                 root.appendChild(ui_1.pageHead("Fitness", "Workouts, progressive overload, body metrics."));
                 const grid = h_3.h("div", { class: "grid" });
@@ -4689,7 +4891,7 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                         : ui_1.emptyLine("Add an exercise to the catalog below to log sets here."), h_3.h("div", { class: "finish-row" }, h_3.h("button", { class: "btn btn-primary btn-finish", "data-action": "finish-workout", "data-id": s.id }, "Finish workout")));
                 }
             });
-            exports_57("renderDiet", renderDiet = (v) => {
+            exports_58("renderDiet", renderDiet = (v) => {
                 const root = h_3.h("div", { class: "dash module" });
                 root.appendChild(ui_1.pageHead("Diet", "Meals, macros, water — measured against your targets."));
                 const grid = h_3.h("div", { class: "grid" });
@@ -4717,7 +4919,7 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                 root.appendChild(grid);
                 return root;
             });
-            exports_57("renderSleep", renderSleep = (v) => {
+            exports_58("renderSleep", renderSleep = (v) => {
                 const root = h_3.h("div", { class: "dash module" });
                 root.appendChild(ui_1.pageHead("Sleep", "Duration, target, and how steady your nights are."));
                 const grid = h_3.h("div", { class: "grid" });
@@ -4744,7 +4946,7 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                 root.appendChild(grid);
                 return root;
             });
-            exports_57("renderRoutines", renderRoutines = (v) => {
+            exports_58("renderRoutines", renderRoutines = (v) => {
                 const root = h_3.h("div", { class: "dash module" });
                 root.appendChild(ui_1.pageHead("Routines & hygiene", "Your own small habits (brushing, skincare, anything) grouped into routines."));
                 const grid = h_3.h("div", { class: "grid" });
@@ -4777,7 +4979,7 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                 root.appendChild(grid);
                 return root;
             });
-            exports_57("renderReading", renderReading = (v) => {
+            exports_58("renderReading", renderReading = (v) => {
                 const root = h_3.h("div", { class: "dash module" });
                 root.appendChild(ui_1.pageHead("Reading & learning", "Books, articles, progress, notes, and a learning log."));
                 const grid = h_3.h("div", { class: "grid" });
@@ -4827,10 +5029,10 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
         }
     };
 });
-System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], function (exports_58, context_58) {
+System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], function (exports_59, context_59) {
     "use strict";
     var h_4, ui_2, plan_2, horizonOptions, statusOptions, projectStatusOptions, priorityOptions, renderGoals, renderTasks, renderProjects, renderJournal, renderSettings;
-    var __moduleName = context_58 && context_58.id;
+    var __moduleName = context_59 && context_59.id;
     return {
         setters: [
             function (h_4_1) {
@@ -4851,7 +5053,7 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                 value: x,
                 label: ui_2.titleCase(x),
             }));
-            exports_58("renderGoals", renderGoals = (v, expanded) => {
+            exports_59("renderGoals", renderGoals = (v, expanded) => {
                 const root = h_4.h("div", { class: "dash module" });
                 root.appendChild(ui_2.pageHead("Goals", "Vision → year → quarter → month → week, with milestones."));
                 const grid = h_4.h("div", { class: "grid" });
@@ -4906,7 +5108,7 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                 root.appendChild(grid);
                 return root;
             });
-            exports_58("renderTasks", renderTasks = (v, active) => {
+            exports_59("renderTasks", renderTasks = (v, active) => {
                 const root = h_4.h("div", { class: "dash module" });
                 root.appendChild(ui_2.pageHead("Tasks", "Everything on your plate — filter, prioritise, break down."));
                 const tabs = [
@@ -4956,7 +5158,7 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                 root.appendChild(grid);
                 return root;
             });
-            exports_58("renderProjects", renderProjects = (v) => {
+            exports_59("renderProjects", renderProjects = (v) => {
                 const root = h_4.h("div", { class: "dash module" });
                 root.appendChild(ui_2.pageHead("Projects", "Group related tasks and track their progress."));
                 const grid = h_4.h("div", { class: "grid" });
@@ -4974,7 +5176,7 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                 root.appendChild(grid);
                 return root;
             });
-            exports_58("renderJournal", renderJournal = (v) => {
+            exports_59("renderJournal", renderJournal = (v) => {
                 const root = h_4.h("div", { class: "dash module" });
                 root.appendChild(ui_2.pageHead("Daily review", "A short end-of-day reflection — one entry per day."));
                 const grid = h_4.h("div", { class: "grid" });
@@ -5014,7 +5216,7 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                 root.appendChild(grid);
                 return root;
             });
-            exports_58("renderSettings", renderSettings = (v, resetArmed = false) => {
+            exports_59("renderSettings", renderSettings = (v, resetArmed = false) => {
                 const root = h_4.h("div", { class: "dash module" });
                 root.appendChild(ui_2.pageHead("Settings & data", "Preferences, targets, and local-first backup."));
                 const grid = h_4.h("div", { class: "grid" });
@@ -5038,10 +5240,10 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
         }
     };
 });
-System.register("ui/model/quickAdd", [], function (exports_59, context_59) {
+System.register("ui/model/quickAdd", [], function (exports_60, context_60) {
     "use strict";
     var stripPriority, parseQuickAdd;
-    var __moduleName = context_59 && context_59.id;
+    var __moduleName = context_60 && context_60.id;
     return {
         setters: [],
         execute: function () {
@@ -5054,7 +5256,7 @@ System.register("ui/model/quickAdd", [], function (exports_59, context_59) {
                 }
                 return { title: text.trim(), priority: null };
             };
-            exports_59("parseQuickAdd", parseQuickAdd = (kind, raw, today) => {
+            exports_60("parseQuickAdd", parseQuickAdd = (kind, raw, today) => {
                 const text = raw.trim();
                 if (text.length === 0)
                     return null;
@@ -5075,25 +5277,25 @@ System.register("ui/model/quickAdd", [], function (exports_59, context_59) {
         }
     };
 });
-System.register("ui/model/theme", [], function (exports_60, context_60) {
+System.register("ui/model/theme", [], function (exports_61, context_61) {
     "use strict";
     var THEME_CHOICES, isThemeChoice, resolveTheme, nextTheme, themeLabel;
-    var __moduleName = context_60 && context_60.id;
+    var __moduleName = context_61 && context_61.id;
     return {
         setters: [],
         execute: function () {
-            exports_60("THEME_CHOICES", THEME_CHOICES = ["dark", "light", "system"]);
-            exports_60("isThemeChoice", isThemeChoice = (v) => v === "light" || v === "dark" || v === "system");
-            exports_60("resolveTheme", resolveTheme = (choice, systemPrefersDark) => {
+            exports_61("THEME_CHOICES", THEME_CHOICES = ["dark", "light", "system"]);
+            exports_61("isThemeChoice", isThemeChoice = (v) => v === "light" || v === "dark" || v === "system");
+            exports_61("resolveTheme", resolveTheme = (choice, systemPrefersDark) => {
                 if (choice === "system")
                     return systemPrefersDark ? "dark" : "light";
                 return choice;
             });
-            exports_60("nextTheme", nextTheme = (choice) => {
+            exports_61("nextTheme", nextTheme = (choice) => {
                 const i = THEME_CHOICES.indexOf(choice);
                 return THEME_CHOICES[(i + 1) % THEME_CHOICES.length];
             });
-            exports_60("themeLabel", themeLabel = (choice) => {
+            exports_61("themeLabel", themeLabel = (choice) => {
                 if (choice === "dark")
                     return "Dark";
                 if (choice === "light")
@@ -5103,10 +5305,10 @@ System.register("ui/model/theme", [], function (exports_60, context_60) {
         }
     };
 });
-System.register("ui/main", ["config/index", "core/clock", "core/id", "persistence/store", "persistence/adapter", "ui/app/controller", "ui/dom/render", "ui/dom/modules", "ui/dom/plan", "ui/dom/h", "ui/model/quickAdd", "ui/model/theme"], function (exports_61, context_61) {
+System.register("ui/main", ["config/index", "core/clock", "core/id", "persistence/store", "persistence/adapter", "ui/app/controller", "ui/dom/render", "ui/dom/modules", "ui/dom/plan", "ui/dom/h", "ui/model/quickAdd", "ui/model/theme"], function (exports_62, context_62) {
     "use strict";
     var config_8, clock_3, id_2, store_2, adapter_2, controller_1, render_1, modules_2, plan_3, h_5, quickAdd_1, theme_1, THEME_KEY, ROUTES, isRoute, formatClock, systemPrefersDark, loadThemeChoice, navGroups, readFields, numOrNull, strOrNull, downloadJson, start;
-    var __moduleName = context_61 && context_61.id;
+    var __moduleName = context_62 && context_62.id;
     return {
         setters: [
             function (config_8_1) {

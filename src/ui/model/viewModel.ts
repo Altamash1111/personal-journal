@@ -16,6 +16,8 @@ import type { GoalHorizon } from "../../domain/goal";
 import type { DailySummary } from "../../logic/dailySummary";
 import type { Settings } from "../../domain/settings";
 import type { ModuleStatus } from "../../logic/moduleStatus";
+import type { WinterArcState } from "../../logic/winterArc";
+import { winterArcState } from "../../logic/winterArc";
 import { DEFAULT_SETTINGS } from "../../config";
 import { todayModuleStatus } from "../../logic/moduleStatus";
 
@@ -96,6 +98,7 @@ export interface TodayView {
   readonly routineGroups: readonly RoutineGroupVM[];
   readonly goals: readonly GoalVM[];
   readonly modules: ModuleStatus;
+  readonly winterArc: WinterArcState;
   readonly isEmpty: boolean;
 }
 
@@ -268,6 +271,7 @@ export const buildTodayView = (
     routineGroups,
     goals,
     modules,
+    winterArc: winterArcState(today),
     isEmpty,
   };
 };
