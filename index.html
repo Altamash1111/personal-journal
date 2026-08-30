@@ -511,8 +511,41 @@ body {
 }
 .session-head .row-title { font-weight: 600; }
 .session-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-.se-block { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; }
-.se-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.session.is-active { border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); }
+.session-summary { color: var(--text-dim); font-size: 12px; margin: -4px 0 12px; }
+
+.se-block { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.se-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.se-head .row-title { font-weight: 550; }
+.se-tag {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--text-faint); border: 1px solid var(--border);
+  border-radius: 999px; padding: 2px 8px;
+}
+.se-count { margin-left: auto; color: var(--text-faint); font-size: 12px; }
+
+/* Clean per-set rows: "Set 1 · 12 × 60 kg" */
+.set-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.set-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 6px 10px; background: var(--surface); border-radius: var(--r-sm);
+}
+.set-n { color: var(--text-faint); font-size: 12px; min-width: 44px; }
+.set-val { flex: 1; font-size: 14px; }
+
+/* Quiet "add exercise" — collapsed by default, not a prominent card */
+.add-ex { margin-top: 12px; }
+.add-ex > summary {
+  cursor: pointer; color: var(--text-dim); font-size: 13px;
+  list-style: none; padding: 4px 0; user-select: none;
+}
+.add-ex > summary::-webkit-details-marker { display: none; }
+.add-ex > summary:hover { color: var(--text); }
+.add-ex[open] > summary { color: var(--text); margin-bottom: 4px; }
+
+/* Finish is the clear final action */
+.finish-row { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px; }
+.btn-finish { width: 100%; padding: 11px; font-weight: 600; font-size: 15px; }
 
 /* Routines admin */
 .routine-admin {
@@ -720,6 +753,60 @@ textarea.fld-input { resize: vertical; min-height: 44px; font-family: inherit; l
   padding: 14px; background: var(--surface-2); margin-bottom: 10px; }
 .jr-line { margin: 6px 0; font-size: 14px; color: var(--text); }
 .jr-line b { color: var(--text-dim); font-weight: 600; }
+
+/* Readable saved-review content (Today's Review + Past reviews) */
+.jr-review { display: flex; flex-direction: column; gap: 14px; }
+.journal-day .jr-review { margin-top: 10px; }
+.jr-rating { display: flex; align-items: center; gap: 8px; }
+.jr-stars { color: var(--warn); letter-spacing: 2px; font-size: 15px; }
+.jr-rating-num { color: var(--text-dim); font-size: 13px; }
+.jr-section { display: flex; flex-direction: column; gap: 4px; }
+.jr-section-label {
+  font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-faint);
+}
+.jr-section-text {
+  font-size: 14px; line-height: 1.5; color: var(--text);
+  white-space: pre-wrap; /* preserve the user's line breaks */
+}
+
+/* Daily Review — transient save confirmation */
+.save-status {
+  margin: 10px 0 0; font-size: 13px; color: var(--good);
+  opacity: 0; transform: translateY(-2px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  min-height: 18px; /* reserve space so layout doesn't jump */
+}
+.save-status.is-shown { opacity: 1; transform: translateY(0); }
+
+/* Reading — readable saved notes */
+.reading-notes { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px;
+  display: flex; flex-direction: column; gap: 6px; }
+.reading-notes-head { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); }
+.reading-note { display: flex; gap: 8px; align-items: baseline; font-size: 14px; line-height: 1.45; color: var(--text); }
+.reading-note-loc { color: var(--text-faint); font-size: 12px; flex: none; }
+.reading-note-text { white-space: pre-wrap; }
+
+/* Field hint + error styling for the save-status line */
+.field-hint { margin: 6px 0 0; font-size: 12px; color: var(--text-faint); }
+.save-status.is-error { color: var(--urgent); opacity: 1; transform: none; }
+
+/* In-app Clear-all-data confirmation (replaces fragile window.confirm) */
+.reset-confirm { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.reset-confirm-label { color: var(--urgent); font-size: 13px; font-weight: 550; }
+.btn-danger {
+  background: var(--urgent); color: #fff; border: 1px solid var(--urgent);
+}
+.btn-danger:hover { filter: brightness(1.08); }
+
+/* Finished reading item — clean read-only completed card */
+.read-item.is-finished { background: var(--surface-2); }
+.read-item.is-finished .read-head { align-items: center; gap: 10px; }
+.read-head-meta { margin-left: auto; }
+.read-finished-actions { display: flex; align-items: center; gap: 8px; margin-top: 12px;
+  border-top: 1px solid var(--border); padding-top: 12px; }
+.pill-good { background: color-mix(in srgb, var(--good) 20%, transparent);
+  border-color: color-mix(in srgb, var(--good) 45%, var(--border)); color: var(--text); }
 
   </style>
 </head>
@@ -951,7 +1038,7 @@ System.register("core/id", [], function (exports_11, context_11) {
 });
 System.register("time/timezone", ["time/localDate"], function (exports_12, context_12) {
     "use strict";
-    var localDate_1, instantToLocalDate, todayLocalDate, instantToLocalTime;
+    var localDate_1, isValidTimeZone, safeZone, instantToLocalDate, todayLocalDate, instantToLocalTime;
     var __moduleName = context_12 && context_12.id;
     return {
         setters: [
@@ -960,9 +1047,21 @@ System.register("time/timezone", ["time/localDate"], function (exports_12, conte
             }
         ],
         execute: function () {
+            exports_12("isValidTimeZone", isValidTimeZone = (tz) => {
+                if (typeof tz !== "string" || tz.trim() === "")
+                    return false;
+                try {
+                    new Intl.DateTimeFormat("en-CA", { timeZone: tz });
+                    return true;
+                }
+                catch {
+                    return false;
+                }
+            });
+            safeZone = (tz) => (isValidTimeZone(tz) ? tz : "UTC");
             exports_12("instantToLocalDate", instantToLocalDate = (instant, timeZone) => {
                 const parts = new Intl.DateTimeFormat("en-CA", {
-                    timeZone,
+                    timeZone: safeZone(timeZone),
                     year: "numeric",
                     month: "2-digit",
                     day: "2-digit",
@@ -973,7 +1072,7 @@ System.register("time/timezone", ["time/localDate"], function (exports_12, conte
             exports_12("todayLocalDate", todayLocalDate = (clock, timeZone) => instantToLocalDate(clock.now(), timeZone));
             exports_12("instantToLocalTime", instantToLocalTime = (instant, timeZone) => {
                 const parts = new Intl.DateTimeFormat("en-GB", {
-                    timeZone,
+                    timeZone: safeZone(timeZone),
                     hour: "2-digit",
                     minute: "2-digit",
                     hour12: false,
@@ -1571,8 +1670,15 @@ System.register("logic/fitness", ["time/localDate"], function (exports_33, conte
             });
             exports_33("bodyWeightTrend", bodyWeightTrend = (data) => {
                 const sorted = data.bodyWeights
-                    .slice()
-                    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+                    .map((e, i) => ({ e, i }))
+                    .sort((a, b) => {
+                    if (a.e.date !== b.e.date)
+                        return a.e.date < b.e.date ? 1 : -1;
+                    if (a.e.recordedAt !== b.e.recordedAt)
+                        return a.e.recordedAt < b.e.recordedAt ? 1 : -1;
+                    return b.i - a.i;
+                })
+                    .map((x) => x.e);
                 const latest = sorted[0];
                 const previous = sorted[1];
                 if (latest === undefined) {
@@ -1590,13 +1696,18 @@ System.register("logic/fitness", ["time/localDate"], function (exports_33, conte
                 const bySite = new Map();
                 for (const m of data.measurements) {
                     const cur = bySite.get(m.site);
-                    if (cur === undefined || m.date > cur.date) {
-                        bySite.set(m.site, { site: m.site, value: m.value, unit: m.unit, date: m.date });
+                    const isNewer = cur === undefined ||
+                        m.date > cur.date ||
+                        (m.date === cur.date && m.recordedAt >= cur.recordedAt);
+                    if (isNewer) {
+                        bySite.set(m.site, { site: m.site, value: m.value, unit: m.unit, date: m.date, recordedAt: m.recordedAt });
                     }
                 }
                 return [...bySite.values()].sort((a, b) => a.site.localeCompare(b.site));
             });
             sessionsInWindow = (data, date, days) => data.workoutSessions.filter((s) => {
+                if (s.completedAt === null)
+                    return false;
                 const d = localDate_7.diffDays(s.date, date);
                 return d >= 0 && d < days;
             });
@@ -1767,7 +1878,7 @@ System.register("logic/moduleStatus", ["logic/diet", "logic/fitness", "logic/sle
         execute: function () {
             exports_37("todayModuleStatus", todayModuleStatus = (data, date, settings) => {
                 const week = fitness_1.weeklyProgress(data, date);
-                const loggedToday = data.workoutSessions.some((s) => s.date === date);
+                const loggedToday = data.workoutSessions.some((s) => s.date === date && s.completedAt !== null);
                 const n = diet_1.nutritionProgress(data, date, settings.nutrition);
                 const entry = sleep_1.sleepForDate(data, date);
                 const sp = sleep_1.sleepProgress(entry, settings.sleepTargetMinutes);
@@ -2208,11 +2319,13 @@ System.register("state/operations", ["state/helpers", "logic/recurrence", "logic
                     }
                     : {
                         ...existing,
-                        accomplished: patch.accomplished ?? existing.accomplished,
-                        wentWrong: patch.wentWrong ?? existing.wentWrong,
-                        learned: patch.learned ?? existing.learned,
-                        rating: patch.rating ?? existing.rating,
-                        topPriorityTomorrow: patch.topPriorityTomorrow ?? existing.topPriorityTomorrow,
+                        accomplished: "accomplished" in patch ? patch.accomplished ?? null : existing.accomplished,
+                        wentWrong: "wentWrong" in patch ? patch.wentWrong ?? null : existing.wentWrong,
+                        learned: "learned" in patch ? patch.learned ?? null : existing.learned,
+                        rating: "rating" in patch ? patch.rating ?? null : existing.rating,
+                        topPriorityTomorrow: "topPriorityTomorrow" in patch
+                            ? patch.topPriorityTomorrow ?? null
+                            : existing.topPriorityTomorrow,
                         updatedAt: ts,
                     };
                 return { data: { ...data, journal: helpers_1.upsertById(data.journal, entry) }, entry };
@@ -2224,7 +2337,7 @@ System.register("state/operations", ["state/helpers", "logic/recurrence", "logic
                     id: helpers_1.newId(deps),
                     name: input.name,
                     kind: input.kind ?? "strength",
-                    loadUnit: input.loadUnit ?? "kg",
+                    loadUnit: input.loadUnit === undefined ? "kg" : input.loadUnit,
                     category: input.category ?? null,
                     notes: input.notes ?? null,
                     archived: false,
@@ -2772,9 +2885,9 @@ System.register("persistence/migrations", ["core/result", "config/index"], funct
         }
     };
 });
-System.register("persistence/validation", ["core/result", "config/index"], function (exports_45, context_45) {
+System.register("persistence/validation", ["core/result", "config/index", "time/timezone"], function (exports_45, context_45) {
     "use strict";
-    var result_2, config_3, isObject, isString, isNumber, isArray, isEntityLike, validateEnvelopeShape, coerceSettings, coerceCollection, validateAndCoerce;
+    var result_2, config_3, timezone_2, isObject, isString, isNumber, isArray, isEntityLike, validateEnvelopeShape, coerceSettings, coerceCollection, validateAndCoerce;
     var __moduleName = context_45 && context_45.id;
     return {
         setters: [
@@ -2783,6 +2896,9 @@ System.register("persistence/validation", ["core/result", "config/index"], funct
             },
             function (config_3_1) {
                 config_3 = config_3_1;
+            },
+            function (timezone_2_1) {
+                timezone_2 = timezone_2_1;
             }
         ],
         execute: function () {
@@ -2809,7 +2925,9 @@ System.register("persistence/validation", ["core/result", "config/index"], funct
                     issues.push("settings missing/invalid; using defaults");
                     return config_3.DEFAULT_SETTINGS;
                 }
-                const tz = isString(u["timeZone"]) ? u["timeZone"] : config_3.DEFAULT_SETTINGS.timeZone;
+                const tz = isString(u["timeZone"]) && timezone_2.isValidTimeZone(u["timeZone"])
+                    ? u["timeZone"]
+                    : config_3.DEFAULT_SETTINGS.timeZone;
                 const wRaw = u["weekStartsOn"];
                 const weekStartsOn = isNumber(wRaw) && wRaw >= 0 && wRaw <= 6
                     ? Math.trunc(wRaw)
@@ -3142,12 +3260,15 @@ System.register("index", ["config/index", "core/result", "core/scalars", "core/c
         }
     };
 });
-System.register("ui/model/viewModel", ["config/index", "logic/moduleStatus", "logic/dailySummary", "logic/tasks", "logic/habits", "logic/routines", "logic/goals"], function (exports_50, context_50) {
+System.register("ui/model/viewModel", ["time/localDate", "config/index", "logic/moduleStatus", "logic/dailySummary", "logic/tasks", "logic/habits", "logic/routines", "logic/goals"], function (exports_50, context_50) {
     "use strict";
-    var config_6, moduleStatus_2, dailySummary_2, tasks_2, habits_5, routines_3, goals_2, greetingFor, toTaskCard, HORIZON_ORDER, bucketForDaypart, BUCKET_ORDER, buildTodayView;
+    var localDate_9, config_6, moduleStatus_2, dailySummary_2, tasks_2, habits_5, routines_3, goals_2, greetingFor, MONTHS, dueLabelFor, toTaskCard, HORIZON_ORDER, bucketForDaypart, BUCKET_ORDER, buildTodayView;
     var __moduleName = context_50 && context_50.id;
     return {
         setters: [
+            function (localDate_9_1) {
+                localDate_9 = localDate_9_1;
+            },
             function (config_6_1) {
                 config_6 = config_6_1;
             },
@@ -3182,6 +3303,20 @@ System.register("ui/model/viewModel", ["config/index", "logic/moduleStatus", "lo
                     return "Good evening";
                 return "Good night";
             });
+            MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            dueLabelFor = (t, today) => {
+                if (t.due === null)
+                    return "";
+                if (tasks_2.isOverdue(t, today))
+                    return "Overdue";
+                const delta = localDate_9.diffDays(today, t.due);
+                if (delta === 0)
+                    return "Today";
+                if (delta === 1)
+                    return "Tomorrow";
+                const { month, day } = localDate_9.parseLocalDate(t.due);
+                return `${MONTHS[month - 1]} ${day}`;
+            };
             toTaskCard = (t, today) => ({
                 id: t.id,
                 title: t.title,
@@ -3191,6 +3326,7 @@ System.register("ui/model/viewModel", ["config/index", "logic/moduleStatus", "lo
                 overdue: tasks_2.isOverdue(t, today),
                 done: t.status === "done",
                 category: t.category,
+                dueLabel: dueLabelFor(t, today),
             });
             HORIZON_ORDER = {
                 vision: 0,
@@ -3338,11 +3474,14 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
                     date: s.date,
                     name: s.name,
                     volume: fitness_3.sessionVolume(s),
+                    setCount: s.exercises.reduce((n, se) => n + se.sets.length, 0),
                     completed: s.completedAt !== null,
                     exercises: s.exercises.map((se) => ({
                         id: se.id,
                         exerciseId: se.exerciseId,
                         name: nameOf.get(se.exerciseId) ?? "Exercise",
+                        loadUnit: unitOf.get(se.exerciseId) ?? null,
+                        bodyweight: (unitOf.get(se.exerciseId) ?? null) === null,
                         sets: se.sets.map((x) => ({
                             id: x.id,
                             reps: x.reps,
@@ -3459,6 +3598,7 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
                     ...r,
                 }) * 100),
                 notesCount: r.notes.length,
+                notes: r.notes.map((n) => ({ id: n.id, text: n.text, location: n.location })),
             });
             exports_51("buildReadingView", buildReadingView = (data, today) => {
                 const groups = reading_3.groupByStatus(data);
@@ -3652,7 +3792,7 @@ System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (expor
 });
 System.register("ui/app/controller", ["domain/appData", "config/index", "time/timezone", "ui/model/viewModel", "ui/model/modules", "ui/model/plan", "persistence/serialization", "state/operations", "logic/habits", "state/helpers"], function (exports_53, context_53) {
     "use strict";
-    var appData_2, config_7, timezone_2, viewModel_1, modules_1, plan_1, serialization_3, operations_2, habits_6, helpers_2, AppController, formatFullDate;
+    var appData_2, config_7, timezone_3, viewModel_1, modules_1, plan_1, serialization_3, operations_2, habits_6, helpers_2, AppController, formatFullDate;
     var __moduleName = context_53 && context_53.id;
     return {
         setters: [
@@ -3662,8 +3802,8 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
             function (config_7_1) {
                 config_7 = config_7_1;
             },
-            function (timezone_2_1) {
-                timezone_2 = timezone_2_1;
+            function (timezone_3_1) {
+                timezone_3 = timezone_3_1;
             },
             function (viewModel_1_1) {
                 viewModel_1 = viewModel_1_1;
@@ -3688,7 +3828,7 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
             }
         ],
         execute: function () {
-            exports_53("instantToLocalDate", timezone_2.instantToLocalDate);
+            exports_53("instantToLocalDate", timezone_3.instantToLocalDate);
             AppController = class AppController {
                 #store;
                 #ops;
@@ -3730,10 +3870,10 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
                     return this.#state.settings.timeZone;
                 }
                 today() {
-                    return timezone_2.todayLocalDate(this.#ops.clock, this.timeZone());
+                    return timezone_3.todayLocalDate(this.#ops.clock, this.timeZone());
                 }
                 localHour() {
-                    return timezone_2.instantToLocalTime(this.#ops.clock.now(), this.timeZone()).hour;
+                    return timezone_3.instantToLocalTime(this.#ops.clock.now(), this.timeZone()).hour;
                 }
                 view() {
                     return viewModel_1.buildTodayView(this.#state, this.today(), this.localHour(), this.#state.settings);
@@ -3850,7 +3990,10 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
                     await this.#commit(data);
                 }
                 async setTimeZone(timeZone) {
+                    if (!timezone_3.isValidTimeZone(timeZone))
+                        return { ok: false };
                     await this.#commit(operations_2.updateSettings(this.#ops, this.#state, { timeZone }));
+                    return { ok: true };
                 }
                 async setNutritionTargets(nutrition) {
                     await this.#commit(operations_2.updateSettings(this.#ops, this.#state, { nutrition }));
@@ -3904,6 +4047,9 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
                         reps,
                         weight,
                     }));
+                }
+                async removeSetFromSession(sessionId, sessionExerciseId, setId) {
+                    await this.#commit(operations_2.removeSet(this.#ops, this.#state, sessionId, sessionExerciseId, setId));
                 }
                 async finishWorkout(id) {
                     await this.#commit(operations_2.completeWorkoutSession(this.#ops, this.#state, id));
@@ -4053,7 +4199,10 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
                     return { ok: false, error: outcome.error };
                 }
                 async resetData() {
-                    await this.#commit(appData_2.emptyAppData(this.#state.settings));
+                    const settings = timezone_3.isValidTimeZone(this.#state.settings.timeZone)
+                        ? this.#state.settings
+                        : { ...this.#state.settings, timeZone: config_7.DEFAULT_SETTINGS.timeZone };
+                    await this.#commit(appData_2.emptyAppData(settings));
                 }
                 async seedExample() {
                     const ops = this.#ops;
@@ -4127,6 +4276,8 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
                     data = squat.data;
                     const bench = operations_2.createExercise(ops, data, { name: "Bench press", loadUnit: "kg" });
                     data = bench.data;
+                    const pushups = operations_2.createExercise(ops, data, { name: "Push-ups", loadUnit: null });
+                    data = pushups.data;
                     const session = operations_2.createWorkoutSession(ops, data, { date: today, name: "Push day" });
                     data = session.data;
                     data = operations_2.addSessionExercise(ops, data, session.session.id, bench.exercise.id);
@@ -4135,6 +4286,12 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
                         .exercises[0].id;
                     data = operations_2.addSet(ops, data, session.session.id, benchSe, { reps: 8, weight: 60 });
                     data = operations_2.addSet(ops, data, session.session.id, benchSe, { reps: 8, weight: 62.5 });
+                    data = operations_2.addSessionExercise(ops, data, session.session.id, pushups.exercise.id);
+                    const pushSe = data.workoutSessions
+                        .find((s) => s.id === session.session.id)
+                        .exercises[1].id;
+                    data = operations_2.addSet(ops, data, session.session.id, pushSe, { reps: 15, weight: null });
+                    data = operations_2.addSet(ops, data, session.session.id, pushSe, { reps: 12, weight: null });
                     data = operations_2.completeWorkoutSession(ops, data, session.session.id);
                     ({ data } = operations_2.logBodyWeight(ops, data, { date: today, weight: 78.4, unit: "kg" }));
                     ({ data } = operations_2.logMeasurement(ops, data, { date: today, site: "waist", value: 82, unit: "cm" }));
@@ -4257,13 +4414,7 @@ System.register("ui/dom/render", ["logic/sleep", "ui/dom/h"], function (exports_
                 low: "Low",
                 none: "",
             };
-            dueLabel = (t) => {
-                if (t.overdue)
-                    return "Overdue";
-                if (t.due !== null)
-                    return "Today";
-                return "";
-            };
+            dueLabel = (t) => t.dueLabel;
             ring = (percent) => {
                 const r = 52;
                 const c = 2 * Math.PI * r;
@@ -4464,20 +4615,20 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                     : null;
                 grid.appendChild(ui_1.card("Overview", h_3.h("div", {}, overview, bwNote), { cls: "card-wide" }));
                 grid.appendChild(ui_1.card("Log body metrics", h_3.h("div", {}, ui_1.form("log-bodyweight", [
-                    ui_1.field("Weight", "weight", { type: "number", step: "0.1", placeholder: "78.5" }),
+                    ui_1.field("Weight", "weight", { type: "number", step: "0.1", placeholder: "Enter weight" }),
                     ui_1.selectField("Unit", "unit", [
                         { value: "kg", label: "kg" },
                         { value: "lb", label: "lb" },
                     ]),
                 ], "Log weight"), ui_1.form("log-measurement", [
-                    ui_1.field("Site", "site", { placeholder: "waist" }),
-                    ui_1.field("Value", "value", { type: "number", step: "0.1", placeholder: "82" }),
+                    ui_1.field("Site", "site", { placeholder: "e.g. waist" }),
+                    ui_1.field("Value", "value", { type: "number", step: "0.1", placeholder: "Enter measurement" }),
                     ui_1.field("Unit", "unit", { placeholder: "cm", value: "cm" }),
                 ], "Log measurement"), v.measurements.length > 0
                     ? h_3.h("div", { class: "chips" }, ...v.measurements.map((m) => h_3.h("span", { class: "chip" }, `${m.site}: ${m.value} ${m.unit}`)))
                     : null)));
                 grid.appendChild(ui_1.card("Exercises & workouts", h_3.h("div", {}, ui_1.form("add-exercise", [
-                    ui_1.field("New exercise", "name", { placeholder: "Back squat" }),
+                    ui_1.field("New exercise", "name", { placeholder: "e.g. Dumbbell row" }),
                     ui_1.selectField("Type", "kind", [
                         { value: "strength", label: "Strength" },
                         { value: "cardio", label: "Cardio" },
@@ -4485,10 +4636,11 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                         { value: "other", label: "Other" },
                     ]),
                     ui_1.selectField("Load", "loadUnit", [
-                        { value: "kg", label: "kg" },
-                        { value: "lb", label: "lb" },
+                        { value: "bodyweight", label: "Bodyweight" },
+                        { value: "kg", label: "Weight (kg)" },
+                        { value: "lb", label: "Weight (lb)" },
                     ]),
-                ], "Add to catalog"), ui_1.form("start-workout", [ui_1.field("Workout name", "name", { placeholder: "Push day" })], "Start workout"), v.exercises.length > 0
+                ], "Add to catalog"), ui_1.form("start-workout", [ui_1.field("Workout name", "name", { placeholder: "e.g. Upper Body" })], "Start workout"), v.exercises.length > 0
                     ? h_3.h("p", { class: "muted" }, `Catalog: ${v.exercises.map((e) => e.name).join(", ")}`)
                     : ui_1.emptyLine("Add an exercise to the catalog, then start a workout to log sets."))));
                 grid.appendChild(ui_1.card("Personal records", v.prs.length > 0
@@ -4505,19 +4657,36 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                 return root;
                 function renderSession(s) {
                     const exOptions = v.exercises.map((e) => ({ value: e.id, label: e.name }));
-                    const exRows = s.exercises.map((se) => h_3.h("div", { class: "se-block" }, h_3.h("div", { class: "se-head" }, h_3.h("span", { class: "row-title" }, se.name), h_3.h("span", { class: "row-meta mono" }, se.sets.length > 0
-                        ? se.sets
-                            .map((x) => `${x.reps ?? "–"}×${x.weight ?? "–"}`)
-                            .join("  ")
-                        : "no sets")), ui_1.form("add-set", [
-                        ui_1.field("Reps", "reps", { type: "number", min: "0", placeholder: "8" }),
-                        ui_1.field("Weight", "weight", { type: "number", step: "0.5", placeholder: "60" }),
-                    ], "Add set", { "data-session": s.id, "data-se": se.id })));
-                    return h_3.h("div", { class: "session" }, h_3.h("div", { class: "session-head" }, h_3.h("span", { class: "row-title" }, s.name ?? "Workout"), h_3.h("span", { class: "row-meta mono" }, `${s.date} · vol ${Math.round(s.volume)}`), h_3.h("span", { class: "session-actions" }, s.completed
-                        ? h_3.h("span", { class: "pill pill-good" }, "done")
-                        : h_3.h("button", { class: "btn btn-ghost btn-sm", "data-action": "finish-workout", "data-id": s.id }, "Finish"), h_3.h("button", { class: "btn btn-ghost btn-sm", "data-action": "delete-workout", "data-id": s.id }, "Delete"))), ...exRows, exOptions.length > 0
-                        ? ui_1.form("add-session-exercise", [ui_1.selectField("Add exercise", "exerciseId", exOptions)], "Add", { "data-session": s.id })
-                        : ui_1.emptyLine("Add an exercise to the catalog to log sets here."));
+                    const setLabel = (x, unit, bodyweight) => {
+                        const reps = x.reps ?? 0;
+                        if (x.weight !== null && x.weight > 0)
+                            return `${reps} reps · ${x.weight} ${unit ?? "kg"}`;
+                        if (bodyweight)
+                            return `${reps} reps · Bodyweight`;
+                        return `${reps} reps`;
+                    };
+                    const exerciseBlock = (se) => {
+                        const setRows = se.sets.length > 0
+                            ? h_3.h("div", { class: "set-list" }, ...se.sets.map((x, i) => h_3.h("div", { class: "set-row" }, h_3.h("span", { class: "set-n" }, `Set ${i + 1}`), h_3.h("span", { class: "set-val mono" }, setLabel(x, se.loadUnit, se.bodyweight)), !s.completed
+                                ? h_3.h("button", { class: "icon-btn", "data-action": "delete-set", "data-session": s.id, "data-se": se.id, "data-set": x.id, title: "Remove set" }, "✕")
+                                : null)))
+                            : h_3.h("p", { class: "empty-line" }, "No sets yet.");
+                        const addSet = s.completed
+                            ? null
+                            : se.bodyweight
+                                ? ui_1.form("add-set", [ui_1.field("Reps", "reps", { type: "number", min: "0", placeholder: "e.g. 12" })], "Add set", { "data-session": s.id, "data-se": se.id })
+                                : ui_1.form("add-set", [
+                                    ui_1.field("Reps", "reps", { type: "number", min: "0", placeholder: "e.g. 12" }),
+                                    ui_1.field(`Weight (${se.loadUnit ?? "kg"})`, "weight", { type: "number", step: "0.5", min: "0", placeholder: "optional" }),
+                                ], "Add set", { "data-session": s.id, "data-se": se.id });
+                        return h_3.h("div", { class: "se-block" }, h_3.h("div", { class: "se-head" }, h_3.h("span", { class: "row-title" }, se.name), h_3.h("span", { class: "se-tag" }, se.bodyweight ? "Bodyweight" : (se.loadUnit ?? "kg")), h_3.h("span", { class: "se-count mono" }, `${se.sets.length} ${se.sets.length === 1 ? "set" : "sets"}`)), setRows, addSet);
+                    };
+                    if (s.completed) {
+                        return h_3.h("div", { class: "session is-complete" }, h_3.h("div", { class: "session-head" }, h_3.h("span", { class: "row-title" }, s.name ?? "Workout"), h_3.h("span", { class: "pill pill-good" }, "Completed"), h_3.h("span", { class: "session-actions" }, h_3.h("button", { class: "icon-btn", "data-action": "delete-workout", "data-id": s.id, title: "Delete workout" }, "✕"))), h_3.h("p", { class: "session-summary mono" }, `${s.date} · ${s.exercises.length} exercises · ${s.setCount} sets`), ...s.exercises.map(exerciseBlock));
+                    }
+                    return h_3.h("div", { class: "session is-active" }, h_3.h("div", { class: "session-head" }, h_3.h("span", { class: "row-title" }, s.name ?? "Workout"), h_3.h("span", { class: "pill" }, "In progress"), h_3.h("span", { class: "session-actions" }, h_3.h("button", { class: "icon-btn", "data-action": "delete-workout", "data-id": s.id, title: "Discard workout" }, "✕"))), h_3.h("p", { class: "session-summary mono" }, `${s.date} · ${s.exercises.length} exercises · ${s.setCount} sets`), ...s.exercises.map(exerciseBlock), exOptions.length > 0
+                        ? h_3.h("details", { class: "add-ex" }, h_3.h("summary", null, "+ Add exercise"), ui_1.form("add-session-exercise", [ui_1.selectField("Exercise", "exerciseId", exOptions)], "Add to workout", { "data-session": s.id }))
+                        : ui_1.emptyLine("Add an exercise to the catalog below to log sets here."), h_3.h("div", { class: "finish-row" }, h_3.h("button", { class: "btn btn-primary btn-finish", "data-action": "finish-workout", "data-id": s.id }, "Finish workout")));
                 }
             });
             exports_57("renderDiet", renderDiet = (v) => {
@@ -4612,11 +4781,18 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                 const root = h_3.h("div", { class: "dash module" });
                 root.appendChild(ui_1.pageHead("Reading & learning", "Books, articles, progress, notes, and a learning log."));
                 const grid = h_3.h("div", { class: "grid" });
+                const notesBlock = (it) => it.notes.length > 0
+                    ? h_3.h("div", { class: "reading-notes" }, h_3.h("div", { class: "reading-notes-head" }, `Notes · ${it.notes.length}`), ...it.notes.map((n) => h_3.h("div", { class: "reading-note" }, n.location !== null ? h_3.h("span", { class: "reading-note-loc mono" }, `p.${n.location}`) : null, h_3.h("span", { class: "reading-note-text" }, n.text))))
+                    : null;
                 const itemCard = (it) => {
-                    const statusBtns = reading_4.READING_STATUSES.filter((s) => s !== it.status).map((s) => h_3.h("button", { class: "btn btn-ghost btn-sm", "data-action": "reading-status", "data-id": it.id, "data-status": s }, s === "current" ? "Reading" : s === "finished" ? "Finish" : "Later"));
-                    return h_3.h("div", { class: "read-item" }, h_3.h("div", { class: "read-head" }, h_3.h("span", { class: "row-title" }, it.title), h_3.h("span", { class: "row-meta" }, it.author ?? it.kind)), it.total !== null || it.unit === "percent"
+                    const progressLine = it.total !== null || it.unit === "percent"
                         ? h_3.h("div", { class: "prog" }, h_3.h("div", { class: "prog-head" }, h_3.h("span", { class: "mono" }, `${it.current}${it.total !== null ? `/${it.total}` : ""} ${it.unit}`), h_3.h("span", { class: "mono" }, `${it.percent}%`)), ui_1.bar(it.percent / 100))
-                        : null, h_3.h("div", { class: "read-actions" }, ui_1.form("set-progress", [ui_1.field("Progress", "current", { type: "number", min: "0", placeholder: String(it.current) })], "Update", { "data-id": it.id }), ...statusBtns, h_3.h("button", { class: "btn btn-ghost btn-sm", "data-action": "delete-reading", "data-id": it.id }, "✕")), ui_1.form("add-note", [ui_1.field("Note", "text", { placeholder: "A thought…" })], "Add note", { "data-id": it.id }), it.notesCount > 0 ? h_3.h("span", { class: "pill" }, `${it.notesCount} notes`) : null);
+                        : null;
+                    if (it.status === "finished") {
+                        return h_3.h("div", { class: "read-item is-finished" }, h_3.h("div", { class: "read-head" }, h_3.h("span", { class: "row-title" }, it.title), h_3.h("span", { class: "pill pill-good" }, "✓ Finished"), h_3.h("span", { class: "read-head-meta row-meta" }, it.author ?? it.kind)), progressLine, notesBlock(it), h_3.h("div", { class: "read-finished-actions" }, h_3.h("button", { class: "btn btn-ghost btn-sm", "data-action": "reading-status", "data-id": it.id, "data-status": "current" }, "Reopen"), h_3.h("button", { class: "icon-btn", "data-action": "delete-reading", "data-id": it.id, title: "Remove" }, "✕")));
+                    }
+                    const statusBtns = reading_4.READING_STATUSES.filter((s) => s !== it.status).map((s) => h_3.h("button", { class: "btn btn-ghost btn-sm", "data-action": "reading-status", "data-id": it.id, "data-status": s }, s === "current" ? "Reading" : s === "finished" ? "Finish" : "Later"));
+                    return h_3.h("div", { class: "read-item" }, h_3.h("div", { class: "read-head" }, h_3.h("span", { class: "row-title" }, it.title), h_3.h("span", { class: "row-meta" }, it.author ?? it.kind)), progressLine, h_3.h("div", { class: "read-actions" }, ui_1.form("set-progress", [ui_1.field("Progress", "current", { type: "number", min: "0", placeholder: String(it.current) })], "Update", { "data-id": it.id }), ...statusBtns, h_3.h("button", { class: "btn btn-ghost btn-sm", "data-action": "delete-reading", "data-id": it.id }, "✕")), ui_1.form("add-note", [ui_1.field("Note", "text", { placeholder: "A thought…" })], "Add note", { "data-id": it.id }), notesBlock(it));
                 };
                 const group = (title, items) => ui_1.card(title, items.length > 0
                     ? h_3.h("div", { class: "rows" }, ...items.map(itemCard))
@@ -4703,7 +4879,8 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                             title: m.done ? "Mark not done" : "Mark done",
                         }), h_4.h("span", { class: `ms-title ${m.done ? "is-done" : ""}`.trim() }, m.title), h_4.h("button", { class: "icon-btn", "data-action": "delete-milestone", "data-id": g.id, "data-ms": m.id, title: "Remove milestone" }, "✕"))))
                         : ui_2.emptyLine("No milestones yet — break this goal into concrete steps."), ui_2.form("add-milestone", [ui_2.field("Add a milestone", "title", { placeholder: "A concrete step…" })], "Add", { "data-id": g.id }));
-                    const progressSection = g.hasMetric
+                    const isClosed = g.status === "completed" || g.status === "archived";
+                    const progressSection = g.hasMetric && !isClosed
                         ? h_4.h("div", { class: "goal-section" }, h_4.h("div", { class: "goal-section-head" }, h_4.h("span", { class: "goal-section-title" }, "Progress")), ui_2.form("goal-metric", [ui_2.field("Current value", "current", { type: "number", value: String(g.metricCurrent ?? 0) })], "Save progress", { "data-id": g.id }))
                         : null;
                     const statusSection = h_4.h("div", { class: "goal-section" }, h_4.h("div", { class: "goal-section-head" }, h_4.h("span", { class: "goal-section-title" }, "Status")), h_4.h("div", { class: "status-pills" }, ...statusOptions.map((o) => h_4.h("button", {
@@ -4759,7 +4936,9 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                         "data-sub": s.id,
                         "aria-pressed": s.done ? "true" : "false",
                     }), h_4.h("span", { class: `ms-title ${s.done ? "is-done" : ""}`.trim() }, s.title), h_4.h("button", { class: "btn btn-ghost btn-sm", "data-action": "delete-subtask", "data-id": t.id, "data-sub": s.id }, "✕"))))
-                    : null, h_4.h("div", { class: "task-controls" }, ui_2.form("add-subtask", [ui_2.field("Subtask", "title", { placeholder: "Break it down…" })], "Add", { "data-id": t.id }), ui_2.form("task-priority", [ui_2.selectField("Priority", "priority", priorityOptions, t.priority)], "Set", { "data-id": t.id }), ui_2.form("task-due", [ui_2.field("Due", "due", { type: "date" })], "Set due", { "data-id": t.id }), ui_2.form("task-goal", [ui_2.selectField("Goal", "goalId", goalOpts, "")], "Link", { "data-id": t.id }), ui_2.form("task-project", [ui_2.selectField("Project", "projectId", projOpts, "")], "Link", { "data-id": t.id })));
+                    : null, t.completed
+                    ? null
+                    : h_4.h("div", { class: "task-controls" }, ui_2.form("add-subtask", [ui_2.field("Subtask", "title", { placeholder: "Break it down…" })], "Add", { "data-id": t.id }), ui_2.form("task-priority", [ui_2.selectField("Priority", "priority", priorityOptions, t.priority)], "Set", { "data-id": t.id }), ui_2.form("task-due", [ui_2.field("Due", "due", { type: "date" })], "Set due", { "data-id": t.id }), ui_2.form("task-goal", [ui_2.selectField("Goal", "goalId", goalOpts, "")], "Link", { "data-id": t.id }), ui_2.form("task-project", [ui_2.selectField("Project", "projectId", projOpts, "")], "Link", { "data-id": t.id })));
                 const rows = v.buckets[active];
                 const grid = h_4.h("div", { class: "grid" });
                 const tasksBody = h_4.h("div", {}, tabRow, rows.length > 0
@@ -4804,21 +4983,38 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                     { value: "", label: "—" },
                     ...[1, 2, 3, 4, 5].map((n) => ({ value: String(n), label: String(n) })),
                 ];
-                grid.appendChild(ui_2.card(`Today — ${v.today}`, ui_2.form("save-journal", [
+                const ratingRow = (rating) => h_4.h("div", { class: "jr-rating" }, h_4.h("span", { class: "jr-stars" }, "★".repeat(rating) + "☆".repeat(5 - rating)), h_4.h("span", { class: "jr-rating-num mono" }, `${rating}/5`));
+                const section = (label, value) => value !== null && value.trim() !== ""
+                    ? h_4.h("div", { class: "jr-section" }, h_4.h("div", { class: "jr-section-label" }, label), h_4.h("div", { class: "jr-section-text" }, value))
+                    : null;
+                const reviewBody = (d) => {
+                    const sections = [
+                        section("What went well", d.accomplished),
+                        section("What didn't", d.wentWrong),
+                        section("What I learned", d.learned),
+                        section("Top priority tomorrow", d.topPriorityTomorrow),
+                    ].filter((x) => x !== null);
+                    const hasAny = sections.length > 0 || d.rating !== null;
+                    return h_4.h("div", { class: "jr-review" }, d.rating !== null ? ratingRow(d.rating) : null, ...sections, hasAny ? null : ui_2.emptyLine("No details recorded for this day."));
+                };
+                if (e !== null) {
+                    grid.appendChild(ui_2.card(`Today's review — ${v.today}`, reviewBody(e), { cls: "card-wide" }));
+                }
+                grid.appendChild(ui_2.card(e ? "Edit today's review" : "Today's review", h_4.h("div", {}, ui_2.form("save-journal", [
                     ui_2.textareaField("What went well", "accomplished", e?.accomplished ?? null, "Wins, progress, gratitude…"),
                     ui_2.textareaField("What didn't", "wentWrong", e?.wentWrong ?? null, "Friction, mistakes, blockers…"),
                     ui_2.textareaField("What I learned", "learned", e?.learned ?? null, "An insight to keep…"),
                     ui_2.textareaField("Top priority tomorrow", "topPriorityTomorrow", e?.topPriorityTomorrow ?? null, "The one thing…"),
                     ui_2.selectField("Day rating", "rating", ratingOptions, e?.rating != null ? String(e.rating) : ""),
-                ], e ? "Update review" : "Save review"), { cls: "card-wide" }));
-                const dayCard = (d) => h_4.h("div", { class: "journal-day" }, h_4.h("div", { class: "session-head" }, h_4.h("span", { class: "row-title mono" }, d.date), d.rating !== null ? h_4.h("span", { class: "pill" }, `★ ${d.rating}/5`) : null, h_4.h("span", { class: "session-actions" }, h_4.h("button", { class: "btn btn-ghost btn-sm", "data-action": "delete-journal", "data-id": d.id }, "✕"))), d.accomplished ? h_4.h("p", { class: "jr-line" }, h_4.h("b", null, "Well: "), d.accomplished) : null, d.wentWrong ? h_4.h("p", { class: "jr-line" }, h_4.h("b", null, "Not: "), d.wentWrong) : null, d.learned ? h_4.h("p", { class: "jr-line" }, h_4.h("b", null, "Learned: "), d.learned) : null, d.topPriorityTomorrow ? h_4.h("p", { class: "jr-line" }, h_4.h("b", null, "Next: "), d.topPriorityTomorrow) : null);
+                ], e ? "Update review" : "Save review", { "data-mode": e ? "update" : "new" }), h_4.h("p", { class: "save-status", "data-role": "journal-status" }, "")), { cls: "card-wide" }));
+                const dayCard = (d) => h_4.h("div", { class: "journal-day" }, h_4.h("div", { class: "session-head" }, h_4.h("span", { class: "row-title mono" }, d.date), d.rating !== null ? h_4.h("span", { class: "pill" }, `★ ${d.rating}/5`) : null, h_4.h("span", { class: "session-actions" }, h_4.h("button", { class: "btn btn-ghost btn-sm", "data-action": "delete-journal", "data-id": d.id }, "✕"))), reviewBody(d));
                 grid.appendChild(ui_2.card("Past reviews", v.history.length > 0
                     ? h_4.h("div", { class: "rows" }, ...v.history.map(dayCard))
                     : ui_2.emptyLine("Your past daily reviews will appear here."), { count: v.history.length > 0 ? String(v.history.length) : undefined, cls: "card-wide" }));
                 root.appendChild(grid);
                 return root;
             });
-            exports_58("renderSettings", renderSettings = (v) => {
+            exports_58("renderSettings", renderSettings = (v, resetArmed = false) => {
                 const root = h_4.h("div", { class: "dash module" });
                 root.appendChild(ui_2.pageHead("Settings & data", "Preferences, targets, and local-first backup."));
                 const grid = h_4.h("div", { class: "grid" });
@@ -4827,13 +5023,15 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                     { value: "1", label: "Monday" },
                     { value: "6", label: "Saturday" },
                 ];
-                grid.appendChild(ui_2.card("Preferences", h_4.h("div", {}, ui_2.form("set-timezone", [ui_2.field("Time zone (IANA)", "timeZone", { value: v.timeZone, placeholder: "Asia/Kolkata" })], "Save time zone"), ui_2.form("set-weekstart", [ui_2.selectField("Week starts on", "weekStartsOn", weekdayOptions, String(v.weekStartsOn))], "Save"))));
+                grid.appendChild(ui_2.card("Preferences", h_4.h("div", {}, h_4.h("div", {}, ui_2.form("set-timezone", [ui_2.field("Time zone (IANA)", "timeZone", { value: v.timeZone, placeholder: "Asia/Kolkata" })], "Save time zone"), h_4.h("p", { class: "field-hint" }, "Use an IANA name like Asia/Kolkata, Europe/London, or America/New_York."), h_4.h("p", { class: "save-status", "data-role": "tz-status" }, "")), ui_2.form("set-weekstart", [ui_2.selectField("Week starts on", "weekStartsOn", weekdayOptions, String(v.weekStartsOn))], "Save"))));
                 grid.appendChild(ui_2.card("Targets", h_4.h("div", {}, ui_2.form("set-nutrition-targets", [
                     ui_2.field("Calories", "calories", { type: "number", min: "0", value: String(v.nutrition.calories) }),
                     ui_2.field("Protein (g)", "proteinGrams", { type: "number", min: "0", value: String(v.nutrition.proteinGrams) }),
                     ui_2.field("Water (ml)", "waterMl", { type: "number", min: "0", value: String(v.nutrition.waterMl) }),
                 ], "Save nutrition"), ui_2.form("set-sleep-target", [ui_2.field("Sleep target (hours)", "hours", { type: "number", step: "0.5", min: "0", value: String(v.sleepTargetMinutes / 60) })], "Save sleep"))));
-                grid.appendChild(ui_2.card("Your data", h_4.h("div", {}, h_4.h("div", { class: "stat-row tight" }, ...v.counts.map((c) => ui_2.stat(c.label, String(c.count)))), h_4.h("div", { class: "btn-row", style: "margin-top:16px" }, h_4.h("button", { class: "btn btn-primary", "data-action": "export-data" }, "Export JSON"), h_4.h("button", { class: "btn btn-ghost", "data-action": "reset-data" }, "Clear all data")), h_4.h("p", { class: "muted" }, "Export downloads a full backup. Import replaces current data from a backup file's contents."), h_4.h("div", { class: "form", "data-form": "import-data" }, h_4.h("div", { class: "form-row" }, h_4.h("label", { class: "fld fld-wide" }, h_4.h("span", { class: "fld-label" }, "Paste backup JSON"), h_4.h("textarea", { class: "fld-input", "data-field": "raw", rows: "4", placeholder: '{ "schemaVersion": 2, ... }' }))), h_4.h("div", { class: "form-actions" }, h_4.h("button", { class: "btn btn-primary", "data-action": "form-submit" }, "Import & replace")), h_4.h("p", { class: "muted", "data-role": "import-status" }, ""))), { cls: "card-wide" }));
+                grid.appendChild(ui_2.card("Your data", h_4.h("div", {}, h_4.h("div", { class: "stat-row tight" }, ...v.counts.map((c) => ui_2.stat(c.label, String(c.count)))), h_4.h("div", { class: "btn-row", style: "margin-top:16px" }, h_4.h("button", { class: "btn btn-primary", "data-action": "export-data" }, "Export JSON"), resetArmed
+                    ? h_4.h("span", { class: "reset-confirm" }, h_4.h("span", { class: "reset-confirm-label" }, "Delete everything?"), h_4.h("button", { class: "btn btn-danger btn-sm", "data-action": "reset-data-confirm" }, "Yes, clear all data"), h_4.h("button", { class: "btn btn-ghost btn-sm", "data-action": "reset-data-cancel" }, "Cancel"))
+                    : h_4.h("button", { class: "btn btn-ghost", "data-action": "reset-data" }, "Clear all data")), h_4.h("p", { class: "save-status", "data-role": "reset-status" }, ""), h_4.h("p", { class: "muted" }, "Export downloads a full backup. Import replaces current data from a backup file's contents."), h_4.h("div", { class: "form", "data-form": "import-data" }, h_4.h("div", { class: "form-row" }, h_4.h("label", { class: "fld fld-wide" }, h_4.h("span", { class: "fld-label" }, "Paste backup JSON"), h_4.h("textarea", { class: "fld-input", "data-field": "raw", rows: "4", placeholder: '{ "schemaVersion": 2, ... }' }))), h_4.h("div", { class: "form-actions" }, h_4.h("button", { class: "btn btn-primary", "data-action": "form-submit" }, "Import & replace")), h_4.h("p", { class: "muted", "data-role": "import-status" }, ""))), { cls: "card-wide" }));
                 root.appendChild(grid);
                 return root;
             });
@@ -5056,6 +5254,7 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                 const expandedGoals = new Set();
                 let flashGoalId = null;
                 let scrollGoalId = null;
+                let resetArmed = false;
                 const applyTheme = () => {
                     const effective = theme_1.resolveTheme(themeChoice, systemPrefersDark());
                     document.documentElement.setAttribute("data-theme", effective);
@@ -5138,7 +5337,7 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                         case "journal":
                             return plan_3.renderJournal(controller.journalView());
                         case "settings":
-                            return plan_3.renderSettings(controller.settingsView());
+                            return plan_3.renderSettings(controller.settingsView(), resetArmed);
                         case "today":
                         default:
                             return render_1.renderDashboard(controller.view(), formatClock(clock_3.systemClock.now(), controller.timeZone()));
@@ -5193,7 +5392,7 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                                 void controller.addExercise({
                                     name: nm,
                                     kind: f["kind"] || "strength",
-                                    loadUnit: f["loadUnit"] || "kg",
+                                    loadUnit: f["loadUnit"] === "bodyweight" ? null : (f["loadUnit"] || "kg"),
                                 });
                             break;
                         }
@@ -5408,19 +5607,44 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                                 status: f["status"] || "active",
                             });
                             break;
-                        case "save-journal":
-                            void controller.saveJournalToday({
+                        case "save-journal": {
+                            const wasUpdate = formEl.getAttribute("data-mode") === "update";
+                            void controller
+                                .saveJournalToday({
                                 accomplished: strOrNull(f["accomplished"]),
                                 wentWrong: strOrNull(f["wentWrong"]),
                                 learned: strOrNull(f["learned"]),
                                 topPriorityTomorrow: strOrNull(f["topPriorityTomorrow"]),
                                 rating: numOrNull(f["rating"]),
+                            })
+                                .then(() => {
+                                const statusEl = document.querySelector('[data-role="journal-status"]');
+                                if (statusEl) {
+                                    statusEl.textContent = wasUpdate ? "Review updated ✓" : "Review saved ✓";
+                                    statusEl.classList.add("is-shown");
+                                    window.setTimeout(() => {
+                                        statusEl.classList.remove("is-shown");
+                                    }, 2200);
+                                }
                             });
                             break;
+                        }
                         case "set-timezone": {
                             const tz = strOrNull(f["timeZone"]);
-                            if (tz !== null)
-                                void controller.setTimeZone(tz);
+                            if (tz !== null) {
+                                void controller.setTimeZone(tz).then((res) => {
+                                    const statusEl = document.querySelector('[data-role="tz-status"]');
+                                    if (statusEl) {
+                                        statusEl.textContent = res.ok
+                                            ? "Time zone saved ✓"
+                                            : "Not a valid IANA time zone (e.g. Asia/Kolkata, Europe/London).";
+                                        statusEl.classList.toggle("is-error", !res.ok);
+                                        statusEl.classList.add("is-shown");
+                                        if (res.ok)
+                                            window.setTimeout(() => statusEl.classList.remove("is-shown"), 2200);
+                                    }
+                                });
+                            }
                             break;
                         }
                         case "set-weekstart": {
@@ -5550,6 +5774,14 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                             if (id)
                                 void controller.deleteWorkout(id);
                             break;
+                        case "delete-set": {
+                            const sess = actionEl.getAttribute("data-session");
+                            const se = actionEl.getAttribute("data-se");
+                            const set = actionEl.getAttribute("data-set");
+                            if (sess && se && set)
+                                void controller.removeSetFromSession(sess, se, set);
+                            break;
+                        }
                         case "delete-meal":
                             if (id)
                                 void controller.deleteMeal(id);
@@ -5635,9 +5867,23 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                             downloadJson(controller.exportData());
                             break;
                         case "reset-data":
-                            if (window.confirm("Clear all tracked data? Your settings are kept. This cannot be undone.")) {
-                                void controller.resetData();
-                            }
+                            resetArmed = true;
+                            rerender();
+                            break;
+                        case "reset-data-confirm":
+                            resetArmed = false;
+                            void controller.resetData().then(() => {
+                                const el = document.querySelector('[data-role="reset-status"]');
+                                if (el) {
+                                    el.textContent = "All data cleared ✓";
+                                    el.classList.add("is-shown");
+                                    window.setTimeout(() => el.classList.remove("is-shown"), 2600);
+                                }
+                            });
+                            break;
+                        case "reset-data-cancel":
+                            resetArmed = false;
+                            rerender();
                             break;
                         case "focus-quickadd":
                             qaInput.focus();
