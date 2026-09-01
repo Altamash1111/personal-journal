@@ -26,7 +26,7 @@ if (!existsSync(file)) {
   process.exit(1);
 }
 const url = "file://" + file;
-const ROUTES = ["today", "fitness", "diet", "sleep", "routines", "reading", "goals", "tasks", "projects", "journal", "settings"];
+const ROUTES = ["today", "fitness", "diet", "sleep", "routines", "reading", "goals", "tasks", "projects", "journal", "insights", "monthly", "settings"];
 
 const fail = (msg) => {
   console.error("SMOKE FAIL: " + msg);

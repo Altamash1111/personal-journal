@@ -863,6 +863,141 @@ textarea.fld-input { resize: vertical; min-height: 44px; font-family: inherit; l
   .wa-range { display: none; } /* keep the top row clean on small screens */
 }
 
+/* ---- Weekly Review / Insights ---- */
+.week-nav { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.week-nav-label { font-size: 14px; color: var(--text); }
+.btn.is-disabled { opacity: 0.4; pointer-events: none; }
+
+.insight-table { display: flex; flex-direction: column; gap: 8px; }
+.insight-row { display: grid; grid-template-columns: 1fr auto minmax(80px, 160px) 44px; align-items: center; gap: 10px; }
+.insight-row-name { font-size: 14px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.insight-row-num { color: var(--text-dim); font-size: 13px; text-align: right; }
+.insight-row-rate { text-align: right; font-size: 13px; color: var(--text); }
+.insight-missed { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.insight-missed-row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
+.insight-missed-name { color: var(--text-dim); }
+.insight-missed-days { color: color-mix(in srgb, var(--urgent) 80%, var(--text-dim)); }
+
+.rating-strip { display: flex; gap: 6px; }
+.rating-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.rating-day-label { font-size: 10px; color: var(--text-faint); text-transform: uppercase; }
+.rating-day-val { font-size: 16px; font-weight: 600; color: var(--text);
+  width: 100%; text-align: center; padding: 6px 0; border-radius: var(--r-sm); background: var(--surface); }
+.rating-day-val.is-empty { color: var(--text-faint); font-weight: 400; background: transparent; }
+.rating-avg { display: flex; align-items: baseline; gap: 8px; margin-top: 12px; }
+.rating-avg .mono { font-size: 18px; font-weight: 600; }
+
+.theme-list { display: flex; flex-direction: column; gap: 6px; }
+.theme-row { display: flex; justify-content: space-between; gap: 10px; padding: 6px 10px; border-radius: var(--r-sm); background: var(--surface); font-size: 14px; }
+.theme-row.theme-bad .theme-name { color: color-mix(in srgb, var(--urgent) 75%, var(--text)); }
+.theme-row.theme-good .theme-name { color: color-mix(in srgb, var(--good) 75%, var(--text)); }
+.theme-count { color: var(--text-faint); font-size: 12px; }
+
+.learned-list { display: flex; flex-direction: column; gap: 10px; }
+.learned-row { display: flex; gap: 12px; }
+.learned-day { flex: none; width: 64px; font-size: 12px; color: var(--text-faint); padding-top: 1px; }
+.learned-text { font-size: 14px; line-height: 1.5; color: var(--text); white-space: pre-wrap; }
+
+.compare-table { display: flex; flex-direction: column; gap: 4px; }
+.compare-row { display: grid; grid-template-columns: 1fr 64px 64px 28px; align-items: center; gap: 8px; padding: 6px 0; }
+.compare-row.compare-head { color: var(--text-faint); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+.compare-label { font-size: 14px; color: var(--text); }
+.compare-cur, .compare-prev { text-align: right; font-size: 14px; }
+.compare-prev { color: var(--text-dim); }
+.compare-arrow { text-align: center; font-weight: 700; }
+.arrow-up { color: var(--good); }
+.arrow-down { color: var(--urgent); }
+.arrow-flat { color: var(--text-faint); }
+
+/* Home — compact recent-performance strip */
+.perf-strip { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.perf-item { display: flex; flex-direction: column; }
+.perf-val { font-size: 18px; font-weight: 700; color: var(--text); font-family: var(--mono, monospace); }
+.perf-label { font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+.perf-cta { margin-left: auto; }
+
+@media (max-width: 640px) {
+  .insight-row { grid-template-columns: 1fr auto 44px; }
+  .insight-row-bar { display: none; }
+  .learned-row { flex-direction: column; gap: 2px; }
+  .learned-day { width: auto; }
+}
+
+/* ---- Attention needed ---- */
+.attention-list { display: flex; flex-direction: column; gap: 8px; }
+.attention-row { display: flex; gap: 10px; align-items: baseline; padding: 8px 12px; border-radius: var(--r-sm); background: var(--surface); font-size: 14px; }
+.attention-row.sev-warn { border-left: 3px solid var(--urgent); }
+.attention-row.sev-info { border-left: 3px solid color-mix(in srgb, var(--accent) 60%, var(--border)); }
+.attention-dot { flex: none; font-size: 11px; }
+.attention-row.sev-warn .attention-dot { color: var(--urgent); }
+.attention-row.sev-info .attention-dot { color: var(--accent); }
+.attention-msg { color: var(--text); line-height: 1.45; }
+
+/* ---- Weekly scorecard ---- */
+.scorecard-overall { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
+  border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.scorecard-big { font-size: 30px; font-weight: 700; color: var(--text); }
+.scorecard-verdict { font-size: 14px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; }
+.scorecard-extremes { margin-left: auto; font-size: 12px; }
+.scorecard-areas { display: flex; flex-direction: column; gap: 6px; }
+.scorecard-row { display: grid; grid-template-columns: 110px 48px 1fr; align-items: baseline; gap: 10px; }
+.scorecard-area-label { font-size: 14px; color: var(--text); }
+.scorecard-area-score { text-align: right; font-size: 14px; color: var(--text); font-weight: 600; }
+.scorecard-area-detail { font-size: 12px; color: var(--text-faint); overflow: hidden; text-overflow: ellipsis; }
+
+@media (max-width: 640px) {
+  .scorecard-row { grid-template-columns: 90px 44px 1fr; }
+  .scorecard-extremes { margin-left: 0; width: 100%; }
+}
+
+/* ---- Goal intelligence panel ---- */
+.gi-section .goal-section-head { align-items: center; }
+.gi-status { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 2px 8px; border-radius: 999px; margin-left: auto; }
+.gi-ahead { color: var(--good); background: color-mix(in srgb, var(--good) 18%, transparent); }
+.gi-on_track { color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.gi-behind { color: var(--urgent); background: color-mix(in srgb, var(--urgent) 18%, transparent); }
+.gi-complete { color: var(--good); background: color-mix(in srgb, var(--good) 22%, transparent); }
+.gi-unknown { color: var(--text-faint); background: var(--surface); }
+.gi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; }
+.gi-row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
+.gi-label { color: var(--text-dim); }
+.gi-val { color: var(--text); }
+
+/* ---- Bodyweight trend chart (SVG) ---- */
+.bw-summary { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 12px; }
+.bw-stat { display: flex; flex-direction: column; }
+.bw-stat-val { font-size: 18px; font-weight: 700; color: var(--text); font-family: var(--mono, monospace); }
+.bw-stat-label { font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+.bw-chart { width: 100%; height: auto; display: block; }
+.bw-chart .bw-line { fill: none; stroke: var(--accent); stroke-width: 2; }
+.bw-chart .bw-goal { stroke: color-mix(in srgb, var(--good) 60%, var(--border)); stroke-width: 1; stroke-dasharray: 4 4; }
+.bw-chart .bw-dot { fill: var(--accent); }
+.bw-chart .bw-axis { fill: var(--text-faint); font-size: 10px; }
+
+@media (max-width: 640px) {
+  .gi-grid { grid-template-columns: 1fr; }
+}
+
+/* ---- Daily Review — today-at-a-glance context ---- */
+.ctx-strip { display: flex; gap: 10px; flex-wrap: wrap; }
+.ctx-chip { display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 8px 14px; background: var(--surface); border-radius: var(--r-sm); min-width: 64px; }
+.ctx-val { font-size: 16px; font-weight: 700; color: var(--text); }
+.ctx-label { font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* Goal hierarchy — visual nesting by depth (Year → Quarter → Month → Week) */
+.goal-node.depth-1 { margin-left: 20px; border-left: 2px solid color-mix(in srgb, var(--accent) 30%, var(--border)); }
+.goal-node.depth-2 { margin-left: 40px; border-left: 2px solid color-mix(in srgb, var(--accent) 24%, var(--border)); }
+.goal-node.depth-3 { margin-left: 60px; border-left: 2px solid color-mix(in srgb, var(--accent) 18%, var(--border)); }
+.goal-node.depth-4 { margin-left: 80px; border-left: 2px solid var(--border); }
+@media (max-width: 640px) {
+  .goal-node.depth-1 { margin-left: 10px; }
+  .goal-node.depth-2 { margin-left: 20px; }
+  .goal-node.depth-3 { margin-left: 30px; }
+  .goal-node.depth-4 { margin-left: 40px; }
+}
+
   </style>
 </head>
 <body>
@@ -3315,9 +3450,9 @@ System.register("index", ["config/index", "core/result", "core/scalars", "core/c
         }
     };
 });
-System.register("logic/winterArc", ["time/localDate"], function (exports_50, context_50) {
+System.register("logic/goalIntelligence", ["time/localDate"], function (exports_50, context_50) {
     "use strict";
-    var localDate_9, WINTER_ARC_START, WINTER_ARC_END, WINTER_ARC_TOTAL_DAYS, MONTHS, formatLongDate, formatShortDate, winterArcState;
+    var localDate_9, buildTrend, nearestDateForValue, statusFrom, goalIntel, bodyweightHistory, bodyweightSeries, readingPace, MONTHS_LONG, formatMonthDay, statusLabel;
     var __moduleName = context_50 && context_50.id;
     return {
         setters: [
@@ -3326,29 +3461,673 @@ System.register("logic/winterArc", ["time/localDate"], function (exports_50, con
             }
         ],
         execute: function () {
-            exports_50("WINTER_ARC_START", WINTER_ARC_START = localDate_9.localDateOf(2026, 9, 1));
-            exports_50("WINTER_ARC_END", WINTER_ARC_END = localDate_9.localDateOf(2026, 12, 31));
-            exports_50("WINTER_ARC_TOTAL_DAYS", WINTER_ARC_TOTAL_DAYS = 122);
-            MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            exports_50("formatLongDate", formatLongDate = (d) => {
+            exports_50("buildTrend", buildTrend = (series) => {
+                const byDay = new Map();
+                for (const s of series)
+                    byDay.set(s.date, { date: s.date, value: s.value });
+                const points = [...byDay.values()].sort((a, b) => (localDate_9.compareLocalDate(a.date, b.date) < 0 ? -1 : 1));
+                if (points.length === 0) {
+                    return { points, first: null, last: null, totalChange: null, perWeek: null, spanDays: null, enough: false };
+                }
+                const first = points[0];
+                const last = points[points.length - 1];
+                const spanDays = localDate_9.diffDays(first.date, last.date);
+                const totalChange = last.value - first.value;
+                const enough = points.length >= 2 && spanDays >= 1;
+                const perWeek = enough ? (totalChange / spanDays) * 7 : null;
+                return { points, first, last, totalChange, perWeek, spanDays, enough };
+            });
+            nearestDateForValue = (from, currentValue, targetValue, perUnitPerWeek) => {
+                if (perUnitPerWeek === 0)
+                    return null;
+                const remaining = targetValue - currentValue;
+                if (Math.sign(remaining) !== Math.sign(perUnitPerWeek))
+                    return null;
+                const weeks = remaining / perUnitPerWeek;
+                if (!Number.isFinite(weeks) || weeks < 0)
+                    return null;
+                return localDate_9.addDays(from, Math.round(weeks * 7));
+            };
+            statusFrom = (progress, recent, required) => {
+                if (progress >= 1)
+                    return "complete";
+                if (recent === null || required === null)
+                    return "unknown";
+                if (required === 0)
+                    return "unknown";
+                const ratio = recent / required;
+                if (ratio >= 1.05)
+                    return "ahead";
+                if (ratio >= 0.9)
+                    return "on_track";
+                return "behind";
+            };
+            exports_50("goalIntel", goalIntel = (goal, today, series) => {
+                const m = goal.metric;
+                if (m === null) {
+                    return {
+                        measurable: false, current: null, target: null, start: null, unit: null,
+                        progress: goal.status === "completed" ? 1 : 0, remaining: null, deadline: goal.deadline,
+                        daysRemaining: goal.deadline === null ? null : localDate_9.diffDays(today, goal.deadline),
+                        recentPacePerWeek: null, requiredPacePerWeek: null,
+                        status: goal.status === "completed" ? "complete" : "unknown",
+                        projectedDate: null, projectedVsDeadlineDays: null, enoughData: false,
+                    };
+                }
+                const trend = series && series.length > 0 ? buildTrend(series) : null;
+                const current = trend?.last?.value ?? m.current;
+                const start = trend?.first?.value ?? m.current;
+                const target = m.target;
+                const progressToward = target <= 0 ? 0 : Math.max(0, Math.min(1, current / target));
+                const remaining = target - current;
+                const daysRemaining = goal.deadline === null ? null : localDate_9.diffDays(today, goal.deadline);
+                const recentPacePerWeek = trend?.enough ? trend.perWeek : null;
+                const requiredPacePerWeek = goal.deadline !== null && daysRemaining !== null && daysRemaining > 0
+                    ? (remaining / daysRemaining) * 7
+                    : null;
+                const projectedDate = recentPacePerWeek !== null && recentPacePerWeek !== 0 && trend?.last
+                    ? nearestDateForValue(trend.last.date, current, target, recentPacePerWeek)
+                    : null;
+                const projectedVsDeadlineDays = projectedDate !== null && goal.deadline !== null ? localDate_9.diffDays(goal.deadline, projectedDate) : null;
+                const status = goal.status === "completed" || progressToward >= 1
+                    ? "complete"
+                    : statusFrom(progressToward, recentPacePerWeek, requiredPacePerWeek);
+                return {
+                    measurable: true,
+                    current,
+                    target,
+                    start,
+                    unit: m.unit,
+                    progress: progressToward,
+                    remaining,
+                    deadline: goal.deadline,
+                    daysRemaining,
+                    recentPacePerWeek,
+                    requiredPacePerWeek,
+                    status,
+                    projectedDate,
+                    projectedVsDeadlineDays,
+                    enoughData: trend?.enough ?? false,
+                };
+            });
+            exports_50("bodyweightHistory", bodyweightHistory = (data) => {
+                const series = data.bodyWeights.map((w) => ({ date: w.date, value: w.weight }));
+                const trend = buildTrend(series);
+                const unit = data.bodyWeights[0]?.unit ?? "kg";
+                let recentChange = null;
+                if (trend.last) {
+                    const cutoff = localDate_9.addDays(trend.last.date, -7);
+                    const prior = [...trend.points].reverse().find((p) => localDate_9.compareLocalDate(p.date, cutoff) <= 0);
+                    if (prior)
+                        recentChange = trend.last.value - prior.value;
+                }
+                return {
+                    points: trend.points,
+                    latest: trend.last?.value ?? null,
+                    latestDate: trend.last?.date ?? null,
+                    start: trend.first?.value ?? null,
+                    totalChange: trend.totalChange,
+                    recentChange,
+                    perWeek: trend.perWeek,
+                    unit,
+                    enough: trend.enough,
+                };
+            });
+            exports_50("bodyweightSeries", bodyweightSeries = (data) => data.bodyWeights.map((w) => ({ date: w.date, value: w.weight })));
+            exports_50("readingPace", readingPace = (finishedDates, today, goal) => {
+                const sorted = [...finishedDates].sort((a, b) => (localDate_9.compareLocalDate(a, b) < 0 ? -1 : 1));
+                const finished = sorted.length;
+                const enough = finished >= 2 && localDate_9.diffDays(sorted[0], sorted[finished - 1]) >= 1;
+                const spanDays = enough ? localDate_9.diffDays(sorted[0], sorted[finished - 1]) : null;
+                const perMonth = enough && spanDays ? (finished / spanDays) * 30 : null;
+                const remaining = goal === null ? null : Math.max(0, goal - finished);
+                const { year } = localDate_9.parseLocalDate(today);
+                const yearEnd = `${year}-12-31`;
+                const daysToYearEnd = Math.max(0, localDate_9.diffDays(today, yearEnd));
+                const projectedYearEnd = perMonth !== null ? Math.round(finished + (perMonth / 30) * daysToYearEnd) : null;
+                let projectedDate = null;
+                let status = "unknown";
+                if (goal !== null) {
+                    if (finished >= goal) {
+                        status = "complete";
+                    }
+                    else if (perMonth !== null && perMonth > 0) {
+                        const booksLeft = goal - finished;
+                        const days = (booksLeft / perMonth) * 30;
+                        projectedDate = localDate_9.addDays(today, Math.round(days));
+                        status = localDate_9.compareLocalDate(projectedDate, yearEnd) <= 0 ? "on_track" : "behind";
+                    }
+                }
+                return { finished, goal, remaining, perMonth, projectedYearEnd, projectedDate, status, enough };
+            });
+            MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            exports_50("formatMonthDay", formatMonthDay = (d) => {
                 const { year, month, day } = localDate_9.parseLocalDate(d);
+                return `${MONTHS_LONG[month - 1].slice(0, 3)} ${day}, ${year}`;
+            });
+            exports_50("statusLabel", statusLabel = (s) => s === "ahead" ? "Ahead" : s === "on_track" ? "On track" : s === "behind" ? "Behind" : s === "complete" ? "Complete" : "Not enough data");
+        }
+    };
+});
+System.register("logic/weeklyReview", ["time/localDate", "time/week", "logic/habits", "logic/tasks", "logic/diet", "logic/fitness"], function (exports_51, context_51) {
+    "use strict";
+    var localDate_10, week_3, habits_5, tasks_2, diet_3, fitness_3, weekRangeContaining, shiftWeek, WEEKDAY, MONTHS, shortDay, weekdayIndex, labelDay, labelRange, habitConsistency, ratingSummary, learnedThisWeek, PROBLEM_THEMES, POSITIVE_THEMES, themeHits, recurringProblems, recurringWins, taskStats, inRange, instantDay, buildWeeklyReview, sleepStats, dietStats, fitnessStats, readingStats;
+    var __moduleName = context_51 && context_51.id;
+    return {
+        setters: [
+            function (localDate_10_1) {
+                localDate_10 = localDate_10_1;
+            },
+            function (week_3_1) {
+                week_3 = week_3_1;
+            },
+            function (habits_5_1) {
+                habits_5 = habits_5_1;
+            },
+            function (tasks_2_1) {
+                tasks_2 = tasks_2_1;
+            },
+            function (diet_3_1) {
+                diet_3 = diet_3_1;
+            },
+            function (fitness_3_1) {
+                fitness_3 = fitness_3_1;
+            }
+        ],
+        execute: function () {
+            exports_51("weekRangeContaining", weekRangeContaining = (day, weekStartsOn) => {
+                const start = week_3.startOfWeek(day, weekStartsOn);
+                const days = Array.from({ length: 7 }, (_, i) => localDate_10.addDays(start, i));
+                return { start, end: days[6], days };
+            });
+            exports_51("shiftWeek", shiftWeek = (range, weeks) => {
+                const start = localDate_10.addDays(range.start, weeks * 7);
+                const days = Array.from({ length: 7 }, (_, i) => localDate_10.addDays(start, i));
+                return { start, end: days[6], days };
+            });
+            WEEKDAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            exports_51("shortDay", shortDay = (d) => WEEKDAY[weekdayIndex(d)]);
+            weekdayIndex = (d) => {
+                const { year, month, day } = localDate_10.parseLocalDate(d);
+                return new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+            };
+            exports_51("labelDay", labelDay = (d) => {
+                const { month, day } = localDate_10.parseLocalDate(d);
+                return `${MONTHS[month - 1]} ${day}`;
+            });
+            exports_51("labelRange", labelRange = (r) => `${labelDay(r.start)} – ${labelDay(r.end)}`);
+            exports_51("habitConsistency", habitConsistency = (data, range) => {
+                const active = data.habits.filter((hh) => hh.active && hh.archivedAt === null);
+                return active
+                    .map((hh) => {
+                    let completed = 0;
+                    let expected = 0;
+                    const missedDates = [];
+                    for (const d of range.days) {
+                        if (!habits_5.isHabitDueOn(hh, d))
+                            continue;
+                        expected += 1;
+                        if (habits_5.isHabitCompletedOn(hh, d, data.habitCompletions))
+                            completed += 1;
+                        else
+                            missedDates.push(d);
+                    }
+                    return {
+                        habitId: hh.id,
+                        name: hh.name,
+                        completed,
+                        expected,
+                        rate: expected === 0 ? 0 : completed / expected,
+                        missedDates,
+                    };
+                })
+                    .filter((h) => h.expected > 0)
+                    .sort((a, b) => b.rate - a.rate || a.name.localeCompare(b.name));
+            });
+            exports_51("ratingSummary", ratingSummary = (data, range) => {
+                const byDate = new Map(data.journal.map((j) => [j.date, j.rating]));
+                const perDay = range.days.map((d) => ({ date: d, rating: byDate.get(d) ?? null }));
+                const rated = perDay.filter((p) => p.rating !== null);
+                const average = rated.length === 0 ? null : rated.reduce((a, p) => a + p.rating, 0) / rated.length;
+                return { perDay, average, count: rated.length };
+            });
+            exports_51("learnedThisWeek", learnedThisWeek = (data, range) => data.journal
+                .filter((j) => inRange(j.date, range) && j.learned !== null && j.learned.trim() !== "")
+                .map((j) => ({ date: j.date, text: j.learned.trim() }))
+                .sort((a, b) => localDate_10.compareLocalDate(a.date, b.date)));
+            PROBLEM_THEMES = {
+                "Screen time / reels": ["reel", "reels", "instagram", "insta", "youtube", "scroll", "social media", "phone", "screen time"],
+                Procrastination: ["procrastinat", "put off", "delayed", "postponed", "wasted time", "time waste"],
+                "Learning skipped": ["didn't study", "didnt study", "no study", "skipped learning", "no learning", "didn't learn"],
+                "Poor sleep": ["slept late", "no sleep", "poor sleep", "didn't sleep", "didnt sleep", "late night", "stayed up"],
+                "Skipped workout": ["skipped workout", "no workout", "missed gym", "didn't train", "didnt train", "no training"],
+                Distraction: ["distract", "unfocused", "lost focus", "couldn't focus"],
+            };
+            POSITIVE_THEMES = {
+                "Completed workout": ["workout", "trained", "gym", "exercise", "pushups", "run", "sprint"],
+                "Morning routine": ["morning routine", "routine", "skincare", "brushed"],
+                "Hit diet target": ["ate well", "hit protein", "hit calories", "diet", "nutrition", "protein"],
+                "Read consistently": ["read", "reading", "book", "pages"],
+                "Focused work": ["focused", "deep work", "productive", "shipped", "finished", "completed"],
+                "Good sleep": ["slept well", "good sleep", "rested", "8 hours", "early"],
+            };
+            themeHits = (entries, themes) => {
+                const acc = new Map();
+                for (const e of entries) {
+                    if (e.text === null)
+                        continue;
+                    const hay = e.text.toLowerCase();
+                    for (const [theme, needles] of Object.entries(themes)) {
+                        if (needles.some((n) => hay.includes(n))) {
+                            if (!acc.has(theme))
+                                acc.set(theme, new Set());
+                            acc.get(theme).add(e.date);
+                        }
+                    }
+                }
+                return [...acc.entries()]
+                    .map(([theme, set]) => ({ theme, days: set.size, dates: [...set].sort(localDate_10.compareLocalDate) }))
+                    .sort((a, b) => b.days - a.days || a.theme.localeCompare(b.theme));
+            };
+            exports_51("recurringProblems", recurringProblems = (data, range) => themeHits(data.journal.filter((j) => inRange(j.date, range)).map((j) => ({ date: j.date, text: j.wentWrong })), PROBLEM_THEMES));
+            exports_51("recurringWins", recurringWins = (data, range) => themeHits(data.journal.filter((j) => inRange(j.date, range)).map((j) => ({ date: j.date, text: j.accomplished })), POSITIVE_THEMES));
+            exports_51("taskStats", taskStats = (data, range, timeZone) => {
+                const completed = data.tasks.filter((t) => t.completedAt !== null && inRange(instantDay(t.completedAt, timeZone), range)).length;
+                const created = data.tasks.filter((t) => inRange(instantDay(t.createdAt, timeZone), range)).length;
+                const pending = data.tasks.filter((t) => !tasks_2.isCompleted(t)).length;
+                const overdue = data.tasks.filter((t) => !tasks_2.isCompleted(t) && t.due !== null && localDate_10.compareLocalDate(t.due, range.end) < 0).length;
+                const denom = completed + pending;
+                return { completed, created, pending, overdue, completionRate: denom === 0 ? null : completed / denom };
+            });
+            inRange = (d, r) => localDate_10.compareLocalDate(d, r.start) >= 0 && localDate_10.compareLocalDate(d, r.end) <= 0;
+            instantDay = (ts, timeZone) => {
+                try {
+                    const parts = new Intl.DateTimeFormat("en-CA", {
+                        timeZone,
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                    }).formatToParts(new Date(ts));
+                    const g = (t) => parts.find((p) => p.type === t)?.value ?? "01";
+                    return `${g("year")}-${g("month")}-${g("day")}`;
+                }
+                catch {
+                    return (ts.slice(0, 10));
+                }
+            };
+            exports_51("buildWeeklyReview", buildWeeklyReview = (data, range, timeZone) => {
+                const habits = habitConsistency(data, range);
+                const totalExpected = habits.reduce((a, h) => a + h.expected, 0);
+                const totalCompleted = habits.reduce((a, h) => a + h.completed, 0);
+                const ratings = ratingSummary(data, range);
+                const tasks = taskStats(data, range, timeZone);
+                const sleep = sleepStats(data, range, data.settings.sleepTargetMinutes);
+                const diet = dietStats(data, range, {
+                    calories: data.settings.nutrition.calories,
+                    proteinGrams: data.settings.nutrition.proteinGrams,
+                    waterMl: data.settings.nutrition.waterMl,
+                });
+                const fitness = fitnessStats(data, range);
+                const reading = readingStats(data, range);
+                const reviewsWritten = data.journal.filter((j) => inRange(j.date, range)).length;
+                const hasData = habits.length > 0 ||
+                    ratings.count > 0 ||
+                    reviewsWritten > 0 ||
+                    tasks.completed > 0 ||
+                    tasks.created > 0 ||
+                    sleep.nights > 0 ||
+                    diet.daysLogged > 0 ||
+                    fitness.workoutsThisWeek > 0 ||
+                    reading.finishedThisWeek > 0;
+                return {
+                    range,
+                    habits,
+                    habitRate: totalExpected === 0 ? null : totalCompleted / totalExpected,
+                    ratings,
+                    learned: learnedThisWeek(data, range),
+                    problems: recurringProblems(data, range),
+                    wins: recurringWins(data, range),
+                    tasks,
+                    sleep,
+                    diet,
+                    fitness,
+                    reading,
+                    reviewsWritten,
+                    hasData,
+                };
+            });
+            exports_51("sleepStats", sleepStats = (data, range, targetMinutes) => {
+                const nights = data.sleepLog.filter((s) => inRange(s.date, range));
+                if (nights.length === 0) {
+                    return { nights: 0, avgMinutes: null, daysMetTarget: 0, bestMinutes: null, worstMinutes: null, targetMinutes };
+                }
+                const durations = nights.map((n) => n.durationMinutes);
+                const total = durations.reduce((a, m) => a + m, 0);
+                return {
+                    nights: nights.length,
+                    avgMinutes: Math.round(total / nights.length),
+                    daysMetTarget: durations.filter((m) => m >= targetMinutes).length,
+                    bestMinutes: Math.max(...durations),
+                    worstMinutes: Math.min(...durations),
+                    targetMinutes,
+                };
+            });
+            exports_51("dietStats", dietStats = (data, range, targets) => {
+                const perDay = range.days.map((d) => {
+                    const m = diet_3.dayMacros(data, d);
+                    const water = diet_3.dayWaterMl(data, d);
+                    const logged = m.kcal > 0 || m.protein > 0 || water > 0;
+                    return { kcal: m.kcal, protein: m.protein, water, logged };
+                });
+                const logged = perDay.filter((p) => p.logged);
+                const avg = (sel) => logged.length === 0 ? null : Math.round(logged.reduce((a, p) => a + sel(p), 0) / logged.length);
+                return {
+                    daysLogged: logged.length,
+                    daysCalorieMin: logged.filter((p) => p.kcal >= targets.calories).length,
+                    daysProteinMin: logged.filter((p) => p.protein >= targets.proteinGrams).length,
+                    daysWaterMin: logged.filter((p) => p.water >= targets.waterMl).length,
+                    avgCalories: avg((p) => p.kcal),
+                    avgProtein: avg((p) => p.protein),
+                    avgWaterMl: avg((p) => p.water),
+                    targets: { calories: targets.calories, protein: targets.proteinGrams, waterMl: targets.waterMl },
+                };
+            });
+            exports_51("fitnessStats", fitnessStats = (data, range) => {
+                const completed = data.workoutSessions.filter((s) => s.completedAt !== null);
+                const thisWeek = completed.filter((s) => inRange(s.date, range));
+                const prevRange = { start: localDate_10.addDays(range.start, -7), end: localDate_10.addDays(range.end, -7) };
+                const prevWeek = completed.filter((s) => localDate_10.compareLocalDate(s.date, prevRange.start) >= 0 && localDate_10.compareLocalDate(s.date, prevRange.end) <= 0);
+                const totalVolume = thisWeek.reduce((a, s) => a + fitness_3.sessionVolume(s), 0);
+                const lastWorkoutDate = completed.length === 0
+                    ? null
+                    : completed.reduce((latest, s) => (localDate_10.compareLocalDate(s.date, latest) > 0 ? s.date : latest), completed[0].date);
+                return {
+                    workoutsThisWeek: thisWeek.length,
+                    workoutsPrevWeek: prevWeek.length,
+                    totalVolume: Math.round(totalVolume),
+                    lastWorkoutDate,
+                };
+            });
+            exports_51("readingStats", readingStats = (data, range) => ({
+                finishedThisWeek: data.reading.filter((r) => r.finishedAt !== null && inRange(r.finishedAt, range)).length,
+                currentlyReading: data.reading.filter((r) => r.status === "current").length,
+                finishedTotal: data.reading.filter((r) => r.status === "finished").length,
+            }));
+        }
+    };
+});
+System.register("logic/monthlyReview", ["time/localDate", "logic/weeklyReview"], function (exports_52, context_52) {
+    "use strict";
+    var localDate_11, weeklyReview_1, MONTHS, daysInMonth, monthRangeContaining, shiftMonth, buildMonthlyReview;
+    var __moduleName = context_52 && context_52.id;
+    return {
+        setters: [
+            function (localDate_11_1) {
+                localDate_11 = localDate_11_1;
+            },
+            function (weeklyReview_1_1) {
+                weeklyReview_1 = weeklyReview_1_1;
+            }
+        ],
+        execute: function () {
+            MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            daysInMonth = (year, month) => new Date(Date.UTC(year, month, 0)).getUTCDate();
+            exports_52("monthRangeContaining", monthRangeContaining = (day) => {
+                const { year, month } = localDate_11.parseLocalDate(day);
+                const start = localDate_11.localDateOf(year, month, 1);
+                const dim = daysInMonth(year, month);
+                const end = localDate_11.localDateOf(year, month, dim);
+                const days = Array.from({ length: dim }, (_, i) => localDate_11.addDays(start, i));
+                return { start, end, days, year, month, label: `${MONTHS[month - 1]} ${year}` };
+            });
+            exports_52("shiftMonth", shiftMonth = (range, months) => {
+                const zeroBased = range.month - 1 + months;
+                const year = range.year + Math.floor(zeroBased / 12);
+                const month = ((zeroBased % 12) + 12) % 12;
+                return monthRangeContaining(localDate_11.localDateOf(year, month + 1, 1));
+            });
+            exports_52("buildMonthlyReview", buildMonthlyReview = (data, range, timeZone) => {
+                const habits = weeklyReview_1.habitConsistency(data, range);
+                const totalExpected = habits.reduce((a, h) => a + h.expected, 0);
+                const totalCompleted = habits.reduce((a, h) => a + h.completed, 0);
+                const ratings = weeklyReview_1.ratingSummary(data, range);
+                const tasks = weeklyReview_1.taskStats(data, range, timeZone);
+                const sleep = weeklyReview_1.sleepStats(data, range, data.settings.sleepTargetMinutes);
+                const diet = weeklyReview_1.dietStats(data, range, {
+                    calories: data.settings.nutrition.calories,
+                    proteinGrams: data.settings.nutrition.proteinGrams,
+                    waterMl: data.settings.nutrition.waterMl,
+                });
+                const fitness = weeklyReview_1.fitnessStats(data, range);
+                const reading = weeklyReview_1.readingStats(data, range);
+                const inRange = (d) => d >= range.start && d <= range.end;
+                const reviewsWritten = data.journal.filter((j) => inRange(j.date)).length;
+                const hasData = habits.length > 0 ||
+                    ratings.count > 0 ||
+                    reviewsWritten > 0 ||
+                    tasks.completed > 0 ||
+                    tasks.created > 0 ||
+                    sleep.nights > 0 ||
+                    diet.daysLogged > 0 ||
+                    fitness.workoutsThisWeek > 0 ||
+                    reading.finishedThisWeek > 0;
+                return {
+                    range,
+                    habits,
+                    habitRate: totalExpected === 0 ? null : totalCompleted / totalExpected,
+                    ratings,
+                    learned: weeklyReview_1.learnedThisWeek(data, range),
+                    problems: weeklyReview_1.recurringProblems(data, range),
+                    wins: weeklyReview_1.recurringWins(data, range),
+                    tasks,
+                    sleep,
+                    diet,
+                    fitness,
+                    reading,
+                    reviewsWritten,
+                    daysInMonth: range.days.length,
+                    hasData,
+                };
+            });
+        }
+    };
+});
+System.register("logic/scorecard", ["time/localDate"], function (exports_53, context_53) {
+    "use strict";
+    var localDate_12, clamp01, WEEK_PERIOD, buildScorecard, overallLabel, attentionItems;
+    var __moduleName = context_53 && context_53.id;
+    return {
+        setters: [
+            function (localDate_12_1) {
+                localDate_12 = localDate_12_1;
+            }
+        ],
+        execute: function () {
+            clamp01 = (n) => Math.max(0, Math.min(1, n));
+            WEEK_PERIOD = { days: 7, noun: "week" };
+            exports_53("buildScorecard", buildScorecard = (review, period = WEEK_PERIOD) => {
+                const areas = [];
+                if (review.habitRate !== null) {
+                    const done = review.habits.reduce((a, h) => a + h.completed, 0);
+                    const exp = review.habits.reduce((a, h) => a + h.expected, 0);
+                    areas.push({ key: "habits", label: "Habits", score: review.habitRate, detail: `${done}/${exp} scheduled completed` });
+                }
+                else {
+                    areas.push({ key: "habits", label: "Habits", score: null, detail: "No active habits" });
+                }
+                areas.push({
+                    key: "tasks",
+                    label: "Tasks",
+                    score: review.tasks.completionRate,
+                    detail: review.tasks.completionRate === null
+                        ? "No tasks tracked"
+                        : `${review.tasks.completed} done · ${review.tasks.pending} pending`,
+                });
+                const fitnessRef = 4;
+                const fitnessNoData = review.fitness.workoutsThisWeek === 0 && review.fitness.lastWorkoutDate === null;
+                areas.push({
+                    key: "fitness",
+                    label: "Fitness",
+                    score: fitnessNoData ? null : clamp01(review.fitness.workoutsThisWeek / fitnessRef),
+                    detail: fitnessNoData
+                        ? "No workouts tracked"
+                        : `${review.fitness.workoutsThisWeek} workout${review.fitness.workoutsThisWeek === 1 ? "" : "s"} (goal ${fitnessRef}/wk)`,
+                });
+                if (review.diet.daysLogged > 0) {
+                    const d = review.diet;
+                    const parts = [d.daysCalorieMin, d.daysProteinMin, d.daysWaterMin];
+                    const score = parts.reduce((a, n) => a + n / d.daysLogged, 0) / 3;
+                    areas.push({
+                        key: "diet",
+                        label: "Diet",
+                        score: clamp01(score),
+                        detail: `cals ${d.daysCalorieMin}/${d.daysLogged} · protein ${d.daysProteinMin}/${d.daysLogged} · water ${d.daysWaterMin}/${d.daysLogged} (minimums)`,
+                    });
+                }
+                else {
+                    areas.push({ key: "diet", label: "Diet", score: null, detail: "No days logged" });
+                }
+                if (review.sleep.nights > 0) {
+                    areas.push({
+                        key: "sleep",
+                        label: "Sleep",
+                        score: clamp01(review.sleep.daysMetTarget / review.sleep.nights),
+                        detail: `${review.sleep.daysMetTarget}/${review.sleep.nights} nights met target`,
+                    });
+                }
+                else {
+                    areas.push({ key: "sleep", label: "Sleep", score: null, detail: "No sleep logged" });
+                }
+                const learn = review.habits.find((h) => /learn|study/i.test(h.name));
+                areas.push({
+                    key: "learning",
+                    label: "Learning",
+                    score: learn ? learn.rate : null,
+                    detail: learn ? `${learn.completed}/${learn.expected} days` : "No learning habit",
+                });
+                areas.push({
+                    key: "review",
+                    label: "Daily review",
+                    score: clamp01(review.reviewsWritten / period.days),
+                    detail: `${review.reviewsWritten}/${period.days} days written`,
+                });
+                const scored = areas.filter((a) => a.score !== null);
+                const overall = scored.length === 0 ? null : scored.reduce((a, s) => a + s.score, 0) / scored.length;
+                const sortedByScore = [...scored].sort((a, b) => b.score - a.score);
+                return {
+                    areas,
+                    overall,
+                    strongest: sortedByScore[0] ?? null,
+                    weakest: sortedByScore.length > 0 ? sortedByScore[sortedByScore.length - 1] : null,
+                };
+            });
+            exports_53("overallLabel", overallLabel = (overall) => {
+                if (overall === null)
+                    return "Not enough data";
+                if (overall >= 0.8)
+                    return "Strong week";
+                if (overall >= 0.6)
+                    return "Solid week";
+                if (overall >= 0.4)
+                    return "Mixed week";
+                return "Needs improvement";
+            });
+            exports_53("attentionItems", attentionItems = (data, review, today, period = WEEK_PERIOD) => {
+                const items = [];
+                for (const h of review.habits) {
+                    if (h.expected >= 3 && h.completed / h.expected < 0.5) {
+                        items.push({
+                            key: `habit-${h.habitId}`,
+                            severity: "warn",
+                            message: `${h.name} completed only ${h.completed}/${h.expected} scheduled days this ${period.noun}.`,
+                        });
+                    }
+                }
+                const d = review.diet;
+                if (d.daysLogged >= 3) {
+                    const missCal = d.daysLogged - d.daysCalorieMin;
+                    const missPro = d.daysLogged - d.daysProteinMin;
+                    const missWat = d.daysLogged - d.daysWaterMin;
+                    if (missPro > d.daysLogged / 2)
+                        items.push({ key: "diet-protein", severity: "warn", message: `Protein minimum missed ${missPro} of ${d.daysLogged} logged days.` });
+                    if (missCal > d.daysLogged / 2)
+                        items.push({ key: "diet-cal", severity: "warn", message: `Calorie minimum missed ${missCal} of ${d.daysLogged} logged days.` });
+                    if (missWat > d.daysLogged / 2)
+                        items.push({ key: "diet-water", severity: "info", message: `Water minimum missed ${missWat} of ${d.daysLogged} logged days.` });
+                }
+                if (review.sleep.nights >= 4) {
+                    const below = review.sleep.nights - review.sleep.daysMetTarget;
+                    if (below > review.sleep.nights / 2)
+                        items.push({ key: "sleep", severity: "warn", message: `Sleep below target on ${below} of ${review.sleep.nights} nights.` });
+                }
+                if (review.fitness.lastWorkoutDate !== null) {
+                    const gap = localDate_12.diffDays(review.fitness.lastWorkoutDate, today);
+                    if (gap >= 8)
+                        items.push({ key: "fitness-gap", severity: "warn", message: `No workout logged in ${gap} days.` });
+                }
+                const latestWeight = data.bodyWeights
+                    .map((w) => w.date)
+                    .sort((a, b) => (localDate_12.compareLocalDate(a, b) > 0 ? -1 : 1))[0];
+                if (latestWeight !== undefined) {
+                    const gap = localDate_12.diffDays(latestWeight, today);
+                    if (gap >= 10)
+                        items.push({ key: "weight-gap", severity: "info", message: `Weight hasn't been logged in ${gap} days.` });
+                }
+                if (review.reviewsWritten <= Math.max(3, Math.floor(period.days / 2))) {
+                    items.push({
+                        key: "review-gap",
+                        severity: "info",
+                        message: `Only ${review.reviewsWritten}/${period.days} daily reviews written this ${period.noun}.`,
+                    });
+                }
+                for (const p of review.problems) {
+                    if (p.days >= 3) {
+                        items.push({ key: `theme-${p.theme}`, severity: "warn", message: `${p.theme} came up on ${p.days} days this ${period.noun}.` });
+                    }
+                }
+                if (review.tasks.overdue >= 3) {
+                    items.push({ key: "tasks-overdue", severity: "warn", message: `${review.tasks.overdue} tasks are overdue.` });
+                }
+                return items;
+            });
+        }
+    };
+});
+System.register("logic/winterArc", ["time/localDate"], function (exports_54, context_54) {
+    "use strict";
+    var localDate_13, WINTER_ARC_START, WINTER_ARC_END, WINTER_ARC_TOTAL_DAYS, MONTHS, formatLongDate, formatShortDate, winterArcState;
+    var __moduleName = context_54 && context_54.id;
+    return {
+        setters: [
+            function (localDate_13_1) {
+                localDate_13 = localDate_13_1;
+            }
+        ],
+        execute: function () {
+            exports_54("WINTER_ARC_START", WINTER_ARC_START = localDate_13.localDateOf(2026, 9, 1));
+            exports_54("WINTER_ARC_END", WINTER_ARC_END = localDate_13.localDateOf(2026, 12, 31));
+            exports_54("WINTER_ARC_TOTAL_DAYS", WINTER_ARC_TOTAL_DAYS = 122);
+            MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            exports_54("formatLongDate", formatLongDate = (d) => {
+                const { year, month, day } = localDate_13.parseLocalDate(d);
                 const long = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
                 return `${long[month - 1]} ${day}, ${year}`;
             });
-            exports_50("formatShortDate", formatShortDate = (d) => {
-                const { month, day } = localDate_9.parseLocalDate(d);
+            exports_54("formatShortDate", formatShortDate = (d) => {
+                const { month, day } = localDate_13.parseLocalDate(d);
                 return `${MONTHS[month - 1]} ${day}`;
             });
-            exports_50("winterArcState", winterArcState = (today) => {
+            exports_54("winterArcState", winterArcState = (today) => {
                 const start = WINTER_ARC_START;
                 const end = WINTER_ARC_END;
                 const totalDays = WINTER_ARC_TOTAL_DAYS;
-                const beforeStart = localDate_9.compareLocalDate(today, start) < 0;
-                const afterEnd = localDate_9.compareLocalDate(today, end) > 0;
+                const beforeStart = localDate_13.compareLocalDate(today, start) < 0;
+                const afterEnd = localDate_13.compareLocalDate(today, end) > 0;
                 if (beforeStart) {
                     return {
                         phase: "upcoming",
-                        daysUntilStart: localDate_9.diffDays(today, start),
+                        daysUntilStart: localDate_13.diffDays(today, start),
                         dayNumber: null,
                         totalDays,
                         daysLeft: null,
@@ -3369,9 +4148,9 @@ System.register("logic/winterArc", ["time/localDate"], function (exports_50, con
                         end,
                     };
                 }
-                const dayNumber = localDate_9.diffDays(start, today) + 1;
-                const daysLeft = localDate_9.diffDays(today, end) + 1;
-                const isFinal = localDate_9.compareLocalDate(today, end) === 0;
+                const dayNumber = localDate_13.diffDays(start, today) + 1;
+                const daysLeft = localDate_13.diffDays(today, end) + 1;
+                const isFinal = localDate_13.compareLocalDate(today, end) === 0;
                 const progress = Math.min(1, Math.max(0, dayNumber / totalDays));
                 return {
                     phase: isFinal ? "final" : "active",
@@ -3387,17 +4166,23 @@ System.register("logic/winterArc", ["time/localDate"], function (exports_50, con
         }
     };
 });
-System.register("ui/model/viewModel", ["time/localDate", "logic/winterArc", "config/index", "logic/moduleStatus", "logic/dailySummary", "logic/tasks", "logic/habits", "logic/routines", "logic/goals"], function (exports_51, context_51) {
+System.register("ui/model/viewModel", ["time/localDate", "logic/winterArc", "logic/weeklyReview", "logic/scorecard", "config/index", "logic/moduleStatus", "logic/dailySummary", "logic/tasks", "logic/habits", "logic/routines", "logic/goals"], function (exports_55, context_55) {
     "use strict";
-    var localDate_10, winterArc_1, config_6, moduleStatus_2, dailySummary_2, tasks_2, habits_5, routines_3, goals_2, greetingFor, MONTHS, dueLabelFor, toTaskCard, HORIZON_ORDER, bucketForDaypart, BUCKET_ORDER, buildTodayView;
-    var __moduleName = context_51 && context_51.id;
+    var localDate_14, winterArc_1, weeklyReview_2, scorecard_1, config_6, moduleStatus_2, dailySummary_2, tasks_3, habits_6, routines_3, goals_2, greetingFor, MONTHS, dueLabelFor, toTaskCard, HORIZON_ORDER, bucketForDaypart, BUCKET_ORDER, buildTodayView;
+    var __moduleName = context_55 && context_55.id;
     return {
         setters: [
-            function (localDate_10_1) {
-                localDate_10 = localDate_10_1;
+            function (localDate_14_1) {
+                localDate_14 = localDate_14_1;
             },
             function (winterArc_1_1) {
                 winterArc_1 = winterArc_1_1;
+            },
+            function (weeklyReview_2_1) {
+                weeklyReview_2 = weeklyReview_2_1;
+            },
+            function (scorecard_1_1) {
+                scorecard_1 = scorecard_1_1;
             },
             function (config_6_1) {
                 config_6 = config_6_1;
@@ -3408,11 +4193,11 @@ System.register("ui/model/viewModel", ["time/localDate", "logic/winterArc", "con
             function (dailySummary_2_1) {
                 dailySummary_2 = dailySummary_2_1;
             },
-            function (tasks_2_1) {
-                tasks_2 = tasks_2_1;
+            function (tasks_3_1) {
+                tasks_3 = tasks_3_1;
             },
-            function (habits_5_1) {
-                habits_5 = habits_5_1;
+            function (habits_6_1) {
+                habits_6 = habits_6_1;
             },
             function (routines_3_1) {
                 routines_3 = routines_3_1;
@@ -3422,7 +4207,7 @@ System.register("ui/model/viewModel", ["time/localDate", "logic/winterArc", "con
             }
         ],
         execute: function () {
-            exports_51("greetingFor", greetingFor = (hour) => {
+            exports_55("greetingFor", greetingFor = (hour) => {
                 if (hour < 5)
                     return "Still up";
                 if (hour < 12)
@@ -3437,14 +4222,14 @@ System.register("ui/model/viewModel", ["time/localDate", "logic/winterArc", "con
             dueLabelFor = (t, today) => {
                 if (t.due === null)
                     return "";
-                if (tasks_2.isOverdue(t, today))
+                if (tasks_3.isOverdue(t, today))
                     return "Overdue";
-                const delta = localDate_10.diffDays(today, t.due);
+                const delta = localDate_14.diffDays(today, t.due);
                 if (delta === 0)
                     return "Today";
                 if (delta === 1)
                     return "Tomorrow";
-                const { month, day } = localDate_10.parseLocalDate(t.due);
+                const { month, day } = localDate_14.parseLocalDate(t.due);
                 return `${MONTHS[month - 1]} ${day}`;
             };
             toTaskCard = (t, today) => ({
@@ -3453,7 +4238,7 @@ System.register("ui/model/viewModel", ["time/localDate", "logic/winterArc", "con
                 priority: t.priority,
                 status: t.status,
                 due: t.due,
-                overdue: tasks_2.isOverdue(t, today),
+                overdue: tasks_3.isOverdue(t, today),
                 done: t.status === "done",
                 category: t.category,
                 dueLabel: dueLabelFor(t, today),
@@ -3473,36 +4258,36 @@ System.register("ui/model/viewModel", ["time/localDate", "logic/winterArc", "con
                 return "Day";
             };
             BUCKET_ORDER = ["Morning", "Day", "Night"];
-            exports_51("buildTodayView", buildTodayView = (data, today, hour, settings = config_6.DEFAULT_SETTINGS) => {
+            exports_55("buildTodayView", buildTodayView = (data, today, hour, settings = config_6.DEFAULT_SETTINGS) => {
                 const summary = dailySummary_2.computeDailySummary(data, today);
                 const modules = moduleStatus_2.todayModuleStatus(data, today, settings);
-                const todayTasks = tasks_2.sortByPriority(tasks_2.filterTasks(data.tasks, "today", today));
+                const todayTasks = tasks_3.sortByPriority(tasks_3.filterTasks(data.tasks, "today", today));
                 const tasks = todayTasks.map((t) => toTaskCard(t, today));
-                const prioritySet = data.tasks.filter((t) => tasks_2.isActive(t) &&
-                    (tasks_2.isDueToday(t, today) ||
-                        tasks_2.isOverdue(t, today) ||
+                const prioritySet = data.tasks.filter((t) => tasks_3.isActive(t) &&
+                    (tasks_3.isDueToday(t, today) ||
+                        tasks_3.isOverdue(t, today) ||
                         t.priority === "high" ||
                         t.priority === "urgent"));
-                const priorities = tasks_2.sortByPriority(prioritySet)
+                const priorities = tasks_3.sortByPriority(prioritySet)
                     .slice(0, 3)
                     .map((t) => toTaskCard(t, today));
                 const habits = data.habits
-                    .filter((h) => habits_5.isHabitDueOn(h, today))
+                    .filter((h) => habits_6.isHabitDueOn(h, today))
                     .map((h) => {
                     const measurable = h.target !== null;
-                    const dayCompletions = habits_5.completionsFor(h.id, today, data.habitCompletions);
+                    const dayCompletions = habits_6.completionsFor(h.id, today, data.habitCompletions);
                     const current = dayCompletions.reduce((acc, c) => acc + (c.amount ?? 0), 0);
                     return {
                         id: h.id,
                         name: h.name,
                         category: h.category,
                         measurable,
-                        done: habits_5.isHabitCompletedOn(h, today, data.habitCompletions),
+                        done: habits_6.isHabitCompletedOn(h, today, data.habitCompletions),
                         current: measurable ? current : dayCompletions.length,
                         target: h.target?.amount ?? null,
                         unit: h.target?.unit ?? null,
-                        ratio: habits_5.habitDayRatio(h, today, data.habitCompletions),
-                        streak: habits_5.currentStreak(h, data.habitCompletions, today),
+                        ratio: habits_6.habitDayRatio(h, today, data.habitCompletions),
+                        streak: habits_6.currentStreak(h, data.habitCompletions, today),
                     };
                 });
                 const habitName = new Map(data.habits.map((h) => [h.id, h.name]));
@@ -3521,7 +4306,7 @@ System.register("ui/model/viewModel", ["time/localDate", "logic/winterArc", "con
                             {
                                 habitId: s.habitId,
                                 name,
-                                done: habits_5.isHabitCompletedOn(h, today, data.habitCompletions),
+                                done: habits_6.isHabitCompletedOn(h, today, data.habitCompletions),
                             },
                         ];
                     });
@@ -3568,23 +4353,126 @@ System.register("ui/model/viewModel", ["time/localDate", "logic/winterArc", "con
                     goals,
                     modules,
                     winterArc: winterArc_1.winterArcState(today),
+                    recentPerformance: (() => {
+                        const range = weeklyReview_2.weekRangeContaining(today, settings.weekStartsOn);
+                        const wr = weeklyReview_2.buildWeeklyReview(data, range, settings.timeZone);
+                        return {
+                            habitRate: wr.habitRate,
+                            avgRating: wr.ratings.average,
+                            tasksCompleted: wr.tasks.completed,
+                            hasData: wr.hasData,
+                        };
+                    })(),
+                    attention: (() => {
+                        const range = weeklyReview_2.weekRangeContaining(today, settings.weekStartsOn);
+                        const wr = weeklyReview_2.buildWeeklyReview(data, range, settings.timeZone);
+                        return scorecard_1.attentionItems(data, wr, today)
+                            .filter((a) => a.severity === "warn")
+                            .slice(0, 3)
+                            .map((a) => ({ severity: a.severity, message: a.message }));
+                    })(),
                     isEmpty,
                 };
             });
         }
     };
 });
-System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep", "logic/reading"], function (exports_52, context_52) {
+System.register("ui/model/insights", ["logic/weeklyReview", "logic/scorecard"], function (exports_56, context_56) {
     "use strict";
-    var fitness_3, diet_3, sleep_3, reading_3, buildFitnessView, buildDietView, buildSleepView, buildRoutinesView, toItemVM, buildReadingView;
-    var __moduleName = context_52 && context_52.id;
+    var weeklyReview_3, scorecard_2, buildInsightsView;
+    var __moduleName = context_56 && context_56.id;
     return {
         setters: [
-            function (fitness_3_1) {
-                fitness_3 = fitness_3_1;
+            function (weeklyReview_3_1) {
+                weeklyReview_3 = weeklyReview_3_1;
             },
-            function (diet_3_1) {
-                diet_3 = diet_3_1;
+            function (scorecard_2_1) {
+                scorecard_2 = scorecard_2_1;
+            }
+        ],
+        execute: function () {
+            exports_56("buildInsightsView", buildInsightsView = (data, today, weekStartsOn, offset, timeZone) => {
+                const thisWeek = weeklyReview_3.weekRangeContaining(today, weekStartsOn);
+                const selected = weeklyReview_3.shiftWeek(thisWeek, offset);
+                const previous = weeklyReview_3.shiftWeek(selected, -1);
+                const review = weeklyReview_3.buildWeeklyReview(data, selected, timeZone);
+                const prevReview = weeklyReview_3.buildWeeklyReview(data, previous, timeZone);
+                return {
+                    rangeLabel: weeklyReview_3.labelRange(selected),
+                    isCurrentWeek: offset === 0,
+                    canGoNext: offset < 0,
+                    review,
+                    scorecard: scorecard_2.buildScorecard(review),
+                    attention: scorecard_2.attentionItems(data, review, today),
+                    comparison: {
+                        habitRate: { cur: review.habitRate, prev: prevReview.habitRate },
+                        tasksCompleted: { cur: review.tasks.completed, prev: prevReview.tasks.completed },
+                        avgRating: { cur: review.ratings.average, prev: prevReview.ratings.average },
+                    },
+                };
+            });
+        }
+    };
+});
+System.register("ui/model/monthlyInsights", ["logic/monthlyReview", "logic/scorecard", "logic/goalIntelligence"], function (exports_57, context_57) {
+    "use strict";
+    var monthlyReview_1, scorecard_3, goalIntelligence_1, buildMonthlyInsightsView;
+    var __moduleName = context_57 && context_57.id;
+    return {
+        setters: [
+            function (monthlyReview_1_1) {
+                monthlyReview_1 = monthlyReview_1_1;
+            },
+            function (scorecard_3_1) {
+                scorecard_3 = scorecard_3_1;
+            },
+            function (goalIntelligence_1_1) {
+                goalIntelligence_1 = goalIntelligence_1_1;
+            }
+        ],
+        execute: function () {
+            exports_57("buildMonthlyInsightsView", buildMonthlyInsightsView = (data, today, _weekStartsOn, offset, timeZone) => {
+                const thisMonth = monthlyReview_1.monthRangeContaining(today);
+                const selected = monthlyReview_1.shiftMonth(thisMonth, offset);
+                const previous = monthlyReview_1.shiftMonth(selected, -1);
+                const review = monthlyReview_1.buildMonthlyReview(data, selected, timeZone);
+                const prev = monthlyReview_1.buildMonthlyReview(data, previous, timeZone);
+                const period = { days: review.daysInMonth, noun: "month" };
+                return {
+                    label: selected.label,
+                    isCurrentMonth: offset === 0,
+                    canGoNext: offset < 0,
+                    review,
+                    scorecard: scorecard_3.buildScorecard(review, period),
+                    attention: scorecard_3.attentionItems(data, review, today, period),
+                    bodyweight: goalIntelligence_1.bodyweightHistory(data),
+                    comparison: {
+                        habitRate: { cur: review.habitRate, prev: prev.habitRate },
+                        tasksCompleted: { cur: review.tasks.completed, prev: prev.tasks.completed },
+                        avgRating: { cur: review.ratings.average, prev: prev.ratings.average },
+                        workouts: { cur: review.fitness.workoutsThisWeek, prev: prev.fitness.workoutsThisWeek },
+                        avgSleep: { cur: review.sleep.avgMinutes, prev: prev.sleep.avgMinutes },
+                    },
+                };
+            });
+        }
+    };
+});
+System.register("ui/model/modules", ["logic/fitness", "logic/goalIntelligence", "logic/diet", "logic/sleep", "logic/reading"], function (exports_58, context_58) {
+    "use strict";
+    var fitness_4, goalIntelligence_2, goalIntelligence_3, diet_4, sleep_3, reading_3, buildFitnessView, buildDietView, buildSleepView, buildRoutinesView, toItemVM, buildReadingView;
+    var __moduleName = context_58 && context_58.id;
+    return {
+        setters: [
+            function (fitness_4_1) {
+                fitness_4 = fitness_4_1;
+            },
+            function (goalIntelligence_2_1) {
+                goalIntelligence_2 = goalIntelligence_2_1;
+                goalIntelligence_3 = goalIntelligence_2_1;
+            },
+            function (diet_4_1) {
+                diet_4 = diet_4_1;
             },
             function (sleep_3_1) {
                 sleep_3 = sleep_3_1;
@@ -3594,7 +4482,7 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
             }
         ],
         execute: function () {
-            exports_52("buildFitnessView", buildFitnessView = (data, today) => {
+            exports_58("buildFitnessView", buildFitnessView = (data, today) => {
                 const nameOf = new Map(data.exercises.map((e) => [e.id, e.name]));
                 const unitOf = new Map(data.exercises.map((e) => [e.id, e.loadUnit]));
                 const sessions = data.workoutSessions
@@ -3604,7 +4492,7 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
                     id: s.id,
                     date: s.date,
                     name: s.name,
-                    volume: fitness_3.sessionVolume(s),
+                    volume: fitness_4.sessionVolume(s),
                     setCount: s.exercises.reduce((n, se) => n + se.sets.length, 0),
                     completed: s.completedAt !== null,
                     exercises: s.exercises.map((se) => ({
@@ -3621,7 +4509,7 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
                         })),
                     })),
                 }));
-                const prs = fitness_3.allPRs(data)
+                const prs = fitness_4.allPRs(data)
                     .filter((p) => p.bestOneRepMax > 0)
                     .map((p) => ({
                     exerciseId: p.exerciseId,
@@ -3632,27 +4520,28 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
                 }));
                 return {
                     today,
-                    bodyWeight: fitness_3.bodyWeightTrend(data),
-                    weekly: fitness_3.weeklyProgress(data, today),
-                    monthly: fitness_3.monthlyProgress(data, today),
+                    bodyWeight: fitness_4.bodyWeightTrend(data),
+                    bodyHistory: goalIntelligence_2.bodyweightHistory(data),
+                    weekly: fitness_4.weeklyProgress(data, today),
+                    monthly: fitness_4.monthlyProgress(data, today),
                     prs,
                     exercises: data.exercises
                         .filter((e) => !e.archived)
                         .map((e) => ({ id: e.id, name: e.name, loadUnit: e.loadUnit })),
                     sessions,
-                    measurements: fitness_3.latestMeasurements(data),
+                    measurements: fitness_4.latestMeasurements(data),
                     isEmpty: data.workoutSessions.length === 0 &&
                         data.bodyWeights.length === 0 &&
                         data.measurements.length === 0,
                 };
             });
-            exports_52("buildDietView", buildDietView = (data, today, settings) => {
+            exports_58("buildDietView", buildDietView = (data, today, settings) => {
                 const meals = data.meals
                     .filter((m) => m.date === today)
                     .slice()
                     .sort((a, b) => (a.loggedAt < b.loggedAt ? 1 : -1))
                     .map((m) => {
-                    const macros = diet_3.mealMacros(m);
+                    const macros = diet_4.mealMacros(m);
                     const first = m.items[0];
                     return {
                         id: m.id,
@@ -3664,13 +4553,13 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
                 });
                 return {
                     today,
-                    progress: diet_3.nutritionProgress(data, today, settings.nutrition),
+                    progress: diet_4.nutritionProgress(data, today, settings.nutrition),
                     targets: settings.nutrition,
                     meals,
                     isEmpty: meals.length === 0 && data.waterLog.every((w) => w.date !== today),
                 };
             });
-            exports_52("buildSleepView", buildSleepView = (data, today, settings) => {
+            exports_58("buildSleepView", buildSleepView = (data, today, settings) => {
                 const recent = sleep_3.lastNights(data, today, 7);
                 return {
                     today,
@@ -3686,7 +4575,7 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
                     isEmpty: data.sleepLog.length === 0,
                 };
             });
-            exports_52("buildRoutinesView", buildRoutinesView = (data) => {
+            exports_58("buildRoutinesView", buildRoutinesView = (data) => {
                 const nameOf = new Map(data.habits.map((hh) => [hh.id, hh.name]));
                 return {
                     habits: data.habits
@@ -3731,13 +4620,19 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
                 notesCount: r.notes.length,
                 notes: r.notes.map((n) => ({ id: n.id, text: n.text, location: n.location })),
             });
-            exports_52("buildReadingView", buildReadingView = (data, today) => {
+            exports_58("buildReadingView", buildReadingView = (data, today) => {
                 const groups = reading_3.groupByStatus(data);
+                const finishedDates = data.reading
+                    .filter((r) => r.status === "finished" && r.finishedAt !== null)
+                    .map((r) => r.finishedAt);
+                const bookGoal = data.goals.find((g) => g.metric !== null && /book|read/i.test(g.name));
+                const goalTarget = bookGoal?.metric?.target ?? null;
                 return {
                     today,
                     current: groups.current.map(toItemVM),
                     upcoming: groups.upcoming.map(toItemVM),
                     finished: groups.finished.map(toItemVM),
+                    pace: goalIntelligence_3.readingPace(finishedDates, today, goalTarget),
                     learningToday: reading_3.learningForDate(data, today).map((e) => ({
                         id: e.id,
                         topic: e.topic,
@@ -3749,51 +4644,86 @@ System.register("ui/model/modules", ["logic/fitness", "logic/diet", "logic/sleep
         }
     };
 });
-System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (exports_53, context_53) {
+System.register("ui/model/plan", ["logic/goals", "logic/goalIntelligence", "logic/tasks", "logic/habits", "logic/diet"], function (exports_59, context_59) {
     "use strict";
-    var goals_3, tasks_3, GOAL_HORIZONS, GOAL_STATUSES, buildGoalsView, buildTasksView, PROJECT_STATUSES, buildProjectsView, toDay, buildJournalView, buildSettingsView;
-    var __moduleName = context_53 && context_53.id;
+    var goals_3, goalIntelligence_4, tasks_4, habits_7, diet_5, instantDayOf, GOAL_HORIZONS, GOAL_STATUSES, fmtNum, buildGoalsView, buildTasksView, PROJECT_STATUSES, buildProjectsView, toDay, buildJournalView, buildSettingsView;
+    var __moduleName = context_59 && context_59.id;
     return {
         setters: [
             function (goals_3_1) {
                 goals_3 = goals_3_1;
             },
-            function (tasks_3_1) {
-                tasks_3 = tasks_3_1;
+            function (goalIntelligence_4_1) {
+                goalIntelligence_4 = goalIntelligence_4_1;
+            },
+            function (tasks_4_1) {
+                tasks_4 = tasks_4_1;
+            },
+            function (habits_7_1) {
+                habits_7 = habits_7_1;
+            },
+            function (diet_5_1) {
+                diet_5 = diet_5_1;
             }
         ],
         execute: function () {
-            exports_53("GOAL_HORIZONS", GOAL_HORIZONS = [
+            instantDayOf = (ts, timeZone) => {
+                try {
+                    const parts = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(ts));
+                    const g = (t) => parts.find((p) => p.type === t)?.value ?? "01";
+                    return `${g("year")}-${g("month")}-${g("day")}`;
+                }
+                catch {
+                    return ts.slice(0, 10);
+                }
+            };
+            exports_59("GOAL_HORIZONS", GOAL_HORIZONS = [
                 "vision",
                 "year",
                 "quarter",
                 "month",
                 "week",
             ]);
-            exports_53("GOAL_STATUSES", GOAL_STATUSES = [
+            exports_59("GOAL_STATUSES", GOAL_STATUSES = [
                 "active",
                 "completed",
                 "on_hold",
                 "archived",
             ]);
-            exports_53("buildGoalsView", buildGoalsView = (data) => {
+            fmtNum = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+            exports_59("buildGoalsView", buildGoalsView = (data, today) => {
                 const nodes = [];
-                const toNode = (g, depth) => ({
-                    id: g.id,
-                    name: g.name,
-                    horizon: g.horizon,
-                    status: g.status,
-                    category: g.category,
-                    hasMetric: g.metric !== null,
-                    metricCurrent: g.metric?.current ?? null,
-                    metricLabel: g.metric !== null
-                        ? `${g.metric.current} / ${g.metric.target}${g.metric.unit ? " " + g.metric.unit : ""}`
-                        : null,
-                    progress: goals_3.rollupProgress(g, data.goals),
-                    milestones: g.milestones.map((m) => ({ id: m.id, title: m.title, done: m.done })),
-                    parentId: g.parentId,
-                    depth,
-                });
+                const bwSeries = goalIntelligence_4.bodyweightSeries(data);
+                const isBodyweightGoal = (g) => g.metric !== null &&
+                    ((g.metric.unit ?? "").toLowerCase() === "kg" ||
+                        (g.metric.unit ?? "").toLowerCase() === "lb" ||
+                        /weight|kg|bodyweight/i.test(g.name));
+                const toNode = (g, depth) => {
+                    const usesSeries = g.metric !== null && isBodyweightGoal(g) && bwSeries.length > 0;
+                    const intel = g.metric !== null
+                        ? goalIntelligence_4.goalIntel(g, today, usesSeries ? bwSeries : undefined)
+                        : null;
+                    const displayCurrent = intel?.current ?? g.metric?.current ?? null;
+                    const displayProgress = intel !== null && intel.measurable ? intel.progress : goals_3.rollupProgress(g, data.goals);
+                    return {
+                        id: g.id,
+                        name: g.name,
+                        horizon: g.horizon,
+                        status: g.status,
+                        category: g.category,
+                        hasMetric: g.metric !== null,
+                        metricCurrent: displayCurrent,
+                        metricLabel: g.metric !== null
+                            ? `${fmtNum(displayCurrent ?? 0)} / ${g.metric.target}${g.metric.unit ? " " + g.metric.unit : ""}`
+                            : null,
+                        progress: displayProgress,
+                        milestones: g.milestones.map((m) => ({ id: m.id, title: m.title, done: m.done })),
+                        parentId: g.parentId,
+                        depth,
+                        intel,
+                        metricFromSeries: usesSeries,
+                    };
+                };
                 const visit = (parentId, depth) => {
                     const kids = parentId === null
                         ? data.goals.filter((g) => g.parentId === null)
@@ -3815,7 +4745,7 @@ System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (expor
                     isEmpty: data.goals.length === 0,
                 };
             });
-            exports_53("buildTasksView", buildTasksView = (data, today) => {
+            exports_59("buildTasksView", buildTasksView = (data, today) => {
                 const goalName = new Map(data.goals.map((g) => [g.id, g.name]));
                 const projName = new Map(data.projects.map((p) => [p.id, p.name]));
                 const row = (t) => ({
@@ -3824,19 +4754,19 @@ System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (expor
                     priority: t.priority,
                     status: t.status,
                     due: t.due,
-                    overdue: tasks_3.isOverdue(t, today),
+                    overdue: tasks_4.isOverdue(t, today),
                     completed: t.status === "done",
                     recurring: t.recurrence !== null,
                     goalName: t.goalId !== null ? goalName.get(t.goalId) ?? null : null,
                     projectName: t.projectId !== null ? projName.get(t.projectId) ?? null : null,
                     subtasks: t.subtasks.map((s) => ({ id: s.id, title: s.title, done: s.done })),
                 });
-                const rowsOf = (arr) => tasks_3.sortByPriority(arr).map(row);
-                const todayRows = rowsOf(tasks_3.filterTasks(data.tasks, "today", today));
-                const upcoming = rowsOf(tasks_3.filterTasks(data.tasks, "upcoming", today));
-                const overdue = rowsOf(tasks_3.filterTasks(data.tasks, "overdue", today));
-                const noDate = rowsOf(data.tasks.filter((t) => tasks_3.isActive(t) && t.due === null));
-                const completed = rowsOf(tasks_3.filterTasks(data.tasks, "completed", today));
+                const rowsOf = (arr) => tasks_4.sortByPriority(arr).map(row);
+                const todayRows = rowsOf(tasks_4.filterTasks(data.tasks, "today", today));
+                const upcoming = rowsOf(tasks_4.filterTasks(data.tasks, "upcoming", today));
+                const overdue = rowsOf(tasks_4.filterTasks(data.tasks, "overdue", today));
+                const noDate = rowsOf(data.tasks.filter((t) => tasks_4.isActive(t) && t.due === null));
+                const completed = rowsOf(tasks_4.filterTasks(data.tasks, "completed", today));
                 const buckets = { today: todayRows, upcoming, overdue, noDate, completed };
                 return {
                     buckets,
@@ -3852,13 +4782,13 @@ System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (expor
                     isEmpty: data.tasks.length === 0,
                 };
             });
-            exports_53("PROJECT_STATUSES", PROJECT_STATUSES = [
+            exports_59("PROJECT_STATUSES", PROJECT_STATUSES = [
                 "active",
                 "paused",
                 "completed",
                 "archived",
             ]);
-            exports_53("buildProjectsView", buildProjectsView = (data) => ({
+            exports_59("buildProjectsView", buildProjectsView = (data) => ({
                 projects: data.projects.map((p) => {
                     const tasks = data.tasks.filter((t) => t.projectId === p.id);
                     return {
@@ -3868,7 +4798,7 @@ System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (expor
                         description: p.description,
                         taskCount: tasks.length,
                         doneCount: tasks.filter((t) => t.status === "done").length,
-                        tasks: tasks_3.sortByPriority(tasks).map((t) => ({
+                        tasks: tasks_4.sortByPriority(tasks).map((t) => ({
                             id: t.id,
                             title: t.title,
                             done: t.status === "done",
@@ -3887,21 +4817,54 @@ System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (expor
                 rating: e.rating,
                 topPriorityTomorrow: e.topPriorityTomorrow,
             });
-            exports_53("buildJournalView", buildJournalView = (data, today) => {
+            exports_59("buildJournalView", buildJournalView = (data, today) => {
                 const todayEntry = data.journal.find((e) => e.date === today);
                 const history = data.journal
                     .filter((e) => e.date !== today)
                     .slice()
                     .sort((a, b) => (a.date < b.date ? 1 : -1))
                     .map(toDay);
+                const activeHabits = data.habits.filter((hh) => hh.active && hh.archivedAt === null);
+                const habitsScheduled = activeHabits.filter((hh) => habits_7.isHabitDueOn(hh, today)).length;
+                const habitsCompleted = activeHabits.filter((hh) => habits_7.isHabitDueOn(hh, today) && habits_7.isHabitCompletedOn(hh, today, data.habitCompletions)).length;
+                const tasksCompleted = data.tasks.filter((t) => t.completedAt !== null && instantDayOf(t.completedAt, data.settings.timeZone) === today).length;
+                const workoutLogged = data.workoutSessions.some((s) => s.date === today && s.completedAt !== null);
+                const m = diet_5.dayMacros(data, today);
+                const water = diet_5.dayWaterMl(data, today);
+                const sleepEntry = data.sleepLog.find((s) => s.date === today);
+                const bw = data.bodyWeights.filter((w) => w.date === today);
+                const readingProgressed = data.reading.some((r) => r.notes.some((n) => (n.at ?? "").slice(0, 10) === today));
+                const calories = m.kcal > 0 ? m.kcal : null;
+                const protein = m.protein > 0 ? m.protein : null;
+                const context = {
+                    habitsCompleted,
+                    habitsScheduled,
+                    tasksCompleted,
+                    workoutLogged,
+                    calories,
+                    protein,
+                    waterMl: water > 0 ? water : null,
+                    sleepMinutes: sleepEntry?.durationMinutes ?? null,
+                    bodyweight: bw.length > 0 ? bw[bw.length - 1].weight : null,
+                    readingProgressed,
+                    hasAny: habitsScheduled > 0 ||
+                        tasksCompleted > 0 ||
+                        workoutLogged ||
+                        calories !== null ||
+                        water > 0 ||
+                        sleepEntry !== undefined ||
+                        bw.length > 0 ||
+                        readingProgressed,
+                };
                 return {
                     today,
                     todayEntry: todayEntry ? toDay(todayEntry) : null,
                     history,
+                    context,
                     isEmpty: data.journal.length === 0,
                 };
             });
-            exports_53("buildSettingsView", buildSettingsView = (data) => ({
+            exports_59("buildSettingsView", buildSettingsView = (data) => ({
                 timeZone: data.settings.timeZone,
                 weekStartsOn: data.settings.weekStartsOn,
                 nutrition: data.settings.nutrition,
@@ -3921,12 +4884,18 @@ System.register("ui/model/plan", ["logic/goals", "logic/tasks"], function (expor
         }
     };
 });
-System.register("ui/app/controller", ["domain/appData", "config/index", "time/timezone", "ui/model/viewModel", "ui/model/modules", "ui/model/plan", "persistence/serialization", "state/operations", "logic/habits", "state/helpers"], function (exports_54, context_54) {
+System.register("ui/app/controller", ["ui/model/insights", "ui/model/monthlyInsights", "domain/appData", "config/index", "time/timezone", "ui/model/viewModel", "ui/model/modules", "ui/model/plan", "persistence/serialization", "state/operations", "logic/habits", "state/helpers"], function (exports_60, context_60) {
     "use strict";
-    var appData_2, config_7, timezone_3, viewModel_1, modules_1, plan_1, serialization_3, operations_2, habits_6, helpers_2, AppController, formatFullDate;
-    var __moduleName = context_54 && context_54.id;
+    var insights_1, monthlyInsights_1, appData_2, config_7, timezone_3, viewModel_1, modules_1, plan_1, serialization_3, operations_2, habits_8, helpers_2, AppController, formatFullDate;
+    var __moduleName = context_60 && context_60.id;
     return {
         setters: [
+            function (insights_1_1) {
+                insights_1 = insights_1_1;
+            },
+            function (monthlyInsights_1_1) {
+                monthlyInsights_1 = monthlyInsights_1_1;
+            },
             function (appData_2_1) {
                 appData_2 = appData_2_1;
             },
@@ -3951,15 +4920,15 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
             function (operations_2_1) {
                 operations_2 = operations_2_1;
             },
-            function (habits_6_1) {
-                habits_6 = habits_6_1;
+            function (habits_8_1) {
+                habits_8 = habits_8_1;
             },
             function (helpers_2_1) {
                 helpers_2 = helpers_2_1;
             }
         ],
         execute: function () {
-            exports_54("instantToLocalDate", timezone_3.instantToLocalDate);
+            exports_60("instantToLocalDate", timezone_3.instantToLocalDate);
             AppController = class AppController {
                 #store;
                 #ops;
@@ -4009,6 +4978,12 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
                 view() {
                     return viewModel_1.buildTodayView(this.#state, this.today(), this.localHour(), this.#state.settings);
                 }
+                insightsView(offset) {
+                    return insights_1.buildInsightsView(this.#state, this.today(), this.#state.settings.weekStartsOn, offset, this.timeZone());
+                }
+                monthlyView(offset) {
+                    return monthlyInsights_1.buildMonthlyInsightsView(this.#state, this.today(), this.#state.settings.weekStartsOn, offset, this.timeZone());
+                }
                 fitnessView() {
                     return modules_1.buildFitnessView(this.#state, this.today());
                 }
@@ -4025,7 +5000,7 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
                     return modules_1.buildReadingView(this.#state, this.today());
                 }
                 goalsView() {
-                    return plan_1.buildGoalsView(this.#state);
+                    return plan_1.buildGoalsView(this.#state, this.today());
                 }
                 tasksView() {
                     return plan_1.buildTasksView(this.#state, this.today());
@@ -4095,7 +5070,7 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
                     if (habit === undefined)
                         return;
                     if (habit.target !== null) {
-                        if (habits_6.isHabitCompletedOn(habit, date, this.#state.habitCompletions)) {
+                        if (habits_8.isHabitCompletedOn(habit, date, this.#state.habitCompletions)) {
                             await this.#commit(operations_2.setHabitChecked(this.#ops, this.#state, id, date, false));
                         }
                         else {
@@ -4106,7 +5081,7 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
                         }
                         return;
                     }
-                    const has = habits_6.completionsFor(id, date, this.#state.habitCompletions).length > 0;
+                    const has = habits_8.completionsFor(id, date, this.#state.habitCompletions).length > 0;
                     await this.#commit(operations_2.setHabitChecked(this.#ops, this.#state, id, date, !has));
                 }
                 async toggleRoutineStep(habitId) {
@@ -4464,8 +5439,8 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
                     await this.#commit(data);
                 }
             };
-            exports_54("AppController", AppController);
-            exports_54("formatFullDate", formatFullDate = (date) => {
+            exports_60("AppController", AppController);
+            exports_60("formatFullDate", formatFullDate = (date) => {
                 const [y, m, d] = date.split("-").map((n) => Number(n));
                 const dt = new Date(Date.UTC(y ?? 1970, (m ?? 1) - 1, d ?? 1));
                 const weekday = dt.toLocaleDateString("en-US", {
@@ -4481,10 +5456,10 @@ System.register("ui/app/controller", ["domain/appData", "config/index", "time/ti
         }
     };
 });
-System.register("ui/dom/h", [], function (exports_55, context_55) {
+System.register("ui/dom/h", [], function (exports_61, context_61) {
     "use strict";
     var appendChild, h, mount;
-    var __moduleName = context_55 && context_55.id;
+    var __moduleName = context_61 && context_61.id;
     return {
         setters: [],
         execute: function () {
@@ -4502,7 +5477,7 @@ System.register("ui/dom/h", [], function (exports_55, context_55) {
                 }
                 parent.appendChild(child);
             };
-            exports_55("h", h = (tag, props, ...children) => {
+            exports_61("h", h = (tag, props, ...children) => {
                 const el = document.createElement(tag);
                 if (props) {
                     for (const [k, v] of Object.entries(props)) {
@@ -4515,7 +5490,7 @@ System.register("ui/dom/h", [], function (exports_55, context_55) {
                     appendChild(el, child);
                 return el;
             });
-            exports_55("mount", mount = (host, ...children) => {
+            exports_61("mount", mount = (host, ...children) => {
                 host.replaceChildren();
                 for (const child of children)
                     appendChild(host, child);
@@ -4523,10 +5498,10 @@ System.register("ui/dom/h", [], function (exports_55, context_55) {
         }
     };
 });
-System.register("ui/dom/render", ["logic/winterArc", "logic/sleep", "ui/dom/h"], function (exports_56, context_56) {
+System.register("ui/dom/render", ["logic/winterArc", "logic/sleep", "ui/dom/h"], function (exports_62, context_62) {
     "use strict";
     var winterArc_2, sleep_4, h_1, pct, priorityLabel, dueLabel, ring, card, emptyLine, taskRow, habitRow, routineGroup, goalRow, emptyDashboard, hero, formatDate, statChip, moduleStatusCard, winterArcCard, renderDashboard;
-    var __moduleName = context_56 && context_56.id;
+    var __moduleName = context_62 && context_62.id;
     return {
         setters: [
             function (winterArc_2_1) {
@@ -4712,7 +5687,7 @@ System.register("ui/dom/render", ["logic/winterArc", "logic/sleep", "ui/dom/h"],
                     }, h_1.h("i", { style: `width:${percent}%` }), h_1.h("span", { class: "wa-bar-pct mono" }, `${percent}%`))
                     : null, h_1.h("div", { class: "wa-foot" }, h_1.h("span", { class: "wa-sub mono" }, sub), h_1.h("span", { class: "wa-motto" }, motto)));
             };
-            exports_56("renderDashboard", renderDashboard = (vm, clockText) => {
+            exports_62("renderDashboard", renderDashboard = (vm, clockText) => {
                 const frag = h_1.h("div", { class: "dash" });
                 frag.appendChild(hero(vm, clockText));
                 frag.appendChild(winterArcCard(vm.winterArc));
@@ -4722,6 +5697,13 @@ System.register("ui/dom/render", ["logic/winterArc", "logic/sleep", "ui/dom/h"],
                 }
                 const grid = h_1.h("div", { class: "grid" });
                 grid.appendChild(moduleStatusCard(vm.modules));
+                if (vm.attention.length > 0) {
+                    grid.appendChild(card("Attention needed", h_1.h("div", { class: "attention-list" }, ...vm.attention.map((a) => h_1.h("div", { class: `attention-row sev-${a.severity}` }, h_1.h("span", { class: "attention-dot", "aria-hidden": "true" }, "▲"), h_1.h("span", { class: "attention-msg" }, a.message))), h_1.h("button", { class: "btn btn-ghost btn-sm", "data-action": "nav", "data-route": "insights", style: "margin-top:8px" }, "See weekly review →")), { count: String(vm.attention.length), cls: "card-wide" }));
+                }
+                if (vm.recentPerformance.hasData) {
+                    const rp = vm.recentPerformance;
+                    grid.appendChild(card("Your recent performance", h_1.h("div", { class: "perf-strip" }, h_1.h("div", { class: "perf-item" }, h_1.h("span", { class: "perf-val" }, rp.habitRate === null ? "—" : `${Math.round(rp.habitRate * 100)}%`), h_1.h("span", { class: "perf-label" }, "Habits")), h_1.h("div", { class: "perf-item" }, h_1.h("span", { class: "perf-val" }, rp.avgRating === null ? "—" : `${rp.avgRating.toFixed(1)}`), h_1.h("span", { class: "perf-label" }, "Avg rating")), h_1.h("div", { class: "perf-item" }, h_1.h("span", { class: "perf-val" }, String(rp.tasksCompleted)), h_1.h("span", { class: "perf-label" }, "Tasks done")), h_1.h("button", { class: "btn btn-ghost btn-sm perf-cta", "data-action": "nav", "data-route": "insights" }, "View weekly review →")), { cls: "card-wide" }));
+                }
                 grid.appendChild(card("Priorities", vm.priorities.length > 0
                     ? h_1.h("div", { class: "rows" }, ...vm.priorities.map(taskRow))
                     : emptyLine("No priorities flagged. High and urgent tasks show up here."), { cls: "card-priorities" }));
@@ -4743,10 +5725,10 @@ System.register("ui/dom/render", ["logic/winterArc", "logic/sleep", "ui/dom/h"],
         }
     };
 });
-System.register("ui/dom/ui", ["ui/dom/h"], function (exports_57, context_57) {
+System.register("ui/dom/ui", ["ui/dom/h"], function (exports_63, context_63) {
     "use strict";
     var h_2, pct, card, emptyLine, pageHead, bar, stat, field, textareaField, selectField, submit, form, titleCase;
-    var __moduleName = context_57 && context_57.id;
+    var __moduleName = context_63 && context_63.id;
     return {
         setters: [
             function (h_2_1) {
@@ -4754,13 +5736,13 @@ System.register("ui/dom/ui", ["ui/dom/h"], function (exports_57, context_57) {
             }
         ],
         execute: function () {
-            exports_57("pct", pct = (frac) => Math.round(Math.max(0, Math.min(1, frac)) * 100));
-            exports_57("card", card = (title, body, opts) => h_2.h("section", { class: `card ${opts?.cls ?? ""}`.trim() }, h_2.h("header", { class: "card-head" }, h_2.h("h2", null, title), opts?.count !== undefined ? h_2.h("span", { class: "card-count" }, opts.count) : null), body));
-            exports_57("emptyLine", emptyLine = (text) => h_2.h("p", { class: "empty-line" }, text));
-            exports_57("pageHead", pageHead = (title, subtitle) => h_2.h("div", { class: "page-head" }, h_2.h("h1", { class: "page-title" }, title), h_2.h("p", { class: "page-sub" }, subtitle)));
-            exports_57("bar", bar = (frac, cls = "") => h_2.h("span", { class: `bar ${cls}`.trim() }, h_2.h("span", { class: "bar-fill", style: `width:${pct(frac)}%` })));
-            exports_57("stat", stat = (label, value) => h_2.h("div", { class: "stat" }, h_2.h("span", { class: "stat-value" }, value), h_2.h("span", { class: "stat-label" }, label)));
-            exports_57("field", field = (label, name, opts = {}) => h_2.h("label", { class: "fld" }, h_2.h("span", { class: "fld-label" }, label), h_2.h("input", {
+            exports_63("pct", pct = (frac) => Math.round(Math.max(0, Math.min(1, frac)) * 100));
+            exports_63("card", card = (title, body, opts) => h_2.h("section", { class: `card ${opts?.cls ?? ""}`.trim() }, h_2.h("header", { class: "card-head" }, h_2.h("h2", null, title), opts?.count !== undefined ? h_2.h("span", { class: "card-count" }, opts.count) : null), body));
+            exports_63("emptyLine", emptyLine = (text) => h_2.h("p", { class: "empty-line" }, text));
+            exports_63("pageHead", pageHead = (title, subtitle) => h_2.h("div", { class: "page-head" }, h_2.h("h1", { class: "page-title" }, title), h_2.h("p", { class: "page-sub" }, subtitle)));
+            exports_63("bar", bar = (frac, cls = "") => h_2.h("span", { class: `bar ${cls}`.trim() }, h_2.h("span", { class: "bar-fill", style: `width:${pct(frac)}%` })));
+            exports_63("stat", stat = (label, value) => h_2.h("div", { class: "stat" }, h_2.h("span", { class: "stat-value" }, value), h_2.h("span", { class: "stat-label" }, label)));
+            exports_63("field", field = (label, name, opts = {}) => h_2.h("label", { class: "fld" }, h_2.h("span", { class: "fld-label" }, label), h_2.h("input", {
                 class: "fld-input",
                 "data-field": name,
                 type: opts.type ?? "text",
@@ -4770,18 +5752,18 @@ System.register("ui/dom/ui", ["ui/dom/h"], function (exports_57, context_57) {
                 ...(opts.step !== undefined ? { step: opts.step } : {}),
                 ...(opts.min !== undefined ? { min: opts.min } : {}),
             })));
-            exports_57("textareaField", textareaField = (label, name, value, placeholder = "") => h_2.h("label", { class: "fld fld-wide" }, h_2.h("span", { class: "fld-label" }, label), h_2.h("textarea", { class: "fld-input", "data-field": name, rows: "2", placeholder }, value ?? "")));
-            exports_57("selectField", selectField = (label, name, options, selected) => h_2.h("label", { class: "fld" }, h_2.h("span", { class: "fld-label" }, label), h_2.h("select", { class: "fld-input", "data-field": name }, ...options.map((o) => h_2.h("option", { value: o.value, ...(o.value === selected ? { selected: "selected" } : {}) }, o.label)))));
-            exports_57("submit", submit = (label) => h_2.h("button", { class: "btn btn-primary", "data-action": "form-submit" }, label));
-            exports_57("form", form = (name, fields, submitLabel, dataAttrs = {}) => h_2.h("div", { class: "form", "data-form": name, ...dataAttrs }, h_2.h("div", { class: "form-row" }, ...fields), h_2.h("div", { class: "form-actions" }, submit(submitLabel))));
-            exports_57("titleCase", titleCase = (s) => s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, " "));
+            exports_63("textareaField", textareaField = (label, name, value, placeholder = "") => h_2.h("label", { class: "fld fld-wide" }, h_2.h("span", { class: "fld-label" }, label), h_2.h("textarea", { class: "fld-input", "data-field": name, rows: "2", placeholder }, value ?? "")));
+            exports_63("selectField", selectField = (label, name, options, selected) => h_2.h("label", { class: "fld" }, h_2.h("span", { class: "fld-label" }, label), h_2.h("select", { class: "fld-input", "data-field": name }, ...options.map((o) => h_2.h("option", { value: o.value, ...(o.value === selected ? { selected: "selected" } : {}) }, o.label)))));
+            exports_63("submit", submit = (label) => h_2.h("button", { class: "btn btn-primary", "data-action": "form-submit" }, label));
+            exports_63("form", form = (name, fields, submitLabel, dataAttrs = {}) => h_2.h("div", { class: "form", "data-form": name, ...dataAttrs }, h_2.h("div", { class: "form-row" }, ...fields), h_2.h("div", { class: "form-actions" }, submit(submitLabel))));
+            exports_63("titleCase", titleCase = (s) => s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, " "));
         }
     };
 });
-System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "domain/common", "domain/reading", "ui/dom/ui"], function (exports_58, context_58) {
+System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "domain/common", "domain/reading", "ui/dom/ui"], function (exports_64, context_64) {
     "use strict";
-    var h_3, sleep_5, diet_4, common_2, reading_4, ui_1, mealOptions, daypartOptions, renderFitness, renderDiet, renderSleep, renderRoutines, renderReading;
-    var __moduleName = context_58 && context_58.id;
+    var h_3, sleep_5, diet_6, common_2, reading_4, ui_1, mealOptions, daypartOptions, SVG_NS, svgEl, bwChart, renderFitness, renderDiet, renderSleep, renderRoutines, renderReading;
+    var __moduleName = context_64 && context_64.id;
     return {
         setters: [
             function (h_3_1) {
@@ -4790,8 +5772,8 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
             function (sleep_5_1) {
                 sleep_5 = sleep_5_1;
             },
-            function (diet_4_1) {
-                diet_4 = diet_4_1;
+            function (diet_6_1) {
+                diet_6 = diet_6_1;
             },
             function (common_2_1) {
                 common_2 = common_2_1;
@@ -4804,9 +5786,44 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
             }
         ],
         execute: function () {
-            mealOptions = diet_4.MEAL_TYPES.map((t) => ({ value: t, label: ui_1.titleCase(t) }));
+            mealOptions = diet_6.MEAL_TYPES.map((t) => ({ value: t, label: ui_1.titleCase(t) }));
             daypartOptions = common_2.DAYPARTS.map((d) => ({ value: d, label: ui_1.titleCase(d) }));
-            exports_58("renderFitness", renderFitness = (v) => {
+            SVG_NS = "http://www.w3.org/2000/svg";
+            svgEl = (tag, attrs, ...children) => {
+                const el = document.createElementNS(SVG_NS, tag);
+                for (const [k, v] of Object.entries(attrs))
+                    el.setAttribute(k, v);
+                for (const c of children)
+                    if (c)
+                        el.appendChild(c);
+                return el;
+            };
+            bwChart = (points, unit) => {
+                const W = 640;
+                const H = 180;
+                const padL = 36;
+                const padR = 12;
+                const padT = 12;
+                const padB = 20;
+                const values = points.map((p) => p.value);
+                const min = Math.min(...values);
+                const max = Math.max(...values);
+                const span = max - min || 1;
+                const n = points.length;
+                const x = (i) => padL + (i / Math.max(1, n - 1)) * (W - padL - padR);
+                const y = (v) => padT + (1 - (v - min) / span) * (H - padT - padB);
+                const path = points.map((p, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(p.value).toFixed(1)}`).join(" ");
+                const dots = points.map((p, i) => svgEl("circle", { class: "bw-dot", cx: String(x(i)), cy: String(y(p.value)), r: "2.5" }));
+                const yLabels = [max, (max + min) / 2, min].map((val) => {
+                    const yy = y(val);
+                    return svgEl("text", { class: "bw-axis", x: "4", y: String(yy + 3) }, document.createTextNode(val.toFixed(1)));
+                });
+                const svg = svgEl("svg", { class: "bw-chart", viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "none", role: "img", "aria-label": `Bodyweight trend in ${unit}` }, svgEl("path", { class: "bw-line", d: path }), ...dots, ...yLabels);
+                const wrap = h_3.h("div", {});
+                wrap.appendChild(svg);
+                return wrap;
+            };
+            exports_64("renderFitness", renderFitness = (v) => {
                 const root = h_3.h("div", { class: "dash module" });
                 root.appendChild(ui_1.pageHead("Fitness", "Workouts, progressive overload, body metrics."));
                 const grid = h_3.h("div", { class: "grid" });
@@ -4816,6 +5833,23 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                     ? h_3.h("p", { class: "muted" }, `${bw.delta > 0 ? "▲" : bw.delta < 0 ? "▼" : "•"} ${Math.abs(bw.delta).toFixed(1)} ${bw.unit ?? ""} since last reading`)
                     : null;
                 grid.appendChild(ui_1.card("Overview", h_3.h("div", {}, overview, bwNote), { cls: "card-wide" }));
+                {
+                    const bh = v.bodyHistory;
+                    if (bh.points.length === 0) {
+                        grid.appendChild(ui_1.card("Bodyweight trend", ui_1.emptyLine("Log your weight to see a trend here."), { cls: "card-wide" }));
+                    }
+                    else {
+                        const summary = h_3.h("div", { class: "bw-summary" }, h_3.h("div", { class: "bw-stat" }, h_3.h("span", { class: "bw-stat-val" }, `${bh.latest} ${bh.unit}`), h_3.h("span", { class: "bw-stat-label" }, "Latest")), h_3.h("div", { class: "bw-stat" }, h_3.h("span", { class: "bw-stat-val" }, `${bh.start} ${bh.unit}`), h_3.h("span", { class: "bw-stat-label" }, "Starting")), bh.totalChange !== null
+                            ? h_3.h("div", { class: "bw-stat" }, h_3.h("span", { class: "bw-stat-val" }, `${bh.totalChange > 0 ? "+" : ""}${bh.totalChange.toFixed(1)}`), h_3.h("span", { class: "bw-stat-label" }, "Total change"))
+                            : null, bh.enough && bh.perWeek !== null
+                            ? h_3.h("div", { class: "bw-stat" }, h_3.h("span", { class: "bw-stat-val" }, `${bh.perWeek > 0 ? "+" : ""}${bh.perWeek.toFixed(2)}`), h_3.h("span", { class: "bw-stat-label" }, `${bh.unit}/week`))
+                            : null);
+                        const chart = bh.enough
+                            ? bwChart(bh.points, bh.unit)
+                            : ui_1.emptyLine("Only one reading so far — a trend line needs at least two on different days.");
+                        grid.appendChild(ui_1.card("Bodyweight trend", h_3.h("div", {}, summary, chart), { cls: "card-wide" }));
+                    }
+                }
                 grid.appendChild(ui_1.card("Log body metrics", h_3.h("div", {}, ui_1.form("log-bodyweight", [
                     ui_1.field("Weight", "weight", { type: "number", step: "0.1", placeholder: "Enter weight" }),
                     ui_1.selectField("Unit", "unit", [
@@ -4891,7 +5925,7 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                         : ui_1.emptyLine("Add an exercise to the catalog below to log sets here."), h_3.h("div", { class: "finish-row" }, h_3.h("button", { class: "btn btn-primary btn-finish", "data-action": "finish-workout", "data-id": s.id }, "Finish workout")));
                 }
             });
-            exports_58("renderDiet", renderDiet = (v) => {
+            exports_64("renderDiet", renderDiet = (v) => {
                 const root = h_3.h("div", { class: "dash module" });
                 root.appendChild(ui_1.pageHead("Diet", "Meals, macros, water — measured against your targets."));
                 const grid = h_3.h("div", { class: "grid" });
@@ -4919,7 +5953,7 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                 root.appendChild(grid);
                 return root;
             });
-            exports_58("renderSleep", renderSleep = (v) => {
+            exports_64("renderSleep", renderSleep = (v) => {
                 const root = h_3.h("div", { class: "dash module" });
                 root.appendChild(ui_1.pageHead("Sleep", "Duration, target, and how steady your nights are."));
                 const grid = h_3.h("div", { class: "grid" });
@@ -4946,7 +5980,7 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                 root.appendChild(grid);
                 return root;
             });
-            exports_58("renderRoutines", renderRoutines = (v) => {
+            exports_64("renderRoutines", renderRoutines = (v) => {
                 const root = h_3.h("div", { class: "dash module" });
                 root.appendChild(ui_1.pageHead("Routines & hygiene", "Your own small habits (brushing, skincare, anything) grouped into routines."));
                 const grid = h_3.h("div", { class: "grid" });
@@ -4979,7 +6013,7 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                 root.appendChild(grid);
                 return root;
             });
-            exports_58("renderReading", renderReading = (v) => {
+            exports_64("renderReading", renderReading = (v) => {
                 const root = h_3.h("div", { class: "dash module" });
                 root.appendChild(ui_1.pageHead("Reading & learning", "Books, articles, progress, notes, and a learning log."));
                 const grid = h_3.h("div", { class: "grid" });
@@ -5014,6 +6048,20 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
                     ]),
                 ], "Add")));
                 grid.appendChild(group("Currently reading", v.current));
+                {
+                    const pace = v.pace;
+                    if (pace.goal !== null || pace.finished > 0) {
+                        const chips = h_3.h("div", { class: "stat-row tight" }, ui_1.stat("Finished", pace.goal !== null ? `${pace.finished} / ${pace.goal}` : String(pace.finished)), pace.remaining !== null ? ui_1.stat("Remaining", String(pace.remaining)) : null, pace.enough && pace.perMonth !== null ? ui_1.stat("Pace", `${pace.perMonth.toFixed(1)}/mo`) : null, pace.enough && pace.projectedYearEnd !== null ? ui_1.stat("Proj. year-end", String(pace.projectedYearEnd)) : null);
+                        const note = !pace.enough
+                            ? ui_1.emptyLine("Finish at least two books to project your reading pace.")
+                            : pace.status === "behind" && pace.goal !== null
+                                ? h_3.h("p", { class: "muted" }, `At your current pace (~${pace.perMonth.toFixed(1)} books/month) you'd finish about ${pace.projectedYearEnd} this year — below your ${pace.goal}-book goal.`)
+                                : pace.status === "on_track" && pace.goal !== null
+                                    ? h_3.h("p", { class: "muted" }, `On track for your ${pace.goal}-book goal at ~${pace.perMonth.toFixed(1)} books/month.`)
+                                    : null;
+                        grid.appendChild(ui_1.card("Reading pace", h_3.h("div", {}, chips, note), { cls: "card-wide" }));
+                    }
+                }
                 grid.appendChild(group("Up next", v.upcoming));
                 grid.appendChild(group("Finished", v.finished));
                 const learnBody = h_3.h("div", {}, ui_1.form("add-learning", [
@@ -5029,14 +6077,17 @@ System.register("ui/dom/modules", ["ui/dom/h", "logic/sleep", "domain/diet", "do
         }
     };
 });
-System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], function (exports_59, context_59) {
+System.register("ui/dom/plan", ["ui/dom/h", "logic/goalIntelligence", "ui/dom/ui", "ui/model/plan"], function (exports_65, context_65) {
     "use strict";
-    var h_4, ui_2, plan_2, horizonOptions, statusOptions, projectStatusOptions, priorityOptions, renderGoals, renderTasks, renderProjects, renderJournal, renderSettings;
-    var __moduleName = context_59 && context_59.id;
+    var h_4, goalIntelligence_5, ui_2, plan_2, horizonOptions, statusOptions, projectStatusOptions, priorityOptions, renderGoals, renderTasks, renderProjects, renderJournal, renderSettings;
+    var __moduleName = context_65 && context_65.id;
     return {
         setters: [
             function (h_4_1) {
                 h_4 = h_4_1;
+            },
+            function (goalIntelligence_5_1) {
+                goalIntelligence_5 = goalIntelligence_5_1;
             },
             function (ui_2_1) {
                 ui_2 = ui_2_1;
@@ -5053,9 +6104,35 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                 value: x,
                 label: ui_2.titleCase(x),
             }));
-            exports_59("renderGoals", renderGoals = (v, expanded) => {
+            exports_65("renderGoals", renderGoals = (v, expanded) => {
                 const root = h_4.h("div", { class: "dash module" });
                 root.appendChild(ui_2.pageHead("Goals", "Vision → year → quarter → month → week, with milestones."));
+                const fmt = (n, unit) => `${Number.isInteger(n) ? n : n.toFixed(1)}${unit ? " " + unit : ""}`;
+                const intelPanel = (intel) => {
+                    if (intel === null || !intel.measurable)
+                        return null;
+                    const rows = [];
+                    const row = (label, value) => h_4.h("div", { class: "gi-row" }, h_4.h("span", { class: "gi-label" }, label), h_4.h("span", { class: "gi-val mono" }, value));
+                    rows.push(row("Current", intel.current === null ? "—" : fmt(intel.current, intel.unit)));
+                    rows.push(row("Target", intel.target === null ? "—" : fmt(intel.target, intel.unit)));
+                    if (intel.start !== null && intel.start !== intel.current)
+                        rows.push(row("Started", fmt(intel.start, intel.unit)));
+                    if (intel.remaining !== null)
+                        rows.push(row("Remaining", fmt(intel.remaining, intel.unit)));
+                    if (intel.enoughData && intel.recentPacePerWeek !== null)
+                        rows.push(row("Recent pace", `${intel.recentPacePerWeek > 0 ? "+" : ""}${intel.recentPacePerWeek.toFixed(2)} ${intel.unit ?? ""}/wk`));
+                    if (intel.requiredPacePerWeek !== null)
+                        rows.push(row("Required pace", `${intel.requiredPacePerWeek > 0 ? "+" : ""}${intel.requiredPacePerWeek.toFixed(2)} ${intel.unit ?? ""}/wk`));
+                    if (intel.projectedDate !== null) {
+                        const vs = intel.projectedVsDeadlineDays;
+                        const suffix = vs === null ? "" : vs <= 0 ? ` (${-vs}d early)` : ` (${vs}d late)`;
+                        rows.push(row("Projected", goalIntelligence_5.formatMonthDay(intel.projectedDate) + suffix));
+                    }
+                    const statusPill = h_4.h("span", { class: `gi-status gi-${intel.status}` }, goalIntelligence_5.statusLabel(intel.status));
+                    return h_4.h("div", { class: "goal-section gi-section" }, h_4.h("div", { class: "goal-section-head" }, h_4.h("span", { class: "goal-section-title" }, "Intelligence"), statusPill), intel.enoughData || intel.requiredPacePerWeek !== null
+                        ? h_4.h("div", { class: "gi-grid" }, ...rows.filter((r) => r !== null))
+                        : h_4.h("div", {}, h_4.h("div", { class: "gi-grid" }, ...rows.filter((r) => r !== null)), ui_2.emptyLine("Not enough history yet to project a pace — log more data over time.")));
+                };
                 const grid = h_4.h("div", { class: "grid" });
                 const goalCard = (g) => {
                     const isOpen = expanded.has(g.id);
@@ -5069,7 +6146,7 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                         "aria-expanded": isOpen ? "true" : "false",
                     }, h_4.h("div", { class: "goal-summary-top" }, h_4.h("span", { class: "chevron" }, isOpen ? "▾" : "▸"), h_4.h("span", { class: "pill" }, g.horizon), h_4.h("span", { class: "goal-title" }, g.name), g.status !== "active" ? h_4.h("span", { class: `pill status-${g.status}` }, ui_2.titleCase(g.status)) : null, h_4.h("span", { class: "goal-summary-pct mono" }, `${ui_2.pct(g.progress)}%`)), ui_2.bar(g.progress), h_4.h("div", { class: "goal-summary-meta" }, g.metricLabel !== null ? h_4.h("span", { class: "mono" }, g.metricLabel) : null, total > 0 ? h_4.h("span", { class: "mono muted-inline" }, `${doneCount} / ${total} milestones`) : null, nextMilestone !== null ? h_4.h("span", { class: "next-ms" }, `Next: ${nextMilestone.title}`) : null));
                     if (!isOpen) {
-                        return h_4.h("div", { class: "goal-node", "data-goal-card": g.id }, summary);
+                        return h_4.h("div", { class: `goal-node depth-${Math.min(g.depth, 4)}`.trim(), "data-goal-card": g.id }, summary);
                     }
                     const milestoneSection = h_4.h("div", { class: "goal-section" }, h_4.h("div", { class: "goal-section-head" }, h_4.h("span", { class: "goal-section-title" }, "Milestones"), total > 0 ? h_4.h("span", { class: "mono muted-inline" }, `${doneCount} / ${total}`) : null), total > 0
                         ? h_4.h("div", { class: "milestones" }, ...g.milestones.map((m) => h_4.h("div", { class: `ms-row ${!m.done && m.id === nextMilestone?.id ? "is-next" : ""}`.trim() }, h_4.h("button", {
@@ -5083,7 +6160,9 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                         : ui_2.emptyLine("No milestones yet — break this goal into concrete steps."), ui_2.form("add-milestone", [ui_2.field("Add a milestone", "title", { placeholder: "A concrete step…" })], "Add", { "data-id": g.id }));
                     const isClosed = g.status === "completed" || g.status === "archived";
                     const progressSection = g.hasMetric && !isClosed
-                        ? h_4.h("div", { class: "goal-section" }, h_4.h("div", { class: "goal-section-head" }, h_4.h("span", { class: "goal-section-title" }, "Progress")), ui_2.form("goal-metric", [ui_2.field("Current value", "current", { type: "number", value: String(g.metricCurrent ?? 0) })], "Save progress", { "data-id": g.id }))
+                        ? g.metricFromSeries
+                            ? h_4.h("div", { class: "goal-section" }, h_4.h("div", { class: "goal-section-head" }, h_4.h("span", { class: "goal-section-title" }, "Progress")), h_4.h("p", { class: "muted" }, `Current value tracks your latest logged bodyweight (${g.metricLabel}). Log weight on the Fitness page to update this goal.`))
+                            : h_4.h("div", { class: "goal-section" }, h_4.h("div", { class: "goal-section-head" }, h_4.h("span", { class: "goal-section-title" }, "Progress")), ui_2.form("goal-metric", [ui_2.field("Current value", "current", { type: "number", value: String(g.metricCurrent ?? 0) })], "Save progress", { "data-id": g.id }))
                         : null;
                     const statusSection = h_4.h("div", { class: "goal-section" }, h_4.h("div", { class: "goal-section-head" }, h_4.h("span", { class: "goal-section-title" }, "Status")), h_4.h("div", { class: "status-pills" }, ...statusOptions.map((o) => h_4.h("button", {
                         class: `status-pill ${o.value === g.status ? "is-active" : ""}`.trim(),
@@ -5091,8 +6170,9 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                         "data-id": g.id,
                         "data-status": o.value,
                     }, o.label))));
-                    const details = h_4.h("div", { class: "goal-details" }, milestoneSection, progressSection, statusSection, h_4.h("div", { class: "goal-danger" }, h_4.h("button", { class: "icon-btn danger-link", "data-action": "delete-goal", "data-id": g.id }, "Delete goal")));
-                    return h_4.h("div", { class: "goal-node is-open", "data-goal-card": g.id }, summary, details);
+                    const intelSection = intelPanel(g.intel);
+                    const details = h_4.h("div", { class: "goal-details" }, milestoneSection, intelSection, progressSection, statusSection, h_4.h("div", { class: "goal-danger" }, h_4.h("button", { class: "icon-btn danger-link", "data-action": "delete-goal", "data-id": g.id }, "Delete goal")));
+                    return h_4.h("div", { class: `goal-node is-open depth-${Math.min(g.depth, 4)}`.trim(), "data-goal-card": g.id }, summary, details);
                 };
                 grid.appendChild(ui_2.card("Your goals", v.goals.length > 0
                     ? h_4.h("div", { class: "rows goal-tree" }, ...v.goals.map(goalCard))
@@ -5108,7 +6188,7 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                 root.appendChild(grid);
                 return root;
             });
-            exports_59("renderTasks", renderTasks = (v, active) => {
+            exports_65("renderTasks", renderTasks = (v, active) => {
                 const root = h_4.h("div", { class: "dash module" });
                 root.appendChild(ui_2.pageHead("Tasks", "Everything on your plate — filter, prioritise, break down."));
                 const tabs = [
@@ -5158,7 +6238,7 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                 root.appendChild(grid);
                 return root;
             });
-            exports_59("renderProjects", renderProjects = (v) => {
+            exports_65("renderProjects", renderProjects = (v) => {
                 const root = h_4.h("div", { class: "dash module" });
                 root.appendChild(ui_2.pageHead("Projects", "Group related tasks and track their progress."));
                 const grid = h_4.h("div", { class: "grid" });
@@ -5176,7 +6256,7 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                 root.appendChild(grid);
                 return root;
             });
-            exports_59("renderJournal", renderJournal = (v) => {
+            exports_65("renderJournal", renderJournal = (v) => {
                 const root = h_4.h("div", { class: "dash module" });
                 root.appendChild(ui_2.pageHead("Daily review", "A short end-of-day reflection — one entry per day."));
                 const grid = h_4.h("div", { class: "grid" });
@@ -5202,6 +6282,30 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                 if (e !== null) {
                     grid.appendChild(ui_2.card(`Today's review — ${v.today}`, reviewBody(e), { cls: "card-wide" }));
                 }
+                {
+                    const c = v.context;
+                    if (c.hasAny) {
+                        const chip = (label, value) => h_4.h("div", { class: "ctx-chip" }, h_4.h("span", { class: "ctx-val mono" }, value), h_4.h("span", { class: "ctx-label" }, label));
+                        const chips = [];
+                        if (c.habitsScheduled > 0)
+                            chips.push(chip("habits", `${c.habitsCompleted}/${c.habitsScheduled}`));
+                        chips.push(chip("tasks done", String(c.tasksCompleted)));
+                        chips.push(chip("workout", c.workoutLogged ? "✓" : "—"));
+                        if (c.calories !== null)
+                            chips.push(chip("kcal", String(c.calories)));
+                        if (c.protein !== null)
+                            chips.push(chip("protein", `${c.protein}g`));
+                        if (c.waterMl !== null)
+                            chips.push(chip("water", `${(c.waterMl / 1000).toFixed(1)}L`));
+                        if (c.sleepMinutes !== null)
+                            chips.push(chip("sleep", `${Math.floor(c.sleepMinutes / 60)}h ${c.sleepMinutes % 60}m`));
+                        if (c.bodyweight !== null)
+                            chips.push(chip("weight", `${c.bodyweight}`));
+                        if (c.readingProgressed)
+                            chips.push(chip("reading", "✓"));
+                        grid.appendChild(ui_2.card("Today at a glance", h_4.h("div", {}, h_4.h("div", { class: "ctx-strip" }, ...chips), h_4.h("p", { class: "muted", style: "margin-top:8px" }, "Facts from today to help you reflect — your written review stays entirely yours.")), { cls: "card-wide" }));
+                    }
+                }
                 grid.appendChild(ui_2.card(e ? "Edit today's review" : "Today's review", h_4.h("div", {}, ui_2.form("save-journal", [
                     ui_2.textareaField("What went well", "accomplished", e?.accomplished ?? null, "Wins, progress, gratitude…"),
                     ui_2.textareaField("What didn't", "wentWrong", e?.wentWrong ?? null, "Friction, mistakes, blockers…"),
@@ -5216,7 +6320,7 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
                 root.appendChild(grid);
                 return root;
             });
-            exports_59("renderSettings", renderSettings = (v, resetArmed = false) => {
+            exports_65("renderSettings", renderSettings = (v, resetArmed = false) => {
                 const root = h_4.h("div", { class: "dash module" });
                 root.appendChild(ui_2.pageHead("Settings & data", "Preferences, targets, and local-first backup."));
                 const grid = h_4.h("div", { class: "grid" });
@@ -5240,10 +6344,209 @@ System.register("ui/dom/plan", ["ui/dom/h", "ui/dom/ui", "ui/model/plan"], funct
         }
     };
 });
-System.register("ui/model/quickAdd", [], function (exports_60, context_60) {
+System.register("ui/dom/insights", ["logic/weeklyReview", "logic/scorecard", "logic/sleep", "ui/dom/h", "ui/dom/ui"], function (exports_66, context_66) {
+    "use strict";
+    var weeklyReview_4, scorecard_4, sleep_6, h_5, ui_3, changeArrow, ratePctStr, habitTable, missedList, ratingsCard, themeCard, learnedCard, compareRow, renderInsights;
+    var __moduleName = context_66 && context_66.id;
+    return {
+        setters: [
+            function (weeklyReview_4_1) {
+                weeklyReview_4 = weeklyReview_4_1;
+            },
+            function (scorecard_4_1) {
+                scorecard_4 = scorecard_4_1;
+            },
+            function (sleep_6_1) {
+                sleep_6 = sleep_6_1;
+            },
+            function (h_5_1) {
+                h_5 = h_5_1;
+            },
+            function (ui_3_1) {
+                ui_3 = ui_3_1;
+            }
+        ],
+        execute: function () {
+            changeArrow = (cur, prev) => {
+                if (cur === null || prev === null)
+                    return "—";
+                if (cur > prev)
+                    return "↑";
+                if (cur < prev)
+                    return "↓";
+                return "→";
+            };
+            ratePctStr = (r) => (r === null ? "—" : `${Math.round(r * 100)}%`);
+            habitTable = (review) => {
+                if (review.habits.length === 0) {
+                    return ui_3.emptyLine("No active habits scheduled this week.");
+                }
+                const rows = review.habits.map((hbt) => h_5.h("div", { class: "insight-row" }, h_5.h("span", { class: "insight-row-name" }, hbt.name), h_5.h("span", { class: "mono insight-row-num" }, `${hbt.completed}/${hbt.expected}`), h_5.h("span", { class: "insight-row-bar" }, ui_3.bar(hbt.rate)), h_5.h("span", { class: "mono insight-row-rate" }, ratePctStr(hbt.rate))));
+                return h_5.h("div", { class: "insight-table" }, ...rows);
+            };
+            missedList = (review) => {
+                const slipping = review.habits.filter((hbt) => hbt.missedDates.length > 0 && hbt.rate < 1);
+                if (slipping.length === 0)
+                    return null;
+                return h_5.h("div", { class: "insight-missed" }, ...slipping.map((hbt) => h_5.h("div", { class: "insight-missed-row" }, h_5.h("span", { class: "insight-missed-name" }, hbt.name), h_5.h("span", { class: "insight-missed-days" }, `missed ${hbt.missedDates.map((d) => weeklyReview_4.shortDay(d)).join(", ")}`))));
+            };
+            ratingsCard = (review) => {
+                const r = review.ratings;
+                if (r.count === 0)
+                    return ui_3.emptyLine("No daily reviews rated this week.");
+                const dots = r.perDay.map((p) => h_5.h("div", { class: "rating-day" }, h_5.h("span", { class: "rating-day-label" }, weeklyReview_4.shortDay(p.date)), h_5.h("span", { class: `rating-day-val ${p.rating === null ? "is-empty" : ""}`.trim() }, p.rating === null ? "·" : `${p.rating}`)));
+                return h_5.h("div", {}, h_5.h("div", { class: "rating-strip" }, ...dots), h_5.h("div", { class: "rating-avg" }, h_5.h("span", { class: "mono" }, r.average === null ? "—" : `${r.average.toFixed(1)} / 5`), h_5.h("span", { class: "muted-inline" }, `avg over ${r.count} day${r.count === 1 ? "" : "s"}`)));
+            };
+            themeCard = (hits, tone) => hits.length === 0
+                ? ui_3.emptyLine(tone === "bad" ? "No recurring problems flagged." : "No recurring wins flagged yet.")
+                : h_5.h("div", { class: "theme-list" }, ...hits.slice(0, 5).map((t) => h_5.h("div", { class: `theme-row theme-${tone}` }, h_5.h("span", { class: "theme-name" }, t.theme), h_5.h("span", { class: "theme-count mono" }, `${t.days} day${t.days === 1 ? "" : "s"}`))));
+            learnedCard = (review) => review.learned.length === 0
+                ? ui_3.emptyLine("Nothing recorded in “What I learned” this week.")
+                : h_5.h("div", { class: "learned-list" }, ...review.learned.map((l) => h_5.h("div", { class: "learned-row" }, h_5.h("span", { class: "learned-day" }, weeklyReview_4.labelDay(l.date)), h_5.h("span", { class: "learned-text" }, l.text))));
+            compareRow = (label, cur, prev, arrow) => h_5.h("div", { class: "compare-row" }, h_5.h("span", { class: "compare-label" }, label), h_5.h("span", { class: "mono compare-cur" }, cur), h_5.h("span", { class: "mono compare-prev" }, prev), h_5.h("span", { class: `compare-arrow arrow-${arrow === "↑" ? "up" : arrow === "↓" ? "down" : "flat"}` }, arrow));
+            exports_66("renderInsights", renderInsights = (v) => {
+                const root = h_5.h("div", { class: "dash module" });
+                root.appendChild(ui_3.pageHead("Weekly review", "Your real data, turned into insight — one week at a time."));
+                root.appendChild(h_5.h("div", { class: "week-nav" }, h_5.h("button", { class: "btn btn-ghost btn-sm", "data-action": "insights-prev" }, "‹ Prev"), h_5.h("span", { class: "week-nav-label mono" }, v.rangeLabel + (v.isCurrentWeek ? " · This week" : "")), v.canGoNext
+                    ? h_5.h("button", { class: "btn btn-ghost btn-sm", "data-action": "insights-next" }, "Next ›")
+                    : h_5.h("button", { class: "btn btn-ghost btn-sm is-disabled", disabled: "true" }, "Next ›"), h_5.h("button", { class: "btn btn-ghost btn-sm", "data-action": "insights-today" }, "This week")));
+                const grid = h_5.h("div", { class: "grid" });
+                if (!v.review.hasData) {
+                    grid.appendChild(ui_3.card("Weekly review", ui_3.emptyLine("Not enough data yet — keep using Life OS and your trends will appear here."), { cls: "card-wide" }));
+                    root.appendChild(grid);
+                    return root;
+                }
+                if (v.attention.length > 0) {
+                    grid.appendChild(ui_3.card("Attention needed", h_5.h("div", { class: "attention-list" }, ...v.attention.map((a) => h_5.h("div", { class: `attention-row sev-${a.severity}` }, h_5.h("span", { class: "attention-dot", "aria-hidden": "true" }, a.severity === "warn" ? "▲" : "•"), h_5.h("span", { class: "attention-msg" }, a.message)))), { count: String(v.attention.length), cls: "card-wide" }));
+                }
+                {
+                    const sc = v.scorecard;
+                    grid.appendChild(ui_3.card("Weekly scorecard", h_5.h("div", {}, h_5.h("div", { class: "scorecard-overall" }, h_5.h("span", { class: "scorecard-big mono" }, sc.overall === null ? "—" : `${Math.round(sc.overall * 100)}%`), h_5.h("span", { class: "scorecard-verdict" }, scorecard_4.overallLabel(sc.overall)), sc.strongest && sc.weakest
+                        ? h_5.h("span", { class: "scorecard-extremes" }, h_5.h("span", { class: "muted-inline" }, `Strongest: ${sc.strongest.label} · Weakest: ${sc.weakest.label}`))
+                        : null), h_5.h("div", { class: "scorecard-areas" }, ...sc.areas.map((a) => h_5.h("div", { class: "scorecard-row" }, h_5.h("span", { class: "scorecard-area-label" }, a.label), h_5.h("span", { class: "scorecard-area-score mono" }, a.score === null ? "—" : `${Math.round(a.score * 100)}%`), h_5.h("span", { class: "scorecard-area-detail" }, `= ${a.detail}`))))), { cls: "card-wide" }));
+                }
+                const c = v.comparison;
+                grid.appendChild(ui_3.card("This week vs last week", h_5.h("div", { class: "compare-table" }, h_5.h("div", { class: "compare-row compare-head" }, h_5.h("span", { class: "compare-label" }, ""), h_5.h("span", { class: "compare-cur" }, "This"), h_5.h("span", { class: "compare-prev" }, "Last"), h_5.h("span", { class: "compare-arrow" }, "")), compareRow("Habit completion", ratePctStr(c.habitRate.cur), ratePctStr(c.habitRate.prev), changeArrow(c.habitRate.cur, c.habitRate.prev)), compareRow("Tasks completed", String(c.tasksCompleted.cur), String(c.tasksCompleted.prev), changeArrow(c.tasksCompleted.cur, c.tasksCompleted.prev)), compareRow("Avg daily rating", c.avgRating.cur === null ? "—" : c.avgRating.cur.toFixed(1), c.avgRating.prev === null ? "—" : c.avgRating.prev.toFixed(1), changeArrow(c.avgRating.cur, c.avgRating.prev))), { cls: "card-wide" }));
+                grid.appendChild(ui_3.card("Habit consistency", h_5.h("div", {}, habitTable(v.review), missedList(v.review)), { count: v.review.habitRate === null ? undefined : ratePctStr(v.review.habitRate), cls: "card-wide" }));
+                grid.appendChild(ui_3.card("Daily ratings", ratingsCard(v.review)));
+                const t = v.review.tasks;
+                grid.appendChild(ui_3.card("Tasks", h_5.h("div", { class: "stat-row tight" }, ui_3.stat("Completed", String(t.completed)), ui_3.stat("Created", String(t.created)), ui_3.stat("Pending", String(t.pending)), ui_3.stat("Overdue", String(t.overdue)))));
+                const f = v.review.fitness;
+                grid.appendChild(ui_3.card("Fitness", f.workoutsThisWeek === 0 && f.lastWorkoutDate === null
+                    ? ui_3.emptyLine("No workouts logged yet.")
+                    : h_5.h("div", { class: "stat-row tight" }, ui_3.stat("Workouts", String(f.workoutsThisWeek)), ui_3.stat("Last week", String(f.workoutsPrevWeek)), ui_3.stat("Volume", `${f.totalVolume}`), ui_3.stat("Last", f.lastWorkoutDate === null ? "—" : weeklyReview_4.labelDay(f.lastWorkoutDate)))));
+                const s = v.review.sleep;
+                grid.appendChild(ui_3.card("Sleep", s.nights === 0
+                    ? ui_3.emptyLine("No sleep logged this week.")
+                    : h_5.h("div", { class: "stat-row tight" }, ui_3.stat("Avg", s.avgMinutes === null ? "—" : sleep_6.formatDuration(s.avgMinutes)), ui_3.stat("≥ target", `${s.daysMetTarget}/${s.nights}`), ui_3.stat("Best", s.bestMinutes === null ? "—" : sleep_6.formatDuration(s.bestMinutes)), ui_3.stat("Worst", s.worstMinutes === null ? "—" : sleep_6.formatDuration(s.worstMinutes)))));
+                const d = v.review.diet;
+                grid.appendChild(ui_3.card("Diet", d.daysLogged === 0
+                    ? ui_3.emptyLine("No meals or water logged this week.")
+                    : h_5.h("div", {}, h_5.h("div", { class: "stat-row tight" }, ui_3.stat("Cals ≥ min", `${d.daysCalorieMin}/${d.daysLogged}`), ui_3.stat("Protein ≥ min", `${d.daysProteinMin}/${d.daysLogged}`), ui_3.stat("Water ≥ min", `${d.daysWaterMin}/${d.daysLogged}`)), h_5.h("p", { class: "muted", style: "margin-top:8px" }, `Avg ${d.avgCalories ?? 0} kcal · ${d.avgProtein ?? 0} g protein · ${((d.avgWaterMl ?? 0) / 1000).toFixed(1)} L · minimums ≥ ${d.targets.calories}/${d.targets.protein}/${(d.targets.waterMl / 1000).toFixed(1)}L`))));
+                const rd = v.review.reading;
+                grid.appendChild(ui_3.card("Reading", h_5.h("div", { class: "stat-row tight" }, ui_3.stat("Finished (wk)", String(rd.finishedThisWeek)), ui_3.stat("Reading now", String(rd.currentlyReading)), ui_3.stat("Finished total", String(rd.finishedTotal)))));
+                grid.appendChild(ui_3.card("What went well", themeCard(v.review.wins, "good")));
+                grid.appendChild(ui_3.card("Common problems", themeCard(v.review.problems, "bad")));
+                grid.appendChild(ui_3.card("What I learned", learnedCard(v.review), { cls: "card-wide" }));
+                root.appendChild(grid);
+                return root;
+            });
+        }
+    };
+});
+System.register("ui/dom/monthly", ["logic/weeklyReview", "logic/scorecard", "logic/sleep", "ui/dom/h", "ui/dom/ui"], function (exports_67, context_67) {
+    "use strict";
+    var weeklyReview_5, scorecard_5, sleep_7, h_6, ui_4, arrow, ratePct, themeCard, renderMonthly;
+    var __moduleName = context_67 && context_67.id;
+    return {
+        setters: [
+            function (weeklyReview_5_1) {
+                weeklyReview_5 = weeklyReview_5_1;
+            },
+            function (scorecard_5_1) {
+                scorecard_5 = scorecard_5_1;
+            },
+            function (sleep_7_1) {
+                sleep_7 = sleep_7_1;
+            },
+            function (h_6_1) {
+                h_6 = h_6_1;
+            },
+            function (ui_4_1) {
+                ui_4 = ui_4_1;
+            }
+        ],
+        execute: function () {
+            arrow = (cur, prev) => {
+                if (cur === null || prev === null)
+                    return "—";
+                if (cur > prev)
+                    return "↑";
+                if (cur < prev)
+                    return "↓";
+                return "→";
+            };
+            ratePct = (r) => (r === null ? "—" : `${Math.round(r * 100)}%`);
+            themeCard = (hits, tone) => hits.length === 0
+                ? ui_4.emptyLine(tone === "bad" ? "No recurring problems flagged." : "No recurring wins flagged yet.")
+                : h_6.h("div", { class: "theme-list" }, ...hits.slice(0, 6).map((t) => h_6.h("div", { class: `theme-row theme-${tone}` }, h_6.h("span", { class: "theme-name" }, t.theme), h_6.h("span", { class: "theme-count mono" }, `${t.days} day${t.days === 1 ? "" : "s"}`))));
+            exports_67("renderMonthly", renderMonthly = (v) => {
+                const root = h_6.h("div", { class: "dash module" });
+                root.appendChild(ui_4.pageHead("Monthly review", "A historical report of the month — what moved, what slipped."));
+                root.appendChild(h_6.h("div", { class: "week-nav" }, h_6.h("button", { class: "btn btn-ghost btn-sm", "data-action": "monthly-prev" }, "‹ Prev"), h_6.h("span", { class: "week-nav-label mono" }, v.label + (v.isCurrentMonth ? " · This month" : "")), v.canGoNext
+                    ? h_6.h("button", { class: "btn btn-ghost btn-sm", "data-action": "monthly-next" }, "Next ›")
+                    : h_6.h("button", { class: "btn btn-ghost btn-sm is-disabled", disabled: "true" }, "Next ›"), h_6.h("button", { class: "btn btn-ghost btn-sm", "data-action": "monthly-today" }, "This month")));
+                const grid = h_6.h("div", { class: "grid" });
+                const r = v.review;
+                if (!r.hasData) {
+                    grid.appendChild(ui_4.card("Monthly review", ui_4.emptyLine("Not enough data this month — keep using Life OS and your monthly report will appear here."), { cls: "card-wide" }));
+                    root.appendChild(grid);
+                    return root;
+                }
+                if (v.attention.length > 0) {
+                    grid.appendChild(ui_4.card("Attention needed", h_6.h("div", { class: "attention-list" }, ...v.attention.map((a) => h_6.h("div", { class: `attention-row sev-${a.severity}` }, h_6.h("span", { class: "attention-dot", "aria-hidden": "true" }, a.severity === "warn" ? "▲" : "•"), h_6.h("span", { class: "attention-msg" }, a.message)))), { count: String(v.attention.length), cls: "card-wide" }));
+                }
+                {
+                    const sc = v.scorecard;
+                    grid.appendChild(ui_4.card("Monthly scorecard", h_6.h("div", {}, h_6.h("div", { class: "scorecard-overall" }, h_6.h("span", { class: "scorecard-big mono" }, sc.overall === null ? "—" : `${Math.round(sc.overall * 100)}%`), h_6.h("span", { class: "scorecard-verdict" }, scorecard_5.overallLabel(sc.overall)), sc.strongest && sc.weakest ? h_6.h("span", { class: "scorecard-extremes" }, h_6.h("span", { class: "muted-inline" }, `Strongest: ${sc.strongest.label} · Weakest: ${sc.weakest.label}`)) : null), h_6.h("div", { class: "scorecard-areas" }, ...sc.areas.map((a) => h_6.h("div", { class: "scorecard-row" }, h_6.h("span", { class: "scorecard-area-label" }, a.label), h_6.h("span", { class: "scorecard-area-score mono" }, a.score === null ? "—" : `${Math.round(a.score * 100)}%`), h_6.h("span", { class: "scorecard-area-detail" }, `= ${a.detail}`))))), { cls: "card-wide" }));
+                }
+                const c = v.comparison;
+                const cmpRow = (label, cur, prev, a) => h_6.h("div", { class: "compare-row" }, h_6.h("span", { class: "compare-label" }, label), h_6.h("span", { class: "mono compare-cur" }, cur), h_6.h("span", { class: "mono compare-prev" }, prev), h_6.h("span", { class: `compare-arrow arrow-${a === "↑" ? "up" : a === "↓" ? "down" : "flat"}` }, a));
+                grid.appendChild(ui_4.card("This month vs last month", h_6.h("div", { class: "compare-table" }, h_6.h("div", { class: "compare-row compare-head" }, h_6.h("span", { class: "compare-label" }, ""), h_6.h("span", { class: "compare-cur" }, "This"), h_6.h("span", { class: "compare-prev" }, "Last"), h_6.h("span", { class: "compare-arrow" }, "")), cmpRow("Habit completion", ratePct(c.habitRate.cur), ratePct(c.habitRate.prev), arrow(c.habitRate.cur, c.habitRate.prev)), cmpRow("Tasks completed", String(c.tasksCompleted.cur), String(c.tasksCompleted.prev), arrow(c.tasksCompleted.cur, c.tasksCompleted.prev)), cmpRow("Workouts", String(c.workouts.cur), String(c.workouts.prev), arrow(c.workouts.cur, c.workouts.prev)), cmpRow("Avg sleep", c.avgSleep.cur === null ? "—" : sleep_7.formatDuration(c.avgSleep.cur), c.avgSleep.prev === null ? "—" : sleep_7.formatDuration(c.avgSleep.prev), arrow(c.avgSleep.cur, c.avgSleep.prev)), cmpRow("Avg rating", c.avgRating.cur === null ? "—" : c.avgRating.cur.toFixed(1), c.avgRating.prev === null ? "—" : c.avgRating.prev.toFixed(1), arrow(c.avgRating.cur, c.avgRating.prev))), { cls: "card-wide" }));
+                const habitRows = r.habits.length === 0
+                    ? ui_4.emptyLine("No active habits this month.")
+                    : h_6.h("div", { class: "insight-table" }, ...r.habits.map((hb) => h_6.h("div", { class: "insight-row" }, h_6.h("span", { class: "insight-row-name" }, hb.name), h_6.h("span", { class: "mono insight-row-num" }, `${hb.completed}/${hb.expected}`), h_6.h("span", { class: "insight-row-bar" }, ui_4.bar(hb.rate)), h_6.h("span", { class: "mono insight-row-rate" }, ratePct(hb.rate)))));
+                grid.appendChild(ui_4.card("Habit consistency", habitRows, { count: r.habitRate === null ? undefined : ratePct(r.habitRate), cls: "card-wide" }));
+                const bh = v.bodyweight;
+                grid.appendChild(ui_4.card("Bodyweight", bh.latest === null
+                    ? ui_4.emptyLine("No weight logged.")
+                    : h_6.h("div", { class: "stat-row tight" }, ui_4.stat("Latest", `${bh.latest} ${bh.unit}`), ui_4.stat("Starting", bh.start === null ? "—" : `${bh.start} ${bh.unit}`), ui_4.stat("Change", bh.totalChange === null ? "—" : `${bh.totalChange > 0 ? "+" : ""}${bh.totalChange.toFixed(1)}`), ui_4.stat("Per week", bh.enough && bh.perWeek !== null ? `${bh.perWeek > 0 ? "+" : ""}${bh.perWeek.toFixed(2)}` : "—"))));
+                const t = r.tasks;
+                grid.appendChild(ui_4.card("Tasks", h_6.h("div", { class: "stat-row tight" }, ui_4.stat("Completed", String(t.completed)), ui_4.stat("Created", String(t.created)), ui_4.stat("Pending", String(t.pending)), ui_4.stat("Overdue", String(t.overdue)))));
+                grid.appendChild(ui_4.card("Fitness", h_6.h("div", { class: "stat-row tight" }, ui_4.stat("Workouts", String(r.fitness.workoutsThisWeek)), ui_4.stat("Volume", `${r.fitness.totalVolume}`), ui_4.stat("Last", r.fitness.lastWorkoutDate === null ? "—" : weeklyReview_5.labelDay(r.fitness.lastWorkoutDate)))));
+                const s = r.sleep;
+                grid.appendChild(ui_4.card("Sleep", s.nights === 0 ? ui_4.emptyLine("No sleep logged.") :
+                    h_6.h("div", { class: "stat-row tight" }, ui_4.stat("Avg", s.avgMinutes === null ? "—" : sleep_7.formatDuration(s.avgMinutes)), ui_4.stat("≥ target", `${s.daysMetTarget}/${s.nights}`), ui_4.stat("Best", s.bestMinutes === null ? "—" : sleep_7.formatDuration(s.bestMinutes)), ui_4.stat("Worst", s.worstMinutes === null ? "—" : sleep_7.formatDuration(s.worstMinutes)))));
+                const d = r.diet;
+                grid.appendChild(ui_4.card("Diet", d.daysLogged === 0 ? ui_4.emptyLine("No meals or water logged.") :
+                    h_6.h("div", {}, h_6.h("div", { class: "stat-row tight" }, ui_4.stat("Cals ≥ min", `${d.daysCalorieMin}/${d.daysLogged}`), ui_4.stat("Protein ≥ min", `${d.daysProteinMin}/${d.daysLogged}`), ui_4.stat("Water ≥ min", `${d.daysWaterMin}/${d.daysLogged}`)), h_6.h("p", { class: "muted", style: "margin-top:8px" }, `Avg ${d.avgCalories ?? 0} kcal · ${d.avgProtein ?? 0} g protein · ${((d.avgWaterMl ?? 0) / 1000).toFixed(1)} L · minimums ≥ ${d.targets.calories}/${d.targets.protein}/${(d.targets.waterMl / 1000).toFixed(1)}L`))));
+                grid.appendChild(ui_4.card("Reading", h_6.h("div", { class: "stat-row tight" }, ui_4.stat("Finished (mo)", String(r.reading.finishedThisWeek)), ui_4.stat("Reading now", String(r.reading.currentlyReading)), ui_4.stat("Finished total", String(r.reading.finishedTotal)))));
+                grid.appendChild(ui_4.card("Daily ratings", r.ratings.count === 0 ? ui_4.emptyLine("No daily reviews rated this month.") :
+                    h_6.h("div", { class: "rating-avg" }, h_6.h("span", { class: "mono" }, r.ratings.average === null ? "—" : `${r.ratings.average.toFixed(1)} / 5`), h_6.h("span", { class: "muted-inline" }, `avg over ${r.ratings.count} day${r.ratings.count === 1 ? "" : "s"} · ${r.reviewsWritten}/${r.daysInMonth} reviews written`))));
+                grid.appendChild(ui_4.card("What went well", themeCard(r.wins, "good")));
+                grid.appendChild(ui_4.card("Common problems", themeCard(r.problems, "bad")));
+                grid.appendChild(ui_4.card("What I learned", r.learned.length === 0 ? ui_4.emptyLine("Nothing recorded in “What I learned” this month.") :
+                    h_6.h("div", { class: "learned-list" }, ...r.learned.map((l) => h_6.h("div", { class: "learned-row" }, h_6.h("span", { class: "learned-day" }, weeklyReview_5.labelDay(l.date)), h_6.h("span", { class: "learned-text" }, l.text)))), { cls: "card-wide" }));
+                root.appendChild(grid);
+                return root;
+            });
+        }
+    };
+});
+System.register("ui/model/quickAdd", [], function (exports_68, context_68) {
     "use strict";
     var stripPriority, parseQuickAdd;
-    var __moduleName = context_60 && context_60.id;
+    var __moduleName = context_68 && context_68.id;
     return {
         setters: [],
         execute: function () {
@@ -5256,7 +6559,7 @@ System.register("ui/model/quickAdd", [], function (exports_60, context_60) {
                 }
                 return { title: text.trim(), priority: null };
             };
-            exports_60("parseQuickAdd", parseQuickAdd = (kind, raw, today) => {
+            exports_68("parseQuickAdd", parseQuickAdd = (kind, raw, today) => {
                 const text = raw.trim();
                 if (text.length === 0)
                     return null;
@@ -5277,25 +6580,25 @@ System.register("ui/model/quickAdd", [], function (exports_60, context_60) {
         }
     };
 });
-System.register("ui/model/theme", [], function (exports_61, context_61) {
+System.register("ui/model/theme", [], function (exports_69, context_69) {
     "use strict";
     var THEME_CHOICES, isThemeChoice, resolveTheme, nextTheme, themeLabel;
-    var __moduleName = context_61 && context_61.id;
+    var __moduleName = context_69 && context_69.id;
     return {
         setters: [],
         execute: function () {
-            exports_61("THEME_CHOICES", THEME_CHOICES = ["dark", "light", "system"]);
-            exports_61("isThemeChoice", isThemeChoice = (v) => v === "light" || v === "dark" || v === "system");
-            exports_61("resolveTheme", resolveTheme = (choice, systemPrefersDark) => {
+            exports_69("THEME_CHOICES", THEME_CHOICES = ["dark", "light", "system"]);
+            exports_69("isThemeChoice", isThemeChoice = (v) => v === "light" || v === "dark" || v === "system");
+            exports_69("resolveTheme", resolveTheme = (choice, systemPrefersDark) => {
                 if (choice === "system")
                     return systemPrefersDark ? "dark" : "light";
                 return choice;
             });
-            exports_61("nextTheme", nextTheme = (choice) => {
+            exports_69("nextTheme", nextTheme = (choice) => {
                 const i = THEME_CHOICES.indexOf(choice);
                 return THEME_CHOICES[(i + 1) % THEME_CHOICES.length];
             });
-            exports_61("themeLabel", themeLabel = (choice) => {
+            exports_69("themeLabel", themeLabel = (choice) => {
                 if (choice === "dark")
                     return "Dark";
                 if (choice === "light")
@@ -5305,10 +6608,10 @@ System.register("ui/model/theme", [], function (exports_61, context_61) {
         }
     };
 });
-System.register("ui/main", ["config/index", "core/clock", "core/id", "persistence/store", "persistence/adapter", "ui/app/controller", "ui/dom/render", "ui/dom/modules", "ui/dom/plan", "ui/dom/h", "ui/model/quickAdd", "ui/model/theme"], function (exports_62, context_62) {
+System.register("ui/main", ["config/index", "core/clock", "core/id", "persistence/store", "persistence/adapter", "ui/app/controller", "ui/dom/render", "ui/dom/modules", "ui/dom/plan", "ui/dom/insights", "ui/dom/monthly", "ui/dom/h", "ui/model/quickAdd", "ui/model/theme"], function (exports_70, context_70) {
     "use strict";
-    var config_8, clock_3, id_2, store_2, adapter_2, controller_1, render_1, modules_2, plan_3, h_5, quickAdd_1, theme_1, THEME_KEY, ROUTES, isRoute, formatClock, systemPrefersDark, loadThemeChoice, navGroups, readFields, numOrNull, strOrNull, downloadJson, start;
-    var __moduleName = context_62 && context_62.id;
+    var config_8, clock_3, id_2, store_2, adapter_2, controller_1, render_1, modules_2, plan_3, insights_2, monthly_1, h_7, quickAdd_1, theme_1, THEME_KEY, ROUTES, isRoute, formatClock, systemPrefersDark, loadThemeChoice, navGroups, readFields, numOrNull, strOrNull, downloadJson, start;
+    var __moduleName = context_70 && context_70.id;
     return {
         setters: [
             function (config_8_1) {
@@ -5338,8 +6641,14 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
             function (plan_3_1) {
                 plan_3 = plan_3_1;
             },
-            function (h_5_1) {
-                h_5 = h_5_1;
+            function (insights_2_1) {
+                insights_2 = insights_2_1;
+            },
+            function (monthly_1_1) {
+                monthly_1 = monthly_1_1;
+            },
+            function (h_7_1) {
+                h_7 = h_7_1;
             },
             function (quickAdd_1_1) {
                 quickAdd_1 = quickAdd_1_1;
@@ -5361,6 +6670,8 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                 "tasks",
                 "projects",
                 "journal",
+                "insights",
+                "monthly",
                 "settings",
             ];
             isRoute = (s) => s !== null && ROUTES.includes(s);
@@ -5385,7 +6696,14 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                         { route: "goals", label: "Goals" },
                         { route: "tasks", label: "Tasks" },
                         { route: "projects", label: "Projects" },
+                    ],
+                },
+                {
+                    heading: "Review",
+                    items: [
                         { route: "journal", label: "Daily review" },
+                        { route: "insights", label: "Weekly review" },
+                        { route: "monthly", label: "Monthly review" },
                     ],
                 },
                 {
@@ -5457,6 +6775,8 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                 let flashGoalId = null;
                 let scrollGoalId = null;
                 let resetArmed = false;
+                let insightsOffset = 0;
+                let monthlyOffset = 0;
                 const applyTheme = () => {
                     const effective = theme_1.resolveTheme(themeChoice, systemPrefersDark());
                     document.documentElement.setAttribute("data-theme", effective);
@@ -5464,23 +6784,23 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                     if (btn)
                         btn.textContent = theme_1.themeLabel(themeChoice);
                 };
-                const brand = h_5.h("div", { class: "brand" }, h_5.h("span", { class: "brand-dot" }), h_5.h("span", { class: "brand-name" }, "Life OS"));
-                const nav = h_5.h("nav", { class: "nav" }, ...navGroups.map((group) => h_5.h("div", { class: "nav-group" }, group.heading !== null ? h_5.h("div", { class: "nav-heading" }, group.heading) : null, ...group.items.map((item) => h_5.h("a", {
+                const brand = h_7.h("div", { class: "brand" }, h_7.h("span", { class: "brand-dot" }), h_7.h("span", { class: "brand-name" }, "Life OS"));
+                const nav = h_7.h("nav", { class: "nav" }, ...navGroups.map((group) => h_7.h("div", { class: "nav-group" }, group.heading !== null ? h_7.h("div", { class: "nav-heading" }, group.heading) : null, ...group.items.map((item) => h_7.h("a", {
                     class: `nav-item ${item.route === route ? "is-active" : ""}`.trim(),
                     "data-action": "nav",
                     "data-route": item.route,
                     ...(item.route === route ? { "aria-current": "page" } : {}),
-                }, h_5.h("span", { class: "nav-label" }, item.label))))));
-                const themeBtn = h_5.h("button", { class: "theme-btn", "data-action": "cycle-theme", title: "Change theme" }, h_5.h("span", { class: "theme-glyph" }, "◐"), h_5.h("span", { "data-role": "theme-label" }, theme_1.themeLabel(themeChoice)));
-                const sidebar = h_5.h("aside", { class: "sidebar" }, brand, nav, h_5.h("div", { class: "sidebar-foot" }, themeBtn));
-                const kindBtn = (kind, label) => h_5.h("button", {
+                }, h_7.h("span", { class: "nav-label" }, item.label))))));
+                const themeBtn = h_7.h("button", { class: "theme-btn", "data-action": "cycle-theme", title: "Change theme" }, h_7.h("span", { class: "theme-glyph" }, "◐"), h_7.h("span", { "data-role": "theme-label" }, theme_1.themeLabel(themeChoice)));
+                const sidebar = h_7.h("aside", { class: "sidebar" }, brand, nav, h_7.h("div", { class: "sidebar-foot" }, themeBtn));
+                const kindBtn = (kind, label) => h_7.h("button", {
                     class: `seg ${quickKind === kind ? "is-active" : ""}`.trim(),
                     "data-action": "qa-kind",
                     "data-kind": kind,
                     "aria-pressed": quickKind === kind ? "true" : "false",
                 }, label);
-                const segmented = h_5.h("div", { class: "segmented" }, kindBtn("task", "Task"), kindBtn("habit", "Habit"));
-                const qaInput = h_5.h("input", {
+                const segmented = h_7.h("div", { class: "segmented" }, kindBtn("task", "Task"), kindBtn("habit", "Habit"));
+                const qaInput = h_7.h("input", {
                     class: "qa-input",
                     id: "qa-input",
                     type: "text",
@@ -5488,14 +6808,14 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                     autocomplete: "off",
                     "aria-label": "Quick add",
                 });
-                const qaAdd = h_5.h("button", { class: "btn btn-primary qa-add", "data-action": "qa-submit" }, "Add");
-                const quickAdd = h_5.h("div", { class: "quickadd" }, segmented, qaInput, qaAdd);
-                const menuBtn = h_5.h("button", { class: "menu-btn", "data-action": "toggle-sidebar", "aria-label": "Menu" }, "☰");
-                const topbar = h_5.h("header", { class: "topbar" }, menuBtn, quickAdd);
-                const contentHost = h_5.h("main", { class: "content" });
-                const mainCol = h_5.h("div", { class: "maincol" }, topbar, contentHost);
-                const scrim = h_5.h("div", { class: "scrim", "data-action": "toggle-sidebar" });
-                h_5.mount(root, sidebar, mainCol, scrim);
+                const qaAdd = h_7.h("button", { class: "btn btn-primary qa-add", "data-action": "qa-submit" }, "Add");
+                const quickAdd = h_7.h("div", { class: "quickadd" }, segmented, qaInput, qaAdd);
+                const menuBtn = h_7.h("button", { class: "menu-btn", "data-action": "toggle-sidebar", "aria-label": "Menu" }, "☰");
+                const topbar = h_7.h("header", { class: "topbar" }, menuBtn, quickAdd);
+                const contentHost = h_7.h("main", { class: "content" });
+                const mainCol = h_7.h("div", { class: "maincol" }, topbar, contentHost);
+                const scrim = h_7.h("div", { class: "scrim", "data-action": "toggle-sidebar" });
+                h_7.mount(root, sidebar, mainCol, scrim);
                 applyTheme();
                 const refreshNav = () => {
                     for (const a of nav.querySelectorAll(".nav-item")) {
@@ -5538,6 +6858,10 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                             return plan_3.renderProjects(controller.projectsView());
                         case "journal":
                             return plan_3.renderJournal(controller.journalView());
+                        case "insights":
+                            return insights_2.renderInsights(controller.insightsView(insightsOffset));
+                        case "monthly":
+                            return monthly_1.renderMonthly(controller.monthlyView(monthlyOffset));
                         case "settings":
                             return plan_3.renderSettings(controller.settingsView(), resetArmed);
                         case "today":
@@ -5546,7 +6870,7 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                     }
                 };
                 const rerender = () => {
-                    h_5.mount(contentHost, renderRoute());
+                    h_7.mount(contentHost, renderRoute());
                     if (scrollGoalId !== null) {
                         const el = contentHost.querySelector(`[data-goal-card="${scrollGoalId}"]`);
                         if (el instanceof HTMLElement)
@@ -5577,14 +6901,14 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                     switch (name) {
                         case "log-bodyweight": {
                             const w = numOrNull(f["weight"]);
-                            if (w !== null)
+                            if (w !== null && w > 0)
                                 void controller.logBodyWeight(w, f["unit"] || "kg");
                             break;
                         }
                         case "log-measurement": {
                             const site = strOrNull(f["site"]);
                             const value = numOrNull(f["value"]);
-                            if (site !== null && value !== null)
+                            if (site !== null && value !== null && value > 0)
                                 void controller.logMeasurement(site, value, (f["unit"] ?? "cm") || "cm");
                             break;
                         }
@@ -6067,6 +7391,32 @@ System.register("ui/main", ["config/index", "core/clock", "core/id", "persistenc
                             break;
                         case "export-data":
                             downloadJson(controller.exportData());
+                            break;
+                        case "insights-prev":
+                            insightsOffset -= 1;
+                            rerender();
+                            break;
+                        case "insights-next":
+                            if (insightsOffset < 0)
+                                insightsOffset += 1;
+                            rerender();
+                            break;
+                        case "insights-today":
+                            insightsOffset = 0;
+                            rerender();
+                            break;
+                        case "monthly-prev":
+                            monthlyOffset -= 1;
+                            rerender();
+                            break;
+                        case "monthly-next":
+                            if (monthlyOffset < 0)
+                                monthlyOffset += 1;
+                            rerender();
+                            break;
+                        case "monthly-today":
+                            monthlyOffset = 0;
+                            rerender();
                             break;
                         case "reset-data":
                             resetArmed = true;
