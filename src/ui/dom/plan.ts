@@ -5,6 +5,8 @@
  * ./ui so forms and cards are consistent across the whole app.
  */
 import { h } from "./h";
+import { statusLabel, formatMonthDay } from "../../logic/goalIntelligence";
+import type { GoalIntel } from "../../logic/goalIntelligence";
 import {
   card,
   emptyLine,
@@ -48,6 +50,53 @@ export const renderGoals = (
 ): HTMLElement => {
   const root = h("div", { class: "dash module" });
   root.appendChild(pageHead("Goals", "Vision → year → quarter → month → week, with milestones."));
+
+  const fmt = (n: number, unit: string | null): string =>
+    `${Number.isInteger(n) ? n : n.toFixed(1)}${unit ? " " + unit : ""}`;
+
+  const intelPanel = (intel: GoalIntel | null): HTMLElement | null => {
+    if (intel === null || !intel.measurable) return null;
+    const rows: (HTMLElement | null)[] = [];
+    const row = (label: string, value: string): HTMLElement =>
+      h("div", { class: "gi-row" }, h("span", { class: "gi-label" }, label), h("span", { class: "gi-val mono" }, value));
+
+    rows.push(row("Current", intel.current === null ? "—" : fmt(intel.current, intel.unit)));
+    rows.push(row("Target", intel.target === null ? "—" : fmt(intel.target, intel.unit)));
+    if (intel.start !== null && intel.start !== intel.current) rows.push(row("Started", fmt(intel.start, intel.unit)));
+    if (intel.remaining !== null) rows.push(row("Remaining", fmt(intel.remaining, intel.unit)));
+    if (intel.enoughData && intel.recentPacePerWeek !== null)
+      rows.push(row("Recent pace", `${intel.recentPacePerWeek > 0 ? "+" : ""}${intel.recentPacePerWeek.toFixed(2)} ${intel.unit ?? ""}/wk`));
+    if (intel.requiredPacePerWeek !== null)
+      rows.push(row("Required pace", `${intel.requiredPacePerWeek > 0 ? "+" : ""}${intel.requiredPacePerWeek.toFixed(2)} ${intel.unit ?? ""}/wk`));
+    if (intel.projectedDate !== null) {
+      const vs = intel.projectedVsDeadlineDays;
+      const suffix = vs === null ? "" : vs <= 0 ? ` (${-vs}d early)` : ` (${vs}d late)`;
+      rows.push(row("Projected", formatMonthDay(intel.projectedDate) + suffix));
+    }
+
+    const statusPill = h(
+      "span",
+      { class: `gi-status gi-${intel.status}` },
+      statusLabel(intel.status),
+    );
+
+    return h(
+      "div",
+      { class: "goal-section gi-section" },
+      h("div", { class: "goal-section-head" },
+        h("span", { class: "goal-section-title" }, "Intelligence"),
+        statusPill,
+      ),
+      intel.enoughData || intel.requiredPacePerWeek !== null
+        ? h("div", { class: "gi-grid" }, ...rows.filter((r): r is HTMLElement => r !== null))
+        : h(
+            "div",
+            {},
+            h("div", { class: "gi-grid" }, ...rows.filter((r): r is HTMLElement => r !== null)),
+            emptyLine("Not enough history yet to project a pace — log more data over time."),
+          ),
+    );
+  };
   const grid = h("div", { class: "grid" });
 
   const goalCard = (g: GoalsView["goals"][number]): HTMLElement => {
@@ -85,7 +134,7 @@ export const renderGoals = (
     );
 
     if (!isOpen) {
-      return h("div", { class: "goal-node", "data-goal-card": g.id }, summary);
+      return h("div", { class: `goal-node depth-${Math.min(g.depth, 4)}`.trim(), "data-goal-card": g.id }, summary);
     }
 
     // --- Expanded: milestones front-and-centre, then light inline controls ---
@@ -126,19 +175,26 @@ export const renderGoals = (
     const isClosed = g.status === "completed" || g.status === "archived";
     const progressSection =
       g.hasMetric && !isClosed
-        ? h(
-            "div",
-            { class: "goal-section" },
-            h("div", { class: "goal-section-head" }, h("span", { class: "goal-section-title" }, "Progress")),
-            // Pre-filled with the real current value so clicking Save always applies
-            // the shown number (fixes the empty-placeholder silent no-op).
-            form(
-              "goal-metric",
-              [field("Current value", "current", { type: "number", value: String(g.metricCurrent ?? 0) })],
-              "Save progress",
-              { "data-id": g.id },
-            ),
-          )
+        ? g.metricFromSeries
+          ? h(
+              "div",
+              { class: "goal-section" },
+              h("div", { class: "goal-section-head" }, h("span", { class: "goal-section-title" }, "Progress")),
+              h("p", { class: "muted" }, `Current value tracks your latest logged bodyweight (${g.metricLabel}). Log weight on the Fitness page to update this goal.`),
+            )
+          : h(
+              "div",
+              { class: "goal-section" },
+              h("div", { class: "goal-section-head" }, h("span", { class: "goal-section-title" }, "Progress")),
+              // Pre-filled with the real current value so clicking Save always applies
+              // the shown number (fixes the empty-placeholder silent no-op).
+              form(
+                "goal-metric",
+                [field("Current value", "current", { type: "number", value: String(g.metricCurrent ?? 0) })],
+                "Save progress",
+                { "data-id": g.id },
+              ),
+            )
         : null;
 
     // Status as one-click pills (no separate form / Save step).
@@ -164,10 +220,13 @@ export const renderGoals = (
       ),
     );
 
+    const intelSection = intelPanel(g.intel);
+
     const details = h(
       "div",
       { class: "goal-details" },
       milestoneSection,
+      intelSection,
       progressSection,
       statusSection,
       h("div", { class: "goal-danger" },
@@ -175,7 +234,7 @@ export const renderGoals = (
       ),
     );
 
-    return h("div", { class: "goal-node is-open", "data-goal-card": g.id }, summary, details);
+    return h("div", { class: `goal-node is-open depth-${Math.min(g.depth, 4)}`.trim(), "data-goal-card": g.id }, summary, details);
   };
 
   grid.appendChild(
@@ -458,6 +517,35 @@ export const renderJournal = (v: JournalView): HTMLElement => {
     grid.appendChild(
       card(`Today's review — ${v.today}`, reviewBody(e), { cls: "card-wide" }),
     );
+  }
+
+  // --- Today's context (facts only — helps you write an accurate reflection) ---
+  {
+    const c = v.context;
+    if (c.hasAny) {
+      const chip = (label: string, value: string): HTMLElement =>
+        h("div", { class: "ctx-chip" }, h("span", { class: "ctx-val mono" }, value), h("span", { class: "ctx-label" }, label));
+      const chips: HTMLElement[] = [];
+      if (c.habitsScheduled > 0) chips.push(chip("habits", `${c.habitsCompleted}/${c.habitsScheduled}`));
+      chips.push(chip("tasks done", String(c.tasksCompleted)));
+      chips.push(chip("workout", c.workoutLogged ? "✓" : "—"));
+      if (c.calories !== null) chips.push(chip("kcal", String(c.calories)));
+      if (c.protein !== null) chips.push(chip("protein", `${c.protein}g`));
+      if (c.waterMl !== null) chips.push(chip("water", `${(c.waterMl / 1000).toFixed(1)}L`));
+      if (c.sleepMinutes !== null) chips.push(chip("sleep", `${Math.floor(c.sleepMinutes / 60)}h ${c.sleepMinutes % 60}m`));
+      if (c.bodyweight !== null) chips.push(chip("weight", `${c.bodyweight}`));
+      if (c.readingProgressed) chips.push(chip("reading", "✓"));
+      grid.appendChild(
+        card(
+          "Today at a glance",
+          h("div", {},
+            h("div", { class: "ctx-strip" }, ...chips),
+            h("p", { class: "muted", style: "margin-top:8px" }, "Facts from today to help you reflect — your written review stays entirely yours."),
+          ),
+          { cls: "card-wide" },
+        ),
+      );
+    }
   }
 
   // --- 2) Edit today's review (the existing form) ---

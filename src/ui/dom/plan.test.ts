@@ -80,7 +80,7 @@ const seeded = () => {
 
 test("goals page renders tree, milestones and forms", () => {
   const data = seeded();
-  const gv = buildGoalsView(data);
+  const gv = buildGoalsView(data, today);
   const expanded = new Set<string>(gv.goals.map((g) => g.id)); // open all so details render
   const root = renderGoals(gv, expanded) as unknown as FakeEl;
   const text = allText(root);

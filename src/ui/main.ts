@@ -27,6 +27,8 @@ import {
   renderJournal,
   renderSettings,
 } from "./dom/plan";
+import { renderInsights } from "./dom/insights";
+import { renderMonthly } from "./dom/monthly";
 import type { TaskBucket } from "./model/plan";
 import { h, mount } from "./dom/h";
 import { parseQuickAdd } from "./model/quickAdd";
@@ -76,6 +78,8 @@ type Route =
   | "tasks"
   | "projects"
   | "journal"
+  | "insights"
+  | "monthly"
   | "settings";
 const ROUTES: readonly Route[] = [
   "today",
@@ -88,6 +92,8 @@ const ROUTES: readonly Route[] = [
   "tasks",
   "projects",
   "journal",
+  "insights",
+  "monthly",
   "settings",
 ];
 const isRoute = (s: string | null): s is Route =>
@@ -123,7 +129,14 @@ const navGroups: readonly NavGroup[] = [
       { route: "goals", label: "Goals" },
       { route: "tasks", label: "Tasks" },
       { route: "projects", label: "Projects" },
+    ],
+  },
+  {
+    heading: "Review",
+    items: [
       { route: "journal", label: "Daily review" },
+      { route: "insights", label: "Weekly review" },
+      { route: "monthly", label: "Monthly review" },
     ],
   },
   {
@@ -206,6 +219,8 @@ const start = (): void => {
   let flashGoalId: string | null = null;
   let scrollGoalId: string | null = null;
   let resetArmed = false;
+  let insightsOffset = 0; // 0 = this week, -1 = last week, etc.
+  let monthlyOffset = 0; // 0 = this month, -1 = last month, etc.
 
   const applyTheme = (): void => {
     const effective = resolveTheme(themeChoice, systemPrefersDark());
@@ -343,6 +358,10 @@ const start = (): void => {
         return renderProjects(controller.projectsView());
       case "journal":
         return renderJournal(controller.journalView());
+      case "insights":
+        return renderInsights(controller.insightsView(insightsOffset));
+      case "monthly":
+        return renderMonthly(controller.monthlyView(monthlyOffset));
       case "settings":
         return renderSettings(controller.settingsView(), resetArmed);
       case "today":
@@ -388,13 +407,14 @@ const start = (): void => {
       // Fitness
       case "log-bodyweight": {
         const w = numOrNull(f["weight"]);
-        if (w !== null) void controller.logBodyWeight(w, (f["unit"] as LoadUnit) || "kg");
+        // Guard against nonsensical values corrupting the trend/goal analytics.
+        if (w !== null && w > 0) void controller.logBodyWeight(w, (f["unit"] as LoadUnit) || "kg");
         break;
       }
       case "log-measurement": {
         const site = strOrNull(f["site"]);
         const value = numOrNull(f["value"]);
-        if (site !== null && value !== null) void controller.logMeasurement(site, value, (f["unit"] ?? "cm") || "cm");
+        if (site !== null && value !== null && value > 0) void controller.logMeasurement(site, value, (f["unit"] ?? "cm") || "cm");
         break;
       }
       case "add-exercise": {
@@ -868,6 +888,30 @@ const start = (): void => {
         break;
       case "export-data":
         downloadJson(controller.exportData());
+        break;
+      case "insights-prev":
+        insightsOffset -= 1;
+        rerender();
+        break;
+      case "insights-next":
+        if (insightsOffset < 0) insightsOffset += 1;
+        rerender();
+        break;
+      case "insights-today":
+        insightsOffset = 0;
+        rerender();
+        break;
+      case "monthly-prev":
+        monthlyOffset -= 1;
+        rerender();
+        break;
+      case "monthly-next":
+        if (monthlyOffset < 0) monthlyOffset += 1;
+        rerender();
+        break;
+      case "monthly-today":
+        monthlyOffset = 0;
+        rerender();
         break;
       case "reset-data":
         // Two-step in-app confirmation (no fragile native confirm() that some

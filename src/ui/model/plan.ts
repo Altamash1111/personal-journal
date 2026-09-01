@@ -12,7 +12,22 @@ import {
   rollupProgress,
   childGoals,
 } from "../../logic/goals";
+import type { GoalIntel } from "../../logic/goalIntelligence";
+import { goalIntel, bodyweightSeries } from "../../logic/goalIntelligence";
 import { filterTasks, sortByPriority, isActive, isOverdue } from "../../logic/tasks";
+import { isHabitDueOn, isHabitCompletedOn } from "../../logic/habits";
+import { dayMacros, dayWaterMl } from "../../logic/diet";
+
+// Convert a stored instant to the local calendar day (tolerant of bad input).
+const instantDayOf = (ts: string, timeZone: string): LocalDate => {
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(ts));
+    const g = (t: string) => parts.find((p) => p.type === t)?.value ?? "01";
+    return `${g("year")}-${g("month")}-${g("day")}` as LocalDate;
+  } catch {
+    return ts.slice(0, 10) as LocalDate;
+  }
+};
 
 // ---------------- Goals ----------------
 
@@ -48,6 +63,8 @@ export interface GoalNodeVM {
   readonly milestones: readonly MilestoneVM[];
   readonly parentId: string | null;
   readonly depth: number;
+  readonly intel: GoalIntel | null; // pace/projection for measurable goals
+  readonly metricFromSeries: boolean; // true when current comes from a linked log (e.g. bodyweight)
 }
 export interface GoalsView {
   readonly goals: readonly GoalNodeVM[]; // tree order (parent before children)
@@ -55,25 +72,50 @@ export interface GoalsView {
   readonly isEmpty: boolean;
 }
 
-export const buildGoalsView = (data: AppData): GoalsView => {
+// Format a number without a trailing ".0" but keeping real decimals (45.5).
+const fmtNum = (n: number): string => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+
+export const buildGoalsView = (data: AppData, today: LocalDate): GoalsView => {
   const nodes: GoalNodeVM[] = [];
-  const toNode = (g: (typeof data.goals)[number], depth: number): GoalNodeVM => ({
-    id: g.id,
-    name: g.name,
-    horizon: g.horizon,
-    status: g.status,
-    category: g.category,
-    hasMetric: g.metric !== null,
-    metricCurrent: g.metric?.current ?? null,
-    metricLabel:
+  const bwSeries = bodyweightSeries(data);
+  const isBodyweightGoal = (g: (typeof data.goals)[number]): boolean =>
+    g.metric !== null &&
+    ((g.metric.unit ?? "").toLowerCase() === "kg" ||
+      (g.metric.unit ?? "").toLowerCase() === "lb" ||
+      /weight|kg|bodyweight/i.test(g.name));
+  const toNode = (g: (typeof data.goals)[number], depth: number): GoalNodeVM => {
+    const usesSeries = g.metric !== null && isBodyweightGoal(g) && bwSeries.length > 0;
+    const intel =
       g.metric !== null
-        ? `${g.metric.current} / ${g.metric.target}${g.metric.unit ? " " + g.metric.unit : ""}`
-        : null,
-    progress: rollupProgress(g, data.goals),
-    milestones: g.milestones.map((m) => ({ id: m.id, title: m.title, done: m.done })),
-    parentId: g.parentId,
-    depth,
-  });
+        ? goalIntel(g, today, usesSeries ? bwSeries : undefined)
+        : null;
+    // Single source of truth: when intel resolves a current value from a linked
+    // series (e.g. latest bodyweight), the progress bar, metric label, current
+    // value and remaining must all use THAT same value — never the stale stored
+    // metric.current. Otherwise the card contradicts its own intelligence panel.
+    const displayCurrent = intel?.current ?? g.metric?.current ?? null;
+    const displayProgress =
+      intel !== null && intel.measurable ? intel.progress : rollupProgress(g, data.goals);
+    return {
+      id: g.id,
+      name: g.name,
+      horizon: g.horizon,
+      status: g.status,
+      category: g.category,
+      hasMetric: g.metric !== null,
+      metricCurrent: displayCurrent,
+      metricLabel:
+        g.metric !== null
+          ? `${fmtNum(displayCurrent ?? 0)} / ${g.metric.target}${g.metric.unit ? " " + g.metric.unit : ""}`
+          : null,
+      progress: displayProgress,
+      milestones: g.milestones.map((m) => ({ id: m.id, title: m.title, done: m.done })),
+      parentId: g.parentId,
+      depth,
+      intel,
+      metricFromSeries: usesSeries,
+    };
+  };
   // DFS from roots so a parent is immediately followed by its descendants.
   const visit = (parentId: string | null, depth: number): void => {
     const kids =
@@ -228,10 +270,24 @@ export interface JournalDayVM {
   readonly rating: number | null;
   readonly topPriorityTomorrow: string | null;
 }
+export interface JournalContext {
+  readonly habitsCompleted: number;
+  readonly habitsScheduled: number;
+  readonly tasksCompleted: number;
+  readonly workoutLogged: boolean;
+  readonly calories: number | null;
+  readonly protein: number | null;
+  readonly waterMl: number | null;
+  readonly sleepMinutes: number | null;
+  readonly bodyweight: number | null;
+  readonly readingProgressed: boolean;
+  readonly hasAny: boolean;
+}
 export interface JournalView {
   readonly today: LocalDate;
   readonly todayEntry: JournalDayVM | null;
   readonly history: readonly JournalDayVM[];
+  readonly context: JournalContext;
   readonly isEmpty: boolean;
 }
 
@@ -260,10 +316,53 @@ export const buildJournalView = (data: AppData, today: LocalDate): JournalView =
     .slice()
     .sort((a, b) => (a.date < b.date ? 1 : -1))
     .map(toDay);
+
+  // Today's factual context — derived from existing stored data, no fabrication.
+  const activeHabits = data.habits.filter((hh) => hh.active && hh.archivedAt === null);
+  const habitsScheduled = activeHabits.filter((hh) => isHabitDueOn(hh, today)).length;
+  const habitsCompleted = activeHabits.filter(
+    (hh) => isHabitDueOn(hh, today) && isHabitCompletedOn(hh, today, data.habitCompletions),
+  ).length;
+  const tasksCompleted = data.tasks.filter(
+    (t) => t.completedAt !== null && instantDayOf(t.completedAt, data.settings.timeZone) === today,
+  ).length;
+  const workoutLogged = data.workoutSessions.some((s) => s.date === today && s.completedAt !== null);
+  const m = dayMacros(data, today);
+  const water = dayWaterMl(data, today);
+  const sleepEntry = data.sleepLog.find((s) => s.date === today);
+  const bw = data.bodyWeights.filter((w) => w.date === today);
+  const readingProgressed = data.reading.some((r) =>
+    r.notes.some((n) => (n.at ?? "").slice(0, 10) === today),
+  );
+  const calories = m.kcal > 0 ? m.kcal : null;
+  const protein = m.protein > 0 ? m.protein : null;
+  const context: JournalContext = {
+    habitsCompleted,
+    habitsScheduled,
+    tasksCompleted,
+    workoutLogged,
+    calories,
+    protein,
+    waterMl: water > 0 ? water : null,
+    sleepMinutes: sleepEntry?.durationMinutes ?? null,
+    bodyweight: bw.length > 0 ? bw[bw.length - 1]!.weight : null,
+    readingProgressed,
+    hasAny:
+      habitsScheduled > 0 ||
+      tasksCompleted > 0 ||
+      workoutLogged ||
+      calories !== null ||
+      water > 0 ||
+      sleepEntry !== undefined ||
+      bw.length > 0 ||
+      readingProgressed,
+  };
+
   return {
     today,
     todayEntry: todayEntry ? toDay(todayEntry) : null,
     history,
+    context,
     isEmpty: data.journal.length === 0,
   };
 };

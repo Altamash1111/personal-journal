@@ -38,6 +38,10 @@ import type { LoadUnit } from "../../domain/fitness";
 import type { ReadingStatus } from "../../domain/reading";
 import type { NutritionTargets } from "../../domain/settings";
 import type { TodayView } from "../model/viewModel";
+import type { InsightsView } from "../model/insights";
+import { buildInsightsView } from "../model/insights";
+import type { MonthlyInsightsView } from "../model/monthlyInsights";
+import { buildMonthlyInsightsView } from "../model/monthlyInsights";
 import type {
   FitnessView,
   DietView,
@@ -218,6 +222,26 @@ export class AppController {
     );
   }
 
+  insightsView(offset: number): InsightsView {
+    return buildInsightsView(
+      this.#state,
+      this.today(),
+      this.#state.settings.weekStartsOn,
+      offset,
+      this.timeZone(),
+    );
+  }
+
+  monthlyView(offset: number): MonthlyInsightsView {
+    return buildMonthlyInsightsView(
+      this.#state,
+      this.today(),
+      this.#state.settings.weekStartsOn,
+      offset,
+      this.timeZone(),
+    );
+  }
+
   fitnessView(): FitnessView {
     return buildFitnessView(this.#state, this.today());
   }
@@ -235,7 +259,7 @@ export class AppController {
   }
 
   goalsView(): GoalsView {
-    return buildGoalsView(this.#state);
+    return buildGoalsView(this.#state, this.today());
   }
   tasksView(): TasksView {
     return buildTasksView(this.#state, this.today());

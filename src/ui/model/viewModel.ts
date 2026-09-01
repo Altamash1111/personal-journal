@@ -18,6 +18,8 @@ import type { Settings } from "../../domain/settings";
 import type { ModuleStatus } from "../../logic/moduleStatus";
 import type { WinterArcState } from "../../logic/winterArc";
 import { winterArcState } from "../../logic/winterArc";
+import { weekRangeContaining, buildWeeklyReview } from "../../logic/weeklyReview";
+import { attentionItems } from "../../logic/scorecard";
 import { DEFAULT_SETTINGS } from "../../config";
 import { todayModuleStatus } from "../../logic/moduleStatus";
 
@@ -99,6 +101,13 @@ export interface TodayView {
   readonly goals: readonly GoalVM[];
   readonly modules: ModuleStatus;
   readonly winterArc: WinterArcState;
+  readonly recentPerformance: {
+    readonly habitRate: number | null;
+    readonly avgRating: number | null;
+    readonly tasksCompleted: number;
+    readonly hasData: boolean;
+  };
+  readonly attention: readonly { readonly severity: "warn" | "info"; readonly message: string }[];
   readonly isEmpty: boolean;
 }
 
@@ -272,6 +281,25 @@ export const buildTodayView = (
     goals,
     modules,
     winterArc: winterArcState(today),
+    recentPerformance: (() => {
+      const range = weekRangeContaining(today, settings.weekStartsOn);
+      const wr = buildWeeklyReview(data, range, settings.timeZone);
+      return {
+        habitRate: wr.habitRate,
+        avgRating: wr.ratings.average,
+        tasksCompleted: wr.tasks.completed,
+        hasData: wr.hasData,
+      };
+    })(),
+    attention: (() => {
+      const range = weekRangeContaining(today, settings.weekStartsOn);
+      const wr = buildWeeklyReview(data, range, settings.timeZone);
+      // Only surface warnings on Home; keep it calm. Cap at 3.
+      return attentionItems(data, wr, today)
+        .filter((a) => a.severity === "warn")
+        .slice(0, 3)
+        .map((a) => ({ severity: a.severity, message: a.message }));
+    })(),
     isEmpty,
   };
 };

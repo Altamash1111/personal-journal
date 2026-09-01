@@ -36,6 +36,54 @@ const daypartOptions = DAYPARTS.map((d) => ({ value: d, label: titleCase(d) }));
 
 // ============================ Fitness ============================
 
+// Minimal SVG element helper (h() uses the HTML namespace, which won't render SVG).
+const SVG_NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag: string, attrs: Record<string, string>, ...children: (Node | null)[]): SVGElement => {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  for (const c of children) if (c) el.appendChild(c);
+  return el;
+};
+
+/** Simple responsive line chart of dated bodyweight points. */
+const bwChart = (
+  points: readonly { readonly date: import("../../time/localDate").LocalDate; readonly value: number }[],
+  unit: string,
+): HTMLElement => {
+  const W = 640;
+  const H = 180;
+  const padL = 36;
+  const padR = 12;
+  const padT = 12;
+  const padB = 20;
+  const values = points.map((p) => p.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || 1;
+  const n = points.length;
+  const x = (i: number): number => padL + (i / Math.max(1, n - 1)) * (W - padL - padR);
+  const y = (v: number): number => padT + (1 - (v - min) / span) * (H - padT - padB);
+
+  const path = points.map((p, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(p.value).toFixed(1)}`).join(" ");
+  const dots = points.map((p, i) => svgEl("circle", { class: "bw-dot", cx: String(x(i)), cy: String(y(p.value)), r: "2.5" }));
+  const yLabels = [max, (max + min) / 2, min].map((val) => {
+    const yy = y(val);
+    return svgEl("text", { class: "bw-axis", x: "4", y: String(yy + 3) }, document.createTextNode(val.toFixed(1)));
+  });
+
+  const svg = svgEl(
+    "svg",
+    { class: "bw-chart", viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "none", role: "img", "aria-label": `Bodyweight trend in ${unit}` },
+    svgEl("path", { class: "bw-line", d: path }),
+    ...dots,
+    ...yLabels,
+  );
+  // Wrap in a div so it fits our card layout.
+  const wrap = h("div", {});
+  wrap.appendChild(svg);
+  return wrap;
+};
+
 export const renderFitness = (v: FitnessView): HTMLElement => {
   const root = h("div", { class: "dash module" });
   root.appendChild(pageHead("Fitness", "Workouts, progressive overload, body metrics."));
@@ -66,6 +114,31 @@ export const renderFitness = (v: FitnessView): HTMLElement => {
   grid.appendChild(
     card("Overview", h("div", {}, overview, bwNote), { cls: "card-wide" }),
   );
+
+  // Bodyweight trend chart (single source: bodyweightHistory)
+  {
+    const bh = v.bodyHistory;
+    if (bh.points.length === 0) {
+      grid.appendChild(card("Bodyweight trend", emptyLine("Log your weight to see a trend here."), { cls: "card-wide" }));
+    } else {
+      const summary = h(
+        "div",
+        { class: "bw-summary" },
+        h("div", { class: "bw-stat" }, h("span", { class: "bw-stat-val" }, `${bh.latest} ${bh.unit}`), h("span", { class: "bw-stat-label" }, "Latest")),
+        h("div", { class: "bw-stat" }, h("span", { class: "bw-stat-val" }, `${bh.start} ${bh.unit}`), h("span", { class: "bw-stat-label" }, "Starting")),
+        bh.totalChange !== null
+          ? h("div", { class: "bw-stat" }, h("span", { class: "bw-stat-val" }, `${bh.totalChange > 0 ? "+" : ""}${bh.totalChange.toFixed(1)}`), h("span", { class: "bw-stat-label" }, "Total change"))
+          : null,
+        bh.enough && bh.perWeek !== null
+          ? h("div", { class: "bw-stat" }, h("span", { class: "bw-stat-val" }, `${bh.perWeek > 0 ? "+" : ""}${bh.perWeek.toFixed(2)}`), h("span", { class: "bw-stat-label" }, `${bh.unit}/week`))
+          : null,
+      );
+      const chart = bh.enough
+        ? bwChart(bh.points, bh.unit)
+        : emptyLine("Only one reading so far — a trend line needs at least two on different days.");
+      grid.appendChild(card("Bodyweight trend", h("div", {}, summary, chart), { cls: "card-wide" }));
+    }
+  }
 
   // Log body weight + measurement
   grid.appendChild(
@@ -810,6 +883,30 @@ export const renderReading = (v: ReadingView): HTMLElement => {
   );
 
   grid.appendChild(group("Currently reading", v.current));
+
+  // Reading pace / projection toward the book goal.
+  {
+    const pace = v.pace;
+    if (pace.goal !== null || pace.finished > 0) {
+      const chips = h(
+        "div",
+        { class: "stat-row tight" },
+        stat("Finished", pace.goal !== null ? `${pace.finished} / ${pace.goal}` : String(pace.finished)),
+        pace.remaining !== null ? stat("Remaining", String(pace.remaining)) : null,
+        pace.enough && pace.perMonth !== null ? stat("Pace", `${pace.perMonth.toFixed(1)}/mo`) : null,
+        pace.enough && pace.projectedYearEnd !== null ? stat("Proj. year-end", String(pace.projectedYearEnd)) : null,
+      );
+      const note = !pace.enough
+        ? emptyLine("Finish at least two books to project your reading pace.")
+        : pace.status === "behind" && pace.goal !== null
+          ? h("p", { class: "muted" }, `At your current pace (~${pace.perMonth!.toFixed(1)} books/month) you'd finish about ${pace.projectedYearEnd} this year — below your ${pace.goal}-book goal.`)
+          : pace.status === "on_track" && pace.goal !== null
+            ? h("p", { class: "muted" }, `On track for your ${pace.goal}-book goal at ~${pace.perMonth!.toFixed(1)} books/month.`)
+            : null;
+      grid.appendChild(card("Reading pace", h("div", {}, chips, note), { cls: "card-wide" }));
+    }
+  }
+
   grid.appendChild(group("Up next", v.upcoming));
   grid.appendChild(group("Finished", v.finished));
 

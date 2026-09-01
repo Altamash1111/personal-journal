@@ -436,6 +436,55 @@ export const renderDashboard = (vm: TodayView, clockText: string): HTMLElement =
 
   grid.appendChild(moduleStatusCard(vm.modules));
 
+  if (vm.attention.length > 0) {
+    grid.appendChild(
+      card(
+        "Attention needed",
+        h(
+          "div",
+          { class: "attention-list" },
+          ...vm.attention.map((a) =>
+            h(
+              "div",
+              { class: `attention-row sev-${a.severity}` },
+              h("span", { class: "attention-dot", "aria-hidden": "true" }, "▲"),
+              h("span", { class: "attention-msg" }, a.message),
+            ),
+          ),
+          h("button", { class: "btn btn-ghost btn-sm", "data-action": "nav", "data-route": "insights", style: "margin-top:8px" }, "See weekly review →"),
+        ),
+        { count: String(vm.attention.length), cls: "card-wide" },
+      ),
+    );
+  }
+
+  if (vm.recentPerformance.hasData) {
+    const rp = vm.recentPerformance;
+    grid.appendChild(
+      card(
+        "Your recent performance",
+        h(
+          "div",
+          { class: "perf-strip" },
+          h("div", { class: "perf-item" },
+            h("span", { class: "perf-val" }, rp.habitRate === null ? "—" : `${Math.round(rp.habitRate * 100)}%`),
+            h("span", { class: "perf-label" }, "Habits"),
+          ),
+          h("div", { class: "perf-item" },
+            h("span", { class: "perf-val" }, rp.avgRating === null ? "—" : `${rp.avgRating.toFixed(1)}`),
+            h("span", { class: "perf-label" }, "Avg rating"),
+          ),
+          h("div", { class: "perf-item" },
+            h("span", { class: "perf-val" }, String(rp.tasksCompleted)),
+            h("span", { class: "perf-label" }, "Tasks done"),
+          ),
+          h("button", { class: "btn btn-ghost btn-sm perf-cta", "data-action": "nav", "data-route": "insights" }, "View weekly review →"),
+        ),
+        { cls: "card-wide" },
+      ),
+    );
+  }
+
   grid.appendChild(
     card(
       "Priorities",

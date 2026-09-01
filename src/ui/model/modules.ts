@@ -21,6 +21,10 @@ import {
   weeklyProgress,
   monthlyProgress,
 } from "../../logic/fitness";
+import type { BodyweightHistory } from "../../logic/goalIntelligence";
+import { bodyweightHistory } from "../../logic/goalIntelligence";
+import type { ReadingPace } from "../../logic/goalIntelligence";
+import { readingPace } from "../../logic/goalIntelligence";
 import { nutritionProgress, mealMacros } from "../../logic/diet";
 import {
   lastNights,
@@ -71,6 +75,7 @@ export interface ExerciseOptionVM {
 export interface FitnessView {
   readonly today: LocalDate;
   readonly bodyWeight: BodyWeightTrend;
+  readonly bodyHistory: BodyweightHistory;
   readonly weekly: PeriodSummary;
   readonly monthly: PeriodSummary;
   readonly prs: readonly PRVM[];
@@ -127,6 +132,7 @@ export const buildFitnessView = (data: AppData, today: LocalDate): FitnessView =
   return {
     today,
     bodyWeight: bodyWeightTrend(data),
+    bodyHistory: bodyweightHistory(data),
     weekly: weeklyProgress(data, today),
     monthly: monthlyProgress(data, today),
     prs,
@@ -306,6 +312,7 @@ export interface ReadingView {
   readonly current: readonly ReadingItemVM[];
   readonly upcoming: readonly ReadingItemVM[];
   readonly finished: readonly ReadingItemVM[];
+  readonly pace: ReadingPace;
   readonly learningToday: readonly {
     readonly id: string;
     readonly topic: string | null;
@@ -345,11 +352,21 @@ const toItemVM = (r: {
 
 export const buildReadingView = (data: AppData, today: LocalDate): ReadingView => {
   const groups = groupByStatus(data);
+  // Dates books were finished (real data), for pace/projection.
+  const finishedDates = data.reading
+    .filter((r) => r.status === "finished" && r.finishedAt !== null)
+    .map((r) => r.finishedAt!);
+  // Reading goal target: read from a goal that looks like a book-count goal, else null.
+  const bookGoal = data.goals.find(
+    (g) => g.metric !== null && /book|read/i.test(g.name),
+  );
+  const goalTarget = bookGoal?.metric?.target ?? null;
   return {
     today,
     current: groups.current.map(toItemVM),
     upcoming: groups.upcoming.map(toItemVM),
     finished: groups.finished.map(toItemVM),
+    pace: readingPace(finishedDates, today, goalTarget),
     learningToday: learningForDate(data, today).map((e) => ({
       id: e.id,
       topic: e.topic,
